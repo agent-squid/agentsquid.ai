@@ -69,17 +69,28 @@
       50%       { transform: translateY(-12px); }
     }
 
-    .wordmark {
-      font-size: clamp(2rem, 6vw, 3.4rem);
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: lowercase;
+    .text-logo {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: clamp(0.55rem, 1.4vw, 0.9rem);
+      line-height: 1.25;
       text-align: center;
-      line-height: 1.1;
+      white-space: pre;
       background: linear-gradient(135deg, #f07040 0%, #f5a060 50%, #e84c1e 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+    }
+
+.github-link {
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      color: rgba(240, 112, 64, 0.55);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .github-link:hover {
+      color: rgba(240, 112, 64, 0.9);
     }
   </style>
 </head>
@@ -88,7 +99,14 @@
     <div class="logo-wrap">
       <img src="squid_400x400.jpg" alt="Agent Squid logo" />
     </div>
-    <div class="wordmark">agent<br>squid</div>
+    <pre class="text-logo">🦑 AGENT
+    ██████╗ ██████╗ ██╗   ██╗██╗██████╗
+   ██╔════╝██╔═══██╗██║   ██║██║██╔══██╗
+   ╚█████╗ ██║   ██║██║   ██║██║██║  ██║
+    ╚═══██╗██║▄▄ ██║██║   ██║██║██║  ██║
+   ██████╔╝╚██████╔╝╚██████╔╝██║██████╔╝
+   ╚═════╝  ╚══▀▀═╝  ╚═════╝ ╚═╝╚═════╝</pre>
+<a class="github-link" href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">github.com/agent-squid/squid</a>
   </div>
 </body>
 </html>
