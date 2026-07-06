@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Community — AgentSquid</title>
+  <link rel="icon" type="image/png" href="agent_squid_400.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap&text=%E2%96%88%E2%96%84%E2%96%80%E2%95%94%E2%95%90%E2%95%97%E2%95%91%E2%95%9A%E2%95%9D" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background: #0a0a0f;
+      color: #f0ece4;
+      font-family: 'Space Grotesk', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* Subtle radial glow */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 10%, rgba(220, 90, 40, 0.18) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 960px;
+      padding: 3rem 1.5rem 4rem;
+    }
+
+    /* Small logo + header */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .page-header .logo-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid rgba(240, 112, 64, 0.5);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .page-header .logo-mark img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.1);
+    }
+
+    .page-header h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 400;
+      background: linear-gradient(135deg, #f07040 0%, #f5a060 50%, #e84c1e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-header .back-link {
+      margin-left: auto;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      color: rgba(240, 112, 64, 0.55);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .page-header .back-link:hover {
+      color: rgba(240, 112, 64, 0.9);
+    }
+
+    /* Section heading */
+    .section-heading {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.4rem;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #f07040 0%, #f5a060 50%, #e84c1e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-sub {
+      color: rgba(240, 236, 228, 0.55);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Curator feed container — subtle frame */
+    #curator-feed-default-feed-layout {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(240, 112, 64, 0.12);
+      border-radius: 12px;
+      padding: 1.5rem 1rem;
+      min-height: 300px;
+    }
+
+    #curator-feed-default-feed-layout .crt-logo {
+      color: rgba(240, 112, 64, 0.4);
+      text-decoration: none;
+      font-size: 0.75rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.5rem 1rem 3rem;
+      }
+      .section-heading {
+        font-size: 1.15rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <div class="logo-mark">
+        <img src="agent_squid_400.png" alt="Agent Squid" />
+      </div>
+      <h1>AgentSquid</h1>
+      <a class="back-link" href="index.html">⌂ Home</a>
+    </div>
+
+    <!-- Content -->
+    <h2 class="section-heading">Community</h2>
+    <p class="section-sub">Updates, discussions, and happenings around the squid.</p>
+
+    <!-- Curator.io feed -->
+    <div id="curator-feed-default-feed-layout">
+      <a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+    </div>
+  </div>
+
+  <!-- Curator.io script -->
+  <script type="text/javascript">
+  /* curator-feed-default-feed-layout */
+  (function(){
+  var i,e,d=document,s="script";i=d.createElement("script");i.async=1;i.charset="UTF-8";
+  i.src="https://cdn.curator.io/published/74b58da4-fa7c-41a8-bfd4-b458dcd2c0e6.js";
+  e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i, e);
+  })();
+  </script>
+</body>
+</html>
