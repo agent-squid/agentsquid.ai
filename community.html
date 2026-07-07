@@ -181,6 +181,28 @@
       font-size: 0.75rem;
     }
 
+    /* ===== Embed mode (for iframe embedding in the app) ===== */
+    body.embed-mode .page-header,
+    body.embed-mode .section-heading,
+    body.embed-mode .section-sub {
+      display: none;
+    }
+
+    body.embed-mode .container {
+      padding: 1rem 1rem 2rem;
+    }
+
+    body.embed-mode .social-links {
+      margin-bottom: 1.5rem;
+    }
+
+    body.embed-mode {
+      min-height: auto;
+    }
+    body.embed-mode::before {
+      display: none;
+    }
+
     /* Responsive */
     @media (max-width: 600px) {
       .container {
@@ -194,7 +216,7 @@
 </head>
 <body>
   <div class="container">
-    <!-- Header -->
+    <!-- Header (hidden in embed mode) -->
     <div class="page-header">
       <div class="logo-mark">
         <img src="agent_squid_400.png" alt="Agent Squid" />
@@ -203,7 +225,7 @@
       <a class="back-link" href="index.html">⌂ Home</a>
     </div>
 
-    <!-- Content -->
+    <!-- Title & description (hidden in embed mode) -->
     <h2 class="section-heading">Community</h2>
     <p class="section-sub">Updates, discussions, and happenings around the squid.</p>
 
@@ -226,6 +248,19 @@
       <a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
     </div>
   </div>
+
+  <!-- Embed mode: toggled by ?embed=1 URL param -->
+  <script>
+    (function() {
+      var params = new URLSearchParams(location.search);
+      if (params.has('embed')) {
+        document.body.classList.add('embed-mode');
+        if (params.get('bg') === 'transparent') {
+          document.body.style.background = 'transparent';
+        }
+      }
+    })();
+  </script>
 
   <!-- Curator.io script -->
   <script type="text/javascript">
