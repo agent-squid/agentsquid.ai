@@ -206,6 +206,10 @@
       display: none;
     }
 
+    .x-feed.x-feed-failed iframe {
+      display: none !important;
+    }
+
     .x-feed.x-feed-failed .x-fallback {
       display: block;
     }
@@ -317,18 +321,55 @@
     })();
   </script>
 
-  <script async src="https://platform.x.com/widgets.js" charset="utf-8"></script>
   <script>
     (function() {
       var feed = document.querySelector('.x-feed');
       if (!feed) return;
+      var rendered = false;
 
-      window.setTimeout(function() {
-        var hasRenderedTimeline = feed.querySelector('iframe') || feed.querySelector('.twitter-timeline-rendered');
-        if (!hasRenderedTimeline) {
+      function markRendered() {
+        rendered = true;
+        feed.classList.remove('x-feed-failed');
+      }
+
+      function markFailed() {
+        if (!rendered) {
           feed.classList.add('x-feed-failed');
         }
-      }, 4000);
+      }
+
+      window.twttr = (function(d, s, id) {
+        var js;
+        var fjs = d.getElementsByTagName(s)[0];
+        var t = window.twttr || {};
+        if (d.getElementById(id)) return t;
+        js = d.createElement(s);
+        js.id = id;
+        js.src = "https://platform.x.com/widgets.js";
+        js.charset = "utf-8";
+        fjs.parentNode.insertBefore(js, fjs);
+        t._e = [];
+        t.ready = function(fn) {
+          t._e.push(fn);
+        };
+        return t;
+      }(document, "script", "twitter-wjs"));
+
+      window.twttr.ready(function(twttr) {
+        if (twttr.events && twttr.events.bind) {
+          twttr.events.bind('rendered', function(event) {
+            if (!event || !event.target || feed.contains(event.target)) {
+              markRendered();
+            }
+          });
+        }
+
+        if (twttr.widgets && twttr.widgets.load) {
+          twttr.widgets.load(feed);
+        }
+      });
+
+      window.setTimeout(markFailed, 7000);
     })();
   </script>
   <!-- Curator.io script -->
