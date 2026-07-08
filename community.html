@@ -166,13 +166,29 @@
       transform: translate(2px, -2px);
     }
 
-    /* Curator feed container — subtle frame */
+    /* X timeline container - subtle frame */
+    .x-feed {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(240, 112, 64, 0.12);
+      border-radius: 12px;
+      padding: 1rem;
+      min-height: 300px;
+    }
+
+    .x-feed .twitter-timeline {
+      display: block;
+      color: rgba(240, 112, 64, 0.75);
+      text-decoration: none;
+    }
+
+    /* Curator feed container - subtle frame */
     #curator-feed-default-feed-layout {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(240, 112, 64, 0.12);
       border-radius: 12px;
       padding: 1.5rem 1rem;
       min-height: 300px;
+      margin-top: 1.5rem;
     }
 
     #curator-feed-default-feed-layout .crt-logo {
@@ -244,9 +260,14 @@
       </a>
     </div>
 
+    <!-- X posts feed -->
+    <div class="x-feed">
+      <a class="twitter-timeline" data-theme="dark" aria-label="AgentSquid posts on X" href="https://x.com/aiagentsquid?ref_src=twsrc%5Etfw"></a>
+    </div>
+
     <!-- Curator.io feed -->
     <div id="curator-feed-default-feed-layout">
-      <a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+      <a href="https://curator.io" target="_blank" rel="noopener" class="crt-logo crt-tag">Powered by Curator.io</a>
     </div>
   </div>
 
@@ -263,6 +284,7 @@
     })();
   </script>
 
+  <script async src="https://platform.x.com/widgets.js" charset="utf-8"></script>
   <!-- Curator.io script -->
   <script type="text/javascript">
   /* curator-feed-default-feed-layout */
