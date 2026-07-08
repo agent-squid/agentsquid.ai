@@ -181,6 +181,35 @@
       text-decoration: none;
     }
 
+    .x-fallback {
+      display: none;
+      color: rgba(240, 236, 228, 0.62);
+      font-size: 0.86rem;
+      line-height: 1.6;
+    }
+
+    .x-fallback a {
+      color: #f07040;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .x-fallback a:hover {
+      color: #f5a060;
+    }
+
+    .x-feed.x-feed-failed {
+      min-height: auto;
+    }
+
+    .x-feed.x-feed-failed .twitter-timeline {
+      display: none;
+    }
+
+    .x-feed.x-feed-failed .x-fallback {
+      display: block;
+    }
+
     /* Curator feed container - subtle frame */
     #curator-feed-default-feed-layout {
       background: rgba(255, 255, 255, 0.03);
@@ -262,7 +291,11 @@
 
     <!-- X posts feed -->
     <div class="x-feed">
-      <a class="twitter-timeline" data-theme="dark" aria-label="AgentSquid posts on X" href="https://x.com/aiagentsquid?ref_src=twsrc%5Etfw"></a>
+      <a class="twitter-timeline" data-theme="dark" data-height="600" aria-label="AgentSquid posts on X" href="https://x.com/aiAgentSquid?ref_src=twsrc%5Etfw"></a>
+      <p class="x-fallback">
+        X is not returning the embedded timeline right now.
+        <a href="https://x.com/aiAgentSquid" target="_blank" rel="noopener">View @aiAgentSquid on X</a>.
+      </p>
     </div>
 
     <!-- Curator.io feed -->
@@ -285,6 +318,19 @@
   </script>
 
   <script async src="https://platform.x.com/widgets.js" charset="utf-8"></script>
+  <script>
+    (function() {
+      var feed = document.querySelector('.x-feed');
+      if (!feed) return;
+
+      window.setTimeout(function() {
+        var hasRenderedTimeline = feed.querySelector('iframe') || feed.querySelector('.twitter-timeline-rendered');
+        if (!hasRenderedTimeline) {
+          feed.classList.add('x-feed-failed');
+        }
+      }, 4000);
+    })();
+  </script>
   <!-- Curator.io script -->
   <script type="text/javascript">
   /* curator-feed-default-feed-layout */
