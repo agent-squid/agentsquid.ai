@@ -256,7 +256,16 @@
       font-size: 0.93rem;
       line-height: 1.55;
       overflow-wrap: anywhere;
+    }
+
+    .post-text-paragraph {
+      display: block;
+      margin: 0;
       white-space: pre-wrap;
+    }
+
+    .post-text-paragraph + .post-text-paragraph {
+      margin-top: 0.72rem;
     }
 
     .post-text.is-collapsible {
@@ -309,11 +318,16 @@
       overflow: hidden;
     }
 
-    .post-media img {
+    .post-media img,
+    .post-media video {
       display: block;
-      width: 100%;
       max-height: 420px;
       object-fit: cover;
+      width: 100%;
+    }
+
+    .post-media video {
+      background: #09090d;
     }
 
     .post-link {
@@ -533,7 +547,7 @@
               text: post.text || '',
               url: post.url || ('https://x.com/aiAgentSquid/status/' + post.id),
               entities: post.entities || null,
-              media: null
+              media: normalizeMedia(post.media)
             };
           })
         };
@@ -557,7 +571,13 @@
               text: post.text || '',
               url: post.url || null,
               entities: null,
-              media: media.image_large || media.image || media.thumbnail || null
+              media: normalizeMedia({
+                type: media.video ? 'video' : 'image',
+                url: media.video || media.image_large || media.image || media.thumbnail || null,
+                poster: media.image_large || media.image || media.thumbnail || null,
+                width: media.video_width || media.image_width || null,
+                height: media.video_height || media.image_height || null
+              })
             };
           })
         };
@@ -584,21 +604,8 @@
         var card = document.createElement('div');
         card.className = 'post-card';
 
-        if (item.media) {
-          var mediaLink = item.url ? document.createElement('a') : document.createElement('div');
-          mediaLink.className = 'post-media';
-          if (item.url) {
-            mediaLink.href = item.url;
-            mediaLink.target = '_blank';
-            mediaLink.rel = 'noopener';
-          }
-
-          var image = document.createElement('img');
-          image.src = item.media;
-          image.alt = '';
-          image.loading = 'lazy';
-          mediaLink.appendChild(image);
-          card.appendChild(mediaLink);
+        if (item.media && item.media.url) {
+          card.appendChild(renderMedia(item));
         }
 
         var body = document.createElement('div');
@@ -607,7 +614,6 @@
         var meta = document.createElement('div');
         meta.className = 'post-meta';
         meta.appendChild(serviceIcon(item.sourceLabel));
-        appendTextSpan(meta, 'source-name', item.sourceLabel);
         var postTime = formatRelativeTime(item.createdAt);
         if (postTime) {
           appendTextSpan(meta, 'post-time', postTime);
@@ -649,6 +655,37 @@
         return wrapper;
       }
 
+      function renderMedia(item) {
+        var mediaWrapper = item.media.type === 'video'
+          ? document.createElement('div')
+          : item.url ? document.createElement('a') : document.createElement('div');
+        mediaWrapper.className = 'post-media';
+
+        if (mediaWrapper.tagName === 'A') {
+          mediaWrapper.href = item.url;
+          mediaWrapper.target = '_blank';
+          mediaWrapper.rel = 'noopener';
+        }
+
+        if (item.media.type === 'video') {
+          var video = document.createElement('video');
+          video.controls = true;
+          video.preload = 'metadata';
+          video.playsInline = true;
+          video.src = item.media.url;
+          if (item.media.poster) video.poster = item.media.poster;
+          mediaWrapper.appendChild(video);
+          return mediaWrapper;
+        }
+
+        var image = document.createElement('img');
+        image.src = item.media.url;
+        image.alt = item.media.alt || '';
+        image.loading = 'lazy';
+        mediaWrapper.appendChild(image);
+        return mediaWrapper;
+      }
+
       function updateExpandablePosts() {
         Array.prototype.slice.call(feed.querySelectorAll('.post-text')).forEach(function(text) {
           var more = text.nextElementSibling;
@@ -666,24 +703,41 @@
       }
 
       function appendLinkedText(parent, text, entities) {
+        var renderedText = expandedEntityText(text, entities);
+        if (!renderedText) {
+          parent.textContent = 'No text available.';
+          return;
+        }
+
+        renderedText.split(/\n{2,}/).forEach(function(paragraphText) {
+          var paragraph = document.createElement('span');
+          paragraph.className = 'post-text-paragraph';
+          appendInlineLinkedText(paragraph, paragraphText);
+          parent.appendChild(paragraph);
+        });
+      }
+
+      function expandedEntityText(text, entities) {
         var urls = entities && Array.isArray(entities.urls) ? entities.urls : [];
         var replacements = urls
           .filter(function(url) { return url.url; })
           .sort(function(a, b) { return b.url.length - a.url.length; });
 
         var remaining = String(text || '');
-        if (!remaining) {
-          parent.textContent = 'No text available.';
-          return;
-        }
 
         replacements.forEach(function(url) {
           remaining = remaining.replace(url.url, url.expanded_url || url.display_url || url.url);
         });
 
+        return remaining;
+      }
+
+      function appendInlineLinkedText(parent, text) {
         var matcher = /(https?:\/\/[^\s]+)/g;
         var lastIndex = 0;
         var match;
+        var remaining = String(text || '');
+
         while ((match = matcher.exec(remaining))) {
           if (match.index > lastIndex) {
             parent.appendChild(document.createTextNode(remaining.slice(lastIndex, match.index)));
@@ -776,9 +830,23 @@
         parent.appendChild(span);
       }
 
+      function normalizeMedia(media) {
+        if (!media || !media.url) return null;
+        return {
+          type: media.type === 'video' ? 'video' : 'image',
+          url: media.url,
+          poster: media.poster || null,
+          alt: media.alt || '',
+          width: media.width || null,
+          height: media.height || null
+        };
+      }
+
       function serviceIcon(sourceLabel) {
         var span = document.createElement('span');
         span.className = 'service-icon';
+        span.setAttribute('aria-label', sourceLabel || 'Source');
+        span.title = sourceLabel || 'Source';
         span.innerHTML = serviceIconSvg(sourceLabel);
         return span;
       }

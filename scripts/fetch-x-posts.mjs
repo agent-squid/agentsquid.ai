@@ -18,7 +18,8 @@ if (!Number.isInteger(maxPosts) || maxPosts < 1) {
 }
 
 const existing = await readExistingCache();
-const newestId = existing.newest_id || existing.posts?.[0]?.id || "";
+const refreshMedia = existing.media_schema_version !== 1;
+const newestId = refreshMedia ? "" : existing.newest_id || existing.posts?.[0]?.id || "";
 const newPosts = await fetchNewPosts(newestId);
 const posts = mergePosts(newPosts, existing.posts || []).slice(0, maxPosts);
 
@@ -26,12 +27,13 @@ const output = {
   updated_at: new Date().toISOString(),
   source: "x",
   user_id: userId,
+  media_schema_version: 1,
   newest_id: posts[0]?.id || newestId || null,
   posts,
 };
 
 await writeFile(outFile, `${JSON.stringify(output, null, 2)}\n`, "utf8");
-console.log(`Wrote ${posts.length} posts to ${outFile}. New posts: ${newPosts.length}.`);
+console.log(`Wrote ${posts.length} posts to ${outFile}. Fetched posts: ${newPosts.length}.`);
 
 async function readExistingCache() {
   try {
@@ -55,9 +57,11 @@ async function readExistingCache() {
 async function fetchNewPosts(sinceId) {
   const url = new URL(`https://api.x.com/2/users/${userId}/tweets`);
 
-  url.searchParams.set("max_results", sinceId ? "5" : "10");
+  url.searchParams.set("max_results", String(sinceId ? 5 : Math.min(Math.max(maxPosts, 10), 100)));
   url.searchParams.set("exclude", "retweets,replies");
-  url.searchParams.set("tweet.fields", "created_at,entities");
+  url.searchParams.set("tweet.fields", "attachments,created_at,entities");
+  url.searchParams.set("expansions", "attachments.media_keys");
+  url.searchParams.set("media.fields", "alt_text,duration_ms,height,media_key,preview_image_url,type,url,variants,width");
 
   if (sinceId) {
     url.searchParams.set("since_id", sinceId);
@@ -82,17 +86,78 @@ async function fetchNewPosts(sinceId) {
     return [];
   }
 
-  return data.data.map(normalizePost);
+  const mediaByKey = new Map(
+    (data.includes?.media || [])
+      .filter((media) => media.media_key)
+      .map((media) => [media.media_key, media]),
+  );
+
+  return data.data.map((post) => normalizePost(post, mediaByKey));
 }
 
-function normalizePost(post) {
+function normalizePost(post, mediaByKey) {
   return {
     id: post.id,
     url: `https://x.com/aiAgentSquid/status/${post.id}`,
     text: post.text,
     created_at: post.created_at || null,
     entities: post.entities || null,
+    media: normalizeMedia(post.attachments?.media_keys || [], mediaByKey),
   };
+}
+
+function normalizeMedia(mediaKeys, mediaByKey) {
+  for (const mediaKey of mediaKeys) {
+    const media = mediaByKey.get(mediaKey);
+    if (!media) continue;
+
+    if (media.type === "photo" && media.url) {
+      return {
+        type: "image",
+        url: media.url,
+        alt: media.alt_text || "",
+        width: numberOrNull(media.width),
+        height: numberOrNull(media.height),
+      };
+    }
+
+    if ((media.type === "video" || media.type === "animated_gif") && Array.isArray(media.variants)) {
+      const videoUrl = bestMp4Variant(media.variants);
+      if (videoUrl) {
+        return {
+          type: "video",
+          url: videoUrl,
+          poster: media.preview_image_url || null,
+          alt: media.alt_text || "",
+          width: numberOrNull(media.width),
+          height: numberOrNull(media.height),
+        };
+      }
+    }
+
+    if (media.preview_image_url) {
+      return {
+        type: "image",
+        url: media.preview_image_url,
+        alt: media.alt_text || "",
+        width: numberOrNull(media.width),
+        height: numberOrNull(media.height),
+      };
+    }
+  }
+
+  return null;
+}
+
+function bestMp4Variant(variants) {
+  return variants
+    .filter((variant) => variant.url && variant.content_type === "video/mp4")
+    .sort((a, b) => (numberOrNull(b.bit_rate) || 0) - (numberOrNull(a.bit_rate) || 0))[0]?.url || null;
+}
+
+function numberOrNull(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
 }
 
 function mergePosts(newPosts, oldPosts) {
