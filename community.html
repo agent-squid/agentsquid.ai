@@ -3,68 +3,109 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Community — AgentSquid</title>
+  <title>Community - AgentSquid</title>
   <link rel="icon" type="image/png" href="agent_squid_400.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap&text=%E2%96%88%E2%96%84%E2%96%80%E2%95%94%E2%95%90%E2%95%97%E2%95%91%E2%95%9A%E2%95%9D" />
   <style>
+    :root {
+      --bg: #0f0f13;
+      --surface: #13131c;
+      --surface-2: #1e1e28;
+      --surface-3: #1a1a24;
+      --raised: #2a2a35;
+      --border: #2e2e3e;
+      --border-faint: #141420;
+      --text: #e8e4dc;
+      --text-muted: #aaa;
+      --text-mid: #888;
+      --text-lo: #666;
+      --text-dim: #555;
+      --accent: #f07040;
+      --accent-dim: #d07840;
+      --accent-light: #f5a060;
+      --ok: #4a8a4a;
+    }
+
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #2a2a40 transparent;
+    }
+
+    *::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background: #2a2a40;
+      border-radius: 3px;
+    }
+
     html, body {
-      height: 100%;
+      min-height: 100%;
     }
 
     body {
-      background: #0a0a0f;
-      color: #f0ece4;
-      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', system-ui, sans-serif;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      justify-content: center;
       min-height: 100vh;
+      min-height: 100dvh;
     }
 
-    /* Subtle radial glow */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background: radial-gradient(ellipse 60% 50% at 50% 10%, rgba(220, 90, 40, 0.18) 0%, transparent 70%);
+      background: radial-gradient(ellipse 58% 42% at 50% 4%, rgba(240, 112, 64, 0.13), transparent 70%);
       pointer-events: none;
       z-index: -1;
     }
 
-    .container {
-      width: 100%;
-      max-width: 960px;
-      padding: 3rem 1.5rem 4rem;
+    a {
+      color: inherit;
     }
 
-    /* Small logo + header */
+    .container {
+      width: 100%;
+      max-width: 860px;
+      padding: 2rem 1rem 3rem;
+    }
+
     .page-header {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 2.5rem;
+      gap: 0.7rem;
+      padding-bottom: 0.9rem;
+      margin-bottom: 1.2rem;
+      border-bottom: 1px solid var(--surface-3);
     }
 
-    .page-header .logo-mark {
-      width: 40px;
-      height: 40px;
+    .logo-mark {
+      width: 34px;
+      height: 34px;
+      border: 2px solid rgba(240, 112, 64, 0.45);
       border-radius: 50%;
-      border: 2px solid rgba(240, 112, 64, 0.5);
       overflow: hidden;
-      flex-shrink: 0;
+      flex: 0 0 auto;
     }
 
-    .page-header .logo-mark img {
+    .logo-mark img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -72,243 +113,386 @@
       transform: scale(1.1);
     }
 
-    .page-header h1 {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.1rem;
-      font-weight: 400;
-      background: linear-gradient(135deg, #f07040 0%, #f5a060 50%, #e84c1e 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .brand-title {
+      color: var(--accent);
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
     }
 
-    .page-header .back-link {
+    .back-link {
       margin-left: auto;
-      font-size: 0.78rem;
-      letter-spacing: 0.06em;
-      color: rgba(240, 112, 64, 0.55);
+      border: 1px solid #222;
+      border-radius: 6px;
+      color: var(--text-dim);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.28rem 0.55rem;
       text-decoration: none;
-      transition: color 0.2s ease;
+      transition: border-color 0.15s, color 0.15s;
     }
 
-    .page-header .back-link:hover {
-      color: rgba(240, 112, 64, 0.9);
+    .back-link:hover {
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
-    /* Section heading */
+    .intro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
     .section-heading {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.4rem;
-      margin-bottom: 1.5rem;
-      background: linear-gradient(135deg, #f07040 0%, #f5a060 50%, #e84c1e 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--text);
+      font-size: clamp(1.2rem, 3vw, 1.65rem);
+      line-height: 1;
+      letter-spacing: 0;
     }
 
-    .section-sub {
-      color: rgba(240, 236, 228, 0.55);
-      font-size: 0.9rem;
-      margin-bottom: 2rem;
+    .cache-pill {
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text-lo);
+      display: inline-flex;
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.68rem;
+      gap: 0.45rem;
+      padding: 0.38rem 0.65rem;
+      white-space: nowrap;
     }
 
-    /* Social links */
-    .social-links {
+    .cache-dot {
+      width: 0.45rem;
+      height: 0.45rem;
+      background: var(--ok);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(74, 138, 74, 0.1);
+    }
+
+    .feed-shell {
+      border-top: 1px solid var(--surface-3);
+      min-height: 22rem;
+      padding-top: 0.85rem;
+    }
+
+    .feed {
+      display: flex;
+      flex-direction: column;
+      gap: 0.72rem;
+    }
+
+    .feed-item {
+      --item-accent: var(--accent);
+      display: grid;
+      grid-template-columns: 2rem minmax(0, 1fr);
+      gap: 0.65rem;
+    }
+
+    .source-avatar {
+      width: 2rem;
+      height: 2rem;
+      align-items: center;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--item-accent);
+      display: flex;
+      flex-shrink: 0;
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.76rem;
+      font-weight: 700;
+      justify-content: center;
+      margin-top: 0.1rem;
+    }
+
+    .post-card {
+      background: var(--surface-2);
+      border: 1px solid rgba(46, 46, 62, 0.78);
+      border-radius: 8px;
+      color: var(--text);
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .post-card:hover {
+      border-color: rgba(240, 112, 64, 0.28);
+    }
+
+    .post-body {
+      padding: 0.72rem 0.82rem;
+    }
+
+    .post-meta {
+      align-items: baseline;
+      display: flex;
+      gap: 0.45rem;
+      margin-bottom: 0.45rem;
+      min-width: 0;
+    }
+
+    .source-name {
+      color: var(--item-accent);
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .post-time,
+    .post-author {
+      color: var(--text-dim);
+      font-size: 0.72rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .post-text {
+      color: var(--text-muted);
+      font-size: 0.93rem;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .post-text.is-collapsible {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 6;
+      overflow: hidden;
+    }
+
+    .post-text.is-expanded {
+      display: block;
+      -webkit-line-clamp: unset;
+      overflow: visible;
+    }
+
+    .post-text a {
+      color: var(--accent-light);
+      text-decoration: none;
+    }
+
+    .post-text a:hover {
+      text-decoration: underline;
+    }
+
+    .post-more {
+      background: transparent;
+      border: 0;
+      color: var(--accent-light);
+      cursor: pointer;
+      display: none;
+      font: inherit;
+      font-size: 0.76rem;
+      font-weight: 700;
+      margin-top: 0.42rem;
+      padding: 0;
+    }
+
+    .post-more.is-visible {
+      display: inline-flex;
+    }
+
+    .post-more:hover {
+      color: var(--accent);
+    }
+
+    .post-media {
+      background: #111118;
+      border-top: 1px solid rgba(46, 46, 62, 0.62);
+      display: block;
+      overflow: hidden;
+    }
+
+    .post-media img {
+      display: block;
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+    }
+
+    .post-actions {
+      align-items: center;
+      border-top: 1px solid rgba(46, 46, 62, 0.62);
+      display: flex;
+      gap: 0.7rem;
+      justify-content: space-between;
+      padding: 0.5rem 0.82rem;
+    }
+
+    .engagement {
+      color: var(--text-dim);
       display: flex;
       flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-bottom: 2.5rem;
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.68rem;
+      gap: 0.55rem;
     }
 
-    .social-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.7rem 1.1rem;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(240, 112, 64, 0.12);
-      border-radius: 10px;
-      color: #f0ece4;
-      text-decoration: none;
-      font-size: 0.85rem;
-      transition: all 0.2s ease;
-    }
-
-    .social-link:hover {
-      background: rgba(240, 112, 64, 0.08);
-      border-color: rgba(240, 112, 64, 0.3);
-    }
-
-    .social-icon {
-      display: flex;
-      align-items: center;
-      color: #f07040;
-      flex-shrink: 0;
-    }
-
-    .social-label {
+    .post-link {
+      color: var(--text-mid);
+      flex: 0 0 auto;
+      font-size: 0.74rem;
       font-weight: 700;
-    }
-
-    .social-handle {
-      color: rgba(240, 236, 228, 0.45);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
-    }
-
-    .social-arrow {
-      color: rgba(240, 112, 64, 0.4);
-      font-size: 0.8rem;
-      transition: transform 0.2s ease;
-    }
-
-    .social-link:hover .social-arrow {
-      transform: translate(2px, -2px);
-    }
-
-    /* X timeline container - subtle frame */
-    .x-feed {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(240, 112, 64, 0.12);
-      border-radius: 12px;
-      padding: 1rem;
-      min-height: 300px;
-    }
-
-    .x-feed .twitter-timeline {
-      display: block;
-      color: rgba(240, 112, 64, 0.75);
       text-decoration: none;
     }
 
-    .x-fallback {
-      display: none;
-      color: rgba(240, 236, 228, 0.62);
+    .post-link:hover {
+      color: var(--accent-light);
+    }
+
+    .feed-state {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-mid);
       font-size: 0.86rem;
       line-height: 1.6;
+      padding: 0.9rem 1rem;
     }
 
-    .x-fallback a {
-      color: #f07040;
-      text-decoration: none;
+    .feed-state a {
+      color: var(--accent-light);
       font-weight: 700;
+      text-decoration: none;
     }
 
-    .x-fallback a:hover {
-      color: #f5a060;
+    .loader {
+      display: inline-flex;
+      gap: 4px;
+      padding-left: 0.25rem;
+      vertical-align: middle;
     }
 
-    .x-feed.x-feed-failed {
+    .loader span {
+      width: 6px;
+      height: 6px;
+      background: var(--text-dim);
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    .loader span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .loader span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes pulse {
+      0%, 80%, 100% { opacity: 0.3; }
+      40% { opacity: 1; }
+    }
+
+    body.embed-mode {
+      background: transparent;
       min-height: auto;
     }
 
-    .x-feed.x-feed-failed .twitter-timeline {
-      display: none;
-    }
-
-    .x-feed.x-feed-failed iframe {
-      display: none !important;
-    }
-
-    .x-feed.x-feed-failed .x-fallback {
-      display: block;
-    }
-
-    /* Curator feed container - subtle frame */
-    #curator-feed-default-feed-layout {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(240, 112, 64, 0.12);
-      border-radius: 12px;
-      padding: 1.5rem 1rem;
-      min-height: 300px;
-      margin-top: 1.5rem;
-    }
-
-    #curator-feed-default-feed-layout .crt-logo {
-      color: rgba(240, 112, 64, 0.4);
-      text-decoration: none;
-      font-size: 0.75rem;
-    }
-
-    /* ===== Embed mode (for iframe embedding in the app) ===== */
+    body.embed-mode::before,
     body.embed-mode .page-header,
-    body.embed-mode .section-heading,
-    body.embed-mode .section-sub {
+    body.embed-mode .intro {
       display: none;
     }
 
     body.embed-mode .container {
-      padding: 1rem 1rem 2rem;
+      padding: 0.75rem 0.5rem 1.5rem;
     }
 
-    body.embed-mode .social-links {
-      margin-bottom: 1.5rem;
+    body.embed-mode .feed-shell {
+      border-top: 0;
+      padding-top: 0;
     }
 
-    body.embed-mode {
-      min-height: auto;
-      background: transparent;
-    }
-    body.embed-mode::before {
-      display: none;
-    }
-
-    /* Responsive */
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
       .container {
-        padding: 1.5rem 1rem 3rem;
+        padding: 1rem 0.75rem 2rem;
       }
-      .section-heading {
-        font-size: 1.15rem;
+
+      .page-header {
+        margin-bottom: 1rem;
+      }
+
+      .intro {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .cache-pill {
+        justify-self: start;
+      }
+
+      .feed-item {
+        grid-template-columns: 1.65rem minmax(0, 1fr);
+        gap: 0.5rem;
+      }
+
+      .source-avatar {
+        width: 1.65rem;
+        height: 1.65rem;
+        border-radius: 7px;
+        font-size: 0.68rem;
+      }
+
+      .post-body,
+      .post-actions {
+        padding-left: 0.68rem;
+        padding-right: 0.68rem;
+      }
+
+      .post-text {
+        font-size: 0.88rem;
+      }
+
+      .post-text.is-collapsible {
+        -webkit-line-clamp: 5;
+      }
+
+      .post-actions {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.42rem;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Header (hidden in embed mode) -->
-    <div class="page-header">
+    <header class="page-header">
       <div class="logo-mark">
-        <img src="agent_squid_400.png" alt="Agent Squid" />
+        <img src="agent_squid_400.png" alt="AgentSquid" />
       </div>
-      <h1>AgentSquid</h1>
-      <a class="back-link" href="index.html">⌂ Home</a>
-    </div>
+      <div class="brand-title">AgentSquid</div>
+      <a class="back-link" href="index.html">Home</a>
+    </header>
 
-    <!-- Title & description (hidden in embed mode) -->
-    <h2 class="section-heading">Community</h2>
-    <p class="section-sub">Updates, discussions, and happenings around the squid.</p>
+    <section class="intro" aria-labelledby="community-heading">
+      <h1 class="section-heading" id="community-heading">Community</h1>
+      <div class="cache-pill" id="cache-pill">
+        <span class="cache-dot" aria-hidden="true"></span>
+        <span id="cache-label">Cache loading</span>
+      </div>
+    </section>
 
-    <!-- Social links -->
-    <div class="social-links">
-      <a href="https://www.reddit.com/r/AgentSquid/" target="_blank" rel="noopener" class="social-link">
-        <span class="social-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-            <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.12 4.71c.53 0 .96.43.96.96 0 .53-.43.96-.96.96s-.96-.43-.96-.96c0-.53.43-.96.96-.96zm-2.88 1.49c1.08 0 1.95.87 1.95 1.95 0 1.08-.87 1.95-1.95 1.95s-1.95-.87-1.95-1.95c0-1.08.87-1.95 1.95-1.95zm-5.7.87a.78.78 0 0 1 .78.78v.01l.01.01h.01l.03.02a.5.5 0 0 1 .05.04l.06.05a2.29 2.29 0 0 1 .9 1.29 3.77 3.77 0 0 0-2.9 3.64 2.53 2.53 0 1 0 2.72 3.94c.62.47 1.4.84 2.28 1.02l-.78 2.44-1.7-.37a.84.84 0 0 0-.96.72.84.84 0 0 0 .72.97l2.13.46c.37.08.74-.16.82-.53l.9-2.8c.18 0 .36.01.54.01.18 0 .36 0 .54-.01l.9 2.8c.08.37.45.61.82.53l2.13-.46a.84.84 0 0 0 .72-.97.84.84 0 0 0-.96-.72l-1.7.37-.78-2.44c.88-.18 1.66-.55 2.28-1.02a2.53 2.53 0 1 0 2.72-3.94 3.77 3.77 0 0 0-2.9-3.64 2.29 2.29 0 0 1 .9-1.29l.06-.05a.5.5 0 0 0 .05-.04l.03-.02h.01v-.02a.78.78 0 1 1 1.44.06.78.78 0 0 0 1.49-.48 2.57 2.57 0 0 0-4.9-.4c-.34-.02-.68-.03-1.03-.03-.35 0-.69.01-1.03.03a2.57 2.57 0 0 0-4.9.4.78.78 0 0 0 .47.98.78.78 0 0 0 .98-.47l.01-.02a.78.78 0 0 1 1.44-.07zm-.06 3.89a2.13 2.13 0 0 1 2.12 2.12c0 .18-.02.35-.06.52a2.55 2.55 0 0 1-1.63-1.63 2.11 2.11 0 0 1-.43-1.01zm7.09 0c-.07.35-.22.68-.43 1.01a2.55 2.55 0 0 1-1.63 1.63c-.04-.17-.06-.34-.06-.52a2.13 2.13 0 0 1 2.12-2.12zm-1.81 3.39c0 .22-.18.4-.4.4s-.4-.18-.4-.4c0-.22.18-.4.4-.4s.4.18.4.4zm-2.68.88c.22 0 .4.18.4.4s-.18.4-.4.4h-.01a.4.4 0 0 1-.39-.4c0-.22.18-.4.4-.4zm3.77 1.05c.4.4.4 1.05 0 1.45-.2.2-.46.3-.72.3s-.52-.1-.72-.3a.37.37 0 0 1 0-.53.37.37 0 0 1 .53 0c.11.11.28.11.39 0 .1-.1.1-.28 0-.39a.37.37 0 0 1 0-.53.37.37 0 0 1 .52 0zm-3.26 0a.37.37 0 0 1 .53 0c.1.1.1.28 0 .39s-.1.1 0 0 .1.28 0 .39c-.2.2-.52.2-.72 0a.51.51 0 0 1 0-.72.37.37 0 0 1 .19-.06z"/>
-          </svg>
-        </span>
-        <span class="social-label">AgentSquid User Group</span>
-        <span class="social-handle">r/AgentSquid</span>
-        <span class="social-arrow">↗</span>
-      </a>
-    </div>
-
-    <!-- X posts feed -->
-    <div class="x-feed">
-      <a class="twitter-timeline" data-theme="dark" data-height="600" aria-label="AgentSquid posts on X" href="https://x.com/aiAgentSquid?ref_src=twsrc%5Etfw"></a>
-      <p class="x-fallback">
-        X is not returning the embedded timeline right now.
-        <a href="https://x.com/aiAgentSquid" target="_blank" rel="noopener">View @aiAgentSquid on X</a>.
-      </p>
-    </div>
-
-    <!-- Curator.io feed -->
-    <div id="curator-feed-default-feed-layout">
-      <a href="https://curator.io" target="_blank" rel="noopener" class="crt-logo crt-tag">Powered by Curator.io</a>
-    </div>
+    <main class="feed-shell" aria-live="polite">
+      <div class="feed-state" id="feed-state">
+        Loading cached posts
+        <span class="loader" aria-hidden="true"><span></span><span></span><span></span></span>
+      </div>
+      <div class="feed" id="feed" hidden></div>
+    </main>
   </div>
 
-  <!-- Embed mode: toggled by ?embed=1 URL param -->
   <script>
     (function() {
       var params = new URLSearchParams(location.search);
@@ -323,63 +507,345 @@
 
   <script>
     (function() {
-      var feed = document.querySelector('.x-feed');
-      if (!feed) return;
-      var rendered = false;
+      var feed = document.getElementById('feed');
+      var state = document.getElementById('feed-state');
+      var cacheLabel = document.getElementById('cache-label');
+      var allItems = [];
 
-      function markRendered() {
-        rendered = true;
-        feed.classList.remove('x-feed-failed');
-      }
+      Promise.allSettled([
+        fetchJson('x-posts.json').then(normalizeXCache),
+        fetchJson('curator-posts.json').then(normalizeCuratorCache)
+      ]).then(function(results) {
+        var caches = results
+          .filter(function(result) { return result.status === 'fulfilled'; })
+          .map(function(result) { return result.value; });
 
-      function markFailed() {
-        if (!rendered) {
-          feed.classList.add('x-feed-failed');
-        }
-      }
+        allItems = caches
+          .reduce(function(items, cache) { return items.concat(cache.items); }, [])
+          .sort(compareItems)
+          .slice(0, 60);
 
-      window.twttr = (function(d, s, id) {
-        var js;
-        var fjs = d.getElementsByTagName(s)[0];
-        var t = window.twttr || {};
-        if (d.getElementById(id)) return t;
-        js = d.createElement(s);
-        js.id = id;
-        js.src = "https://platform.x.com/widgets.js";
-        js.charset = "utf-8";
-        fjs.parentNode.insertBefore(js, fjs);
-        t._e = [];
-        t.ready = function(fn) {
-          t._e.push(fn);
-        };
-        return t;
-      }(document, "script", "twitter-wjs"));
+        updateCacheLabel(caches);
 
-      window.twttr.ready(function(twttr) {
-        if (twttr.events && twttr.events.bind) {
-          twttr.events.bind('rendered', function(event) {
-            if (!event || !event.target || feed.contains(event.target)) {
-              markRendered();
-            }
-          });
+        if (!allItems.length) {
+          showEmpty();
+          return;
         }
 
-        if (twttr.widgets && twttr.widgets.load) {
-          twttr.widgets.load(feed);
-        }
+        renderFeed();
+      }).catch(function() {
+        showEmpty();
       });
 
-      window.setTimeout(markFailed, 7000);
+      function fetchJson(url) {
+        return fetch(url, { cache: 'no-cache' }).then(function(response) {
+          if (!response.ok) {
+            throw new Error(url + ' returned ' + response.status);
+          }
+          return response.json();
+        });
+      }
+
+      function normalizeXCache(cache) {
+        var posts = Array.isArray(cache.posts) ? cache.posts : [];
+        return {
+          source: 'x',
+          updatedAt: cache.updated_at || null,
+          items: posts.map(function(post) {
+            return {
+              id: 'x-' + post.id,
+              source: 'x',
+              sourceLabel: 'X',
+              avatarLabel: 'X',
+              accent: '#f07040',
+              author: '@aiAgentSquid',
+              createdAt: post.created_at || null,
+              text: post.text || '',
+              url: post.url || ('https://x.com/aiAgentSquid/status/' + post.id),
+              entities: post.entities || null,
+              engagement: null,
+              media: null
+            };
+          })
+        };
+      }
+
+      function normalizeCuratorCache(cache) {
+        var posts = Array.isArray(cache.posts) ? cache.posts : [];
+        return {
+          source: 'curator',
+          updatedAt: cache.updated_at || null,
+          items: posts.map(function(post) {
+            var network = post.network_name || 'Community';
+            var media = post.media || {};
+            var engagement = post.engagement || {};
+            return {
+              id: 'curator-' + post.id,
+              source: 'curator',
+              sourceLabel: network,
+              avatarLabel: network.slice(0, 1).toUpperCase(),
+              accent: sourceColor(network),
+              author: authorName(post),
+              createdAt: post.created_at || null,
+              text: post.text || '',
+              url: post.url || null,
+              entities: null,
+              engagement: engagement,
+              media: media.image_large || media.image || media.thumbnail || null
+            };
+          })
+        };
+      }
+
+      function renderFeed() {
+        var fragment = document.createDocumentFragment();
+        allItems.forEach(function(item) {
+          fragment.appendChild(renderItem(item));
+        });
+
+        feed.replaceChildren(fragment);
+        feed.hidden = false;
+        state.hidden = true;
+        requestAnimationFrame(updateExpandablePosts);
+      }
+
+      function renderItem(item) {
+        var wrapper = document.createElement('article');
+        wrapper.className = 'feed-item';
+        wrapper.dataset.source = item.source;
+        wrapper.style.setProperty('--item-accent', item.accent);
+
+        var avatar = document.createElement('div');
+        avatar.className = 'source-avatar';
+        avatar.textContent = item.avatarLabel;
+        wrapper.appendChild(avatar);
+
+        var card = document.createElement('div');
+        card.className = 'post-card';
+
+        if (item.media) {
+          var mediaLink = item.url ? document.createElement('a') : document.createElement('div');
+          mediaLink.className = 'post-media';
+          if (item.url) {
+            mediaLink.href = item.url;
+            mediaLink.target = '_blank';
+            mediaLink.rel = 'noopener';
+          }
+
+          var image = document.createElement('img');
+          image.src = item.media;
+          image.alt = '';
+          image.loading = 'lazy';
+          mediaLink.appendChild(image);
+          card.appendChild(mediaLink);
+        }
+
+        var body = document.createElement('div');
+        body.className = 'post-body';
+
+        var meta = document.createElement('div');
+        meta.className = 'post-meta';
+        appendTextSpan(meta, 'source-name', item.sourceLabel);
+        appendTextSpan(meta, 'post-time', formatRelativeTime(item.createdAt));
+        if (item.author) {
+          appendTextSpan(meta, 'post-author', item.author);
+        }
+        body.appendChild(meta);
+
+        var text = document.createElement('div');
+        text.className = 'post-text';
+        appendLinkedText(text, item.text, item.entities);
+        body.appendChild(text);
+
+        var more = document.createElement('button');
+        more.className = 'post-more';
+        more.type = 'button';
+        more.textContent = 'Show more';
+        more.setAttribute('aria-expanded', 'false');
+        more.addEventListener('click', function() {
+          var expanded = text.classList.toggle('is-expanded');
+          more.textContent = expanded ? 'Show less' : 'Show more';
+          more.setAttribute('aria-expanded', String(expanded));
+        });
+        body.appendChild(more);
+
+        card.appendChild(body);
+
+        var actions = document.createElement('div');
+        actions.className = 'post-actions';
+
+        var engagement = document.createElement('div');
+        engagement.className = 'engagement';
+        appendEngagement(engagement, item.engagement);
+        actions.appendChild(engagement);
+
+        if (item.url) {
+          var link = document.createElement('a');
+          link.className = 'post-link';
+          link.href = item.url;
+          link.target = '_blank';
+          link.rel = 'noopener';
+          link.textContent = 'Open post';
+          actions.appendChild(link);
+        }
+
+        card.appendChild(actions);
+        wrapper.appendChild(card);
+        return wrapper;
+      }
+
+      function updateExpandablePosts() {
+        Array.prototype.slice.call(feed.querySelectorAll('.post-text')).forEach(function(text) {
+          var more = text.nextElementSibling;
+          if (!more || !more.classList.contains('post-more')) return;
+
+          text.classList.add('is-collapsible');
+
+          if (text.scrollHeight > text.clientHeight + 1) {
+            more.classList.add('is-visible');
+          } else {
+            text.classList.remove('is-collapsible');
+            more.remove();
+          }
+        });
+      }
+
+      function appendLinkedText(parent, text, entities) {
+        var urls = entities && Array.isArray(entities.urls) ? entities.urls : [];
+        var replacements = urls
+          .filter(function(url) { return url.url; })
+          .sort(function(a, b) { return b.url.length - a.url.length; });
+
+        var remaining = String(text || '');
+        if (!remaining) {
+          parent.textContent = 'No text available.';
+          return;
+        }
+
+        replacements.forEach(function(url) {
+          remaining = remaining.replace(url.url, url.expanded_url || url.display_url || url.url);
+        });
+
+        var matcher = /(https?:\/\/[^\s]+)/g;
+        var lastIndex = 0;
+        var match;
+        while ((match = matcher.exec(remaining))) {
+          if (match.index > lastIndex) {
+            parent.appendChild(document.createTextNode(remaining.slice(lastIndex, match.index)));
+          }
+          var link = document.createElement('a');
+          link.href = match[0];
+          link.target = '_blank';
+          link.rel = 'noopener';
+          link.textContent = match[0].replace(/^https?:\/\//, '');
+          parent.appendChild(link);
+          lastIndex = matcher.lastIndex;
+        }
+
+        if (lastIndex < remaining.length) {
+          parent.appendChild(document.createTextNode(remaining.slice(lastIndex)));
+        }
+      }
+
+      function appendEngagement(parent, engagement) {
+        if (!engagement) {
+          appendTextSpan(parent, '', 'cached');
+          return;
+        }
+
+        var bits = [];
+        if (Number.isFinite(engagement.likes)) bits.push(formatCount(engagement.likes) + ' likes');
+        if (Number.isFinite(engagement.comments)) bits.push(formatCount(engagement.comments) + ' comments');
+        if (Number.isFinite(engagement.views)) bits.push(formatCount(engagement.views) + ' views');
+
+        if (!bits.length) {
+          bits.push('cached');
+        }
+
+        bits.forEach(function(bit) {
+          appendTextSpan(parent, '', bit);
+        });
+      }
+
+      function updateCacheLabel(caches) {
+        var dates = caches
+          .map(function(cache) { return cache.updatedAt ? new Date(cache.updatedAt) : null; })
+          .filter(function(date) { return date && !Number.isNaN(date.getTime()); })
+          .sort(function(a, b) { return b - a; });
+
+        cacheLabel.textContent = dates.length
+          ? 'Updated ' + formatRelativeTime(dates[0].toISOString())
+          : 'Updates every 4h';
+      }
+
+      function showEmpty() {
+        cacheLabel.textContent = 'Updates every 4h';
+        feed.hidden = true;
+        state.hidden = false;
+        state.textContent = 'Cached posts are not available yet.';
+      }
+
+      function authorName(post) {
+        var user = post.user || {};
+        if (user.screen_name) return '@' + user.screen_name;
+        return user.full_name || null;
+      }
+
+      function sourceColor(network) {
+        var key = String(network || '').toLowerCase();
+        if (key.includes('reddit')) return '#ff875f';
+        if (key.includes('instagram')) return '#f5a060';
+        if (key.includes('tiktok')) return '#c678dd';
+        return '#d07840';
+      }
+
+      function compareItems(a, b) {
+        var aTime = Date.parse(a.createdAt || '') || 0;
+        var bTime = Date.parse(b.createdAt || '') || 0;
+        return bTime - aTime;
+      }
+
+      function formatRelativeTime(value) {
+        var date = new Date(value);
+        if (!value || Number.isNaN(date.getTime())) return 'cached';
+
+        var deltaSeconds = Math.round((Date.now() - date.getTime()) / 1000);
+        var abs = Math.abs(deltaSeconds);
+        var units = [
+          ['year', 31536000],
+          ['month', 2592000],
+          ['week', 604800],
+          ['day', 86400],
+          ['hour', 3600],
+          ['minute', 60]
+        ];
+
+        for (var i = 0; i < units.length; i += 1) {
+          var unit = units[i][0];
+          var seconds = units[i][1];
+          if (abs >= seconds) {
+            return new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(
+              -Math.round(deltaSeconds / seconds),
+              unit
+            );
+          }
+        }
+
+        return 'just now';
+      }
+
+      function formatCount(value) {
+        return new Intl.NumberFormat('en', { notation: 'compact' }).format(value);
+      }
+
+      function appendTextSpan(parent, className, text) {
+        var span = document.createElement('span');
+        if (className) span.className = className;
+        span.textContent = text;
+        parent.appendChild(span);
+      }
+
     })();
-  </script>
-  <!-- Curator.io script -->
-  <script type="text/javascript">
-  /* curator-feed-default-feed-layout */
-  (function(){
-  var i,e,d=document,s="script";i=d.createElement("script");i.async=1;i.charset="UTF-8";
-  i.src="https://cdn.curator.io/published/74b58da4-fa7c-41a8-bfd4-b458dcd2c0e6.js";
-  e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i, e);
-  })();
   </script>
 </body>
 </html>
