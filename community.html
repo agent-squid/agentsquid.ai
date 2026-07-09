@@ -258,6 +258,20 @@
       overflow-wrap: anywhere;
     }
 
+    .post-title {
+      color: var(--text);
+      display: inline-block;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.28;
+      margin-bottom: 0.55rem;
+      text-decoration: none;
+    }
+
+    .post-title:hover {
+      color: var(--accent-light);
+    }
+
     .post-text-paragraph {
       display: block;
       margin: 0;
@@ -266,6 +280,35 @@
 
     .post-text-paragraph + .post-text-paragraph {
       margin-top: 0.72rem;
+    }
+
+    .post-md-heading {
+      color: var(--text);
+      font-size: 0.98rem;
+      line-height: 1.32;
+      margin: 1rem 0 0.38rem;
+    }
+
+    .post-md-heading:first-child {
+      margin-top: 0;
+    }
+
+    .post-md-list {
+      margin: 0.5rem 0 0.5rem 1.15rem;
+      padding: 0;
+    }
+
+    .post-md-list li + li {
+      margin-top: 0.24rem;
+    }
+
+    .post-md-code {
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.86em;
+      padding: 0.05rem 0.22rem;
     }
 
     .post-text.is-collapsible {
@@ -578,10 +621,12 @@
               sourceLabel: network,
               accent: sourceColor(network),
               author: authorName(post),
+              title: postTitle(post),
               createdAt: post.created_at || null,
               text: post.text || '',
               url: post.url || null,
               entities: null,
+              markdown: isRedditNetwork(network),
               media: normalizeMedia({
                 type: media.video ? 'video' : 'image',
                 url: media.video || media.image_large || media.image || media.thumbnail || null,
@@ -646,7 +691,18 @@
 
         var text = document.createElement('div');
         text.className = 'post-text';
-        appendLinkedText(text, item.text, item.entities);
+        if (item.title) {
+          var title = item.url ? document.createElement('a') : document.createElement('div');
+          title.className = 'post-title';
+          title.textContent = item.title;
+          if (item.url) {
+            title.href = item.url;
+            title.target = '_blank';
+            title.rel = 'noopener';
+          }
+          body.appendChild(title);
+        }
+        appendPostText(text, item);
         body.appendChild(text);
 
         var more = document.createElement('button');
@@ -713,6 +769,15 @@
         });
       }
 
+      function appendPostText(parent, item) {
+        if (item.markdown) {
+          appendMarkdownText(parent, item.text);
+          return;
+        }
+
+        appendLinkedText(parent, item.text, item.entities);
+      }
+
       function appendLinkedText(parent, text, entities) {
         var renderedText = expandedEntityText(text, entities);
         if (!renderedText) {
@@ -726,6 +791,83 @@
           appendInlineLinkedText(paragraph, paragraphText);
           parent.appendChild(paragraph);
         });
+      }
+
+      function appendMarkdownText(parent, text) {
+        var renderedText = String(text || '').replace(/\r\n?/g, '\n').trim();
+        if (!renderedText) {
+          parent.textContent = 'No text available.';
+          return;
+        }
+
+        renderedText.split(/\n{2,}/).forEach(function(block) {
+          appendMarkdownBlock(parent, block);
+        });
+      }
+
+      function appendMarkdownBlock(parent, block) {
+        var lines = block.split('\n').filter(function(line) { return line.trim(); });
+        if (!lines.length) return;
+
+        var heading = lines.length === 1 && lines[0].match(/^(#{1,6})\s+(.+)$/);
+        if (heading) {
+          var headingNode = document.createElement('h3');
+          headingNode.className = 'post-md-heading';
+          appendMarkdownInline(headingNode, heading[2]);
+          parent.appendChild(headingNode);
+          return;
+        }
+
+        if (lines.every(function(line) { return /^[-*+]\s+/.test(line); })) {
+          var list = document.createElement('ul');
+          list.className = 'post-md-list';
+          lines.forEach(function(line) {
+            var item = document.createElement('li');
+            appendMarkdownInline(item, line.replace(/^[-*+]\s+/, ''));
+            list.appendChild(item);
+          });
+          parent.appendChild(list);
+          return;
+        }
+
+        var paragraph = document.createElement('span');
+        paragraph.className = 'post-text-paragraph';
+        appendMarkdownInline(paragraph, block);
+        parent.appendChild(paragraph);
+      }
+
+      function appendMarkdownInline(parent, text) {
+        var matcher = /(\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)|https?:\/\/[^\s)]+|`([^`]+)`|\*\*([^*]+)\*\*)/g;
+        var lastIndex = 0;
+        var match;
+        var remaining = String(text || '');
+
+        while ((match = matcher.exec(remaining))) {
+          if (match.index > lastIndex) {
+            parent.appendChild(document.createTextNode(remaining.slice(lastIndex, match.index)));
+          }
+
+          if (match[3]) {
+            appendLink(parent, match[3], match[2] || match[3].replace(/^https?:\/\//, ''));
+          } else if (match[0].startsWith('http')) {
+            appendLink(parent, match[0], match[0].replace(/^https?:\/\//, ''));
+          } else if (match[4]) {
+            var code = document.createElement('code');
+            code.className = 'post-md-code';
+            code.textContent = match[4];
+            parent.appendChild(code);
+          } else if (match[5]) {
+            var strong = document.createElement('strong');
+            strong.textContent = match[5];
+            parent.appendChild(strong);
+          }
+
+          lastIndex = matcher.lastIndex;
+        }
+
+        if (lastIndex < remaining.length) {
+          parent.appendChild(document.createTextNode(remaining.slice(lastIndex)));
+        }
       }
 
       function expandedEntityText(text, entities) {
@@ -753,12 +895,7 @@
           if (match.index > lastIndex) {
             parent.appendChild(document.createTextNode(remaining.slice(lastIndex, match.index)));
           }
-          var link = document.createElement('a');
-          link.href = match[0];
-          link.target = '_blank';
-          link.rel = 'noopener';
-          link.textContent = match[0].replace(/^https?:\/\//, '');
-          parent.appendChild(link);
+          appendLink(parent, match[0], match[0].replace(/^https?:\/\//, ''));
           lastIndex = matcher.lastIndex;
         }
 
@@ -789,6 +926,26 @@
         var user = post.user || {};
         if (user.screen_name) return '@' + user.screen_name;
         return user.full_name || null;
+      }
+
+      function postTitle(post) {
+        if (!isRedditNetwork(post.network_name)) return null;
+
+        var user = post.user || {};
+        return user.full_name || null;
+      }
+
+      function isRedditNetwork(network) {
+        return String(network || '').toLowerCase().includes('reddit');
+      }
+
+      function appendLink(parent, url, label) {
+        var link = document.createElement('a');
+        link.href = url;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.textContent = label || url;
+        parent.appendChild(link);
       }
 
       function sourceColor(network) {
