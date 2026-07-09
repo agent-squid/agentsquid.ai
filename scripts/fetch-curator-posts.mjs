@@ -183,7 +183,7 @@ function cleanText(value) {
       .replace(/<\/(li|ul|ol)>/gi, "\n")
       .replace(/<[^>]+>/g, " ")
       .replace(/[ \t\f\v]+/g, " ")
-      .replace(/ *\n+ */g, "\n")
+      .replace(/[ \t\f\v]*\n[ \t\f\v]*/g, "\n")
       .replace(/\n{3,}/g, "\n\n")
       .trim(),
   );
