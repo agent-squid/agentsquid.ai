@@ -189,26 +189,7 @@
 
     .feed-item {
       --item-accent: var(--accent);
-      display: grid;
-      grid-template-columns: 2rem minmax(0, 1fr);
-      gap: 0.65rem;
-    }
-
-    .source-avatar {
-      width: 2rem;
-      height: 2rem;
-      align-items: center;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--item-accent);
-      display: flex;
-      flex-shrink: 0;
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
-      font-size: 0.76rem;
-      font-weight: 700;
-      justify-content: center;
-      margin-top: 0.1rem;
+      display: block;
     }
 
     .post-card {
@@ -229,11 +210,27 @@
     }
 
     .post-meta {
-      align-items: baseline;
+      align-items: center;
       display: flex;
-      gap: 0.45rem;
+      gap: 0.4rem;
       margin-bottom: 0.45rem;
       min-width: 0;
+    }
+
+    .service-icon {
+      align-items: center;
+      color: var(--item-accent);
+      display: inline-flex;
+      flex: 0 0 auto;
+      height: 1rem;
+      justify-content: center;
+      width: 1rem;
+    }
+
+    .service-icon svg {
+      display: block;
+      height: 1rem;
+      width: 1rem;
     }
 
     .source-name {
@@ -319,34 +316,26 @@
       object-fit: cover;
     }
 
-    .post-actions {
-      align-items: center;
-      border-top: 1px solid rgba(46, 46, 62, 0.62);
-      display: flex;
-      gap: 0.7rem;
-      justify-content: space-between;
-      padding: 0.5rem 0.82rem;
-    }
-
-    .engagement {
-      color: var(--text-dim);
-      display: flex;
-      flex-wrap: wrap;
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
-      font-size: 0.68rem;
-      gap: 0.55rem;
-    }
-
     .post-link {
+      align-items: center;
       color: var(--text-mid);
+      display: inline-flex;
       flex: 0 0 auto;
-      font-size: 0.74rem;
-      font-weight: 700;
+      height: 1.35rem;
+      justify-content: center;
+      margin-left: auto;
       text-decoration: none;
+      width: 1.35rem;
     }
 
     .post-link:hover {
       color: var(--accent-light);
+    }
+
+    .post-link svg {
+      display: block;
+      height: 0.9rem;
+      width: 0.9rem;
     }
 
     .feed-state {
@@ -432,20 +421,7 @@
         justify-self: start;
       }
 
-      .feed-item {
-        grid-template-columns: 1.65rem minmax(0, 1fr);
-        gap: 0.5rem;
-      }
-
-      .source-avatar {
-        width: 1.65rem;
-        height: 1.65rem;
-        border-radius: 7px;
-        font-size: 0.68rem;
-      }
-
-      .post-body,
-      .post-actions {
+      .post-body {
         padding-left: 0.68rem;
         padding-right: 0.68rem;
       }
@@ -458,11 +434,6 @@
         -webkit-line-clamp: 5;
       }
 
-      .post-actions {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 0.42rem;
-      }
     }
   </style>
 </head>
@@ -486,7 +457,7 @@
 
     <main class="feed-shell" aria-live="polite">
       <div class="feed-state" id="feed-state">
-        Loading cached posts
+        Loading posts
         <span class="loader" aria-hidden="true"><span></span><span></span><span></span></span>
       </div>
       <div class="feed" id="feed" hidden></div>
@@ -556,14 +527,12 @@
               id: 'x-' + post.id,
               source: 'x',
               sourceLabel: 'X',
-              avatarLabel: 'X',
               accent: '#f07040',
               author: '@aiAgentSquid',
               createdAt: post.created_at || null,
               text: post.text || '',
               url: post.url || ('https://x.com/aiAgentSquid/status/' + post.id),
               entities: post.entities || null,
-              engagement: null,
               media: null
             };
           })
@@ -578,19 +547,16 @@
           items: posts.map(function(post) {
             var network = post.network_name || 'Community';
             var media = post.media || {};
-            var engagement = post.engagement || {};
             return {
               id: 'curator-' + post.id,
               source: 'curator',
               sourceLabel: network,
-              avatarLabel: network.slice(0, 1).toUpperCase(),
               accent: sourceColor(network),
               author: authorName(post),
               createdAt: post.created_at || null,
               text: post.text || '',
               url: post.url || null,
               entities: null,
-              engagement: engagement,
               media: media.image_large || media.image || media.thumbnail || null
             };
           })
@@ -614,11 +580,6 @@
         wrapper.className = 'feed-item';
         wrapper.dataset.source = item.source;
         wrapper.style.setProperty('--item-accent', item.accent);
-
-        var avatar = document.createElement('div');
-        avatar.className = 'source-avatar';
-        avatar.textContent = item.avatarLabel;
-        wrapper.appendChild(avatar);
 
         var card = document.createElement('div');
         card.className = 'post-card';
@@ -645,10 +606,24 @@
 
         var meta = document.createElement('div');
         meta.className = 'post-meta';
+        meta.appendChild(serviceIcon(item.sourceLabel));
         appendTextSpan(meta, 'source-name', item.sourceLabel);
-        appendTextSpan(meta, 'post-time', formatRelativeTime(item.createdAt));
+        var postTime = formatRelativeTime(item.createdAt);
+        if (postTime) {
+          appendTextSpan(meta, 'post-time', postTime);
+        }
         if (item.author) {
           appendTextSpan(meta, 'post-author', item.author);
+        }
+        if (item.url) {
+          var link = document.createElement('a');
+          link.className = 'post-link';
+          link.href = item.url;
+          link.target = '_blank';
+          link.rel = 'noopener';
+          link.setAttribute('aria-label', 'Open post');
+          link.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg>';
+          meta.appendChild(link);
         }
         body.appendChild(meta);
 
@@ -670,26 +645,6 @@
         body.appendChild(more);
 
         card.appendChild(body);
-
-        var actions = document.createElement('div');
-        actions.className = 'post-actions';
-
-        var engagement = document.createElement('div');
-        engagement.className = 'engagement';
-        appendEngagement(engagement, item.engagement);
-        actions.appendChild(engagement);
-
-        if (item.url) {
-          var link = document.createElement('a');
-          link.className = 'post-link';
-          link.href = item.url;
-          link.target = '_blank';
-          link.rel = 'noopener';
-          link.textContent = 'Open post';
-          actions.appendChild(link);
-        }
-
-        card.appendChild(actions);
         wrapper.appendChild(card);
         return wrapper;
       }
@@ -747,26 +702,6 @@
         }
       }
 
-      function appendEngagement(parent, engagement) {
-        if (!engagement) {
-          appendTextSpan(parent, '', 'cached');
-          return;
-        }
-
-        var bits = [];
-        if (Number.isFinite(engagement.likes)) bits.push(formatCount(engagement.likes) + ' likes');
-        if (Number.isFinite(engagement.comments)) bits.push(formatCount(engagement.comments) + ' comments');
-        if (Number.isFinite(engagement.views)) bits.push(formatCount(engagement.views) + ' views');
-
-        if (!bits.length) {
-          bits.push('cached');
-        }
-
-        bits.forEach(function(bit) {
-          appendTextSpan(parent, '', bit);
-        });
-      }
-
       function updateCacheLabel(caches) {
         var dates = caches
           .map(function(cache) { return cache.updatedAt ? new Date(cache.updatedAt) : null; })
@@ -782,7 +717,7 @@
         cacheLabel.textContent = 'Updates every 4h';
         feed.hidden = true;
         state.hidden = false;
-        state.textContent = 'Cached posts are not available yet.';
+        state.textContent = 'Posts are not available yet.';
       }
 
       function authorName(post) {
@@ -807,7 +742,7 @@
 
       function formatRelativeTime(value) {
         var date = new Date(value);
-        if (!value || Number.isNaN(date.getTime())) return 'cached';
+        if (!value || Number.isNaN(date.getTime())) return '';
 
         var deltaSeconds = Math.round((Date.now() - date.getTime()) / 1000);
         var abs = Math.abs(deltaSeconds);
@@ -834,15 +769,32 @@
         return 'just now';
       }
 
-      function formatCount(value) {
-        return new Intl.NumberFormat('en', { notation: 'compact' }).format(value);
-      }
-
       function appendTextSpan(parent, className, text) {
         var span = document.createElement('span');
         if (className) span.className = className;
         span.textContent = text;
         parent.appendChild(span);
+      }
+
+      function serviceIcon(sourceLabel) {
+        var span = document.createElement('span');
+        span.className = 'service-icon';
+        span.innerHTML = serviceIconSvg(sourceLabel);
+        return span;
+      }
+
+      function serviceIconSvg(sourceLabel) {
+        var key = String(sourceLabel || '').toLowerCase();
+        if (key.includes('reddit')) {
+          return '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5c1.36 0 2.61.34 3.7.94l1.53-2.24 3.6.78-.34 1.55-2.72-.59-1.02 1.5a8.1 8.1 0 0 1 2.55 3.16A2.7 2.7 0 0 1 24 10.03c0 1.05-.6 1.96-1.48 2.4.02.2.03.4.03.61 0 4.24-4.72 7.68-10.55 7.68S1.45 17.28 1.45 13.04c0-.21.01-.41.03-.61A2.7 2.7 0 0 1 0 10.03a2.7 2.7 0 0 1 4.7-1.82C6.07 4.85 8.83 2.5 12 2.5Zm-3.5 9.2a1.45 1.45 0 1 0 0-2.9 1.45 1.45 0 0 0 0 2.9Zm7 0a1.45 1.45 0 1 0 0-2.9 1.45 1.45 0 0 0 0 2.9Zm-7.2 3.37c.84.9 2.08 1.35 3.7 1.35s2.86-.45 3.7-1.35a.65.65 0 0 0-.95-.89c-.57.61-1.49.92-2.75.92s-2.18-.31-2.75-.92a.65.65 0 1 0-.95.89Z"/></svg>';
+        }
+        if (key.includes('instagram')) {
+          return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"></circle></svg>';
+        }
+        if (key.includes('tiktok')) {
+          return '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.4 3c.28 2.32 1.58 3.7 3.6 4.03v3.19a7.3 7.3 0 0 1-3.54-1.08v6.12c0 3.02-2.09 5.24-5.25 5.24-2.82 0-5.21-1.84-5.21-4.84 0-3.45 3.28-5.53 6.42-4.72v3.3c-1.45-.45-3.08.18-3.08 1.72 0 1.08.82 1.75 1.88 1.75 1.2 0 1.94-.73 1.94-2.35V3h3.24Z"/></svg>';
+        }
+        return '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.24 3h3.31l-7.23 8.26L22.82 21h-6.65l-5.2-6.8L5.02 21H1.7l7.73-8.84L1.28 3h6.82l4.7 6.21L18.24 3Zm-1.16 16.28h1.84L7.1 4.63H5.13l11.95 14.65Z"/></svg>';
       }
 
     })();

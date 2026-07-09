@@ -178,8 +178,12 @@ function cleanText(value) {
     String(value)
       .replace(/<script[\s\S]*?<\/script>/gi, "")
       .replace(/<style[\s\S]*?<\/style>/gi, "")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/(p|div|h[1-6]|li|ul|ol|blockquote)>/gi, "\n")
       .replace(/<[^>]+>/g, " ")
-      .replace(/\s+/g, " ")
+      .replace(/[ \t\f\v]+/g, " ")
+      .replace(/ *\n+ */g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
       .trim(),
   );
 }
