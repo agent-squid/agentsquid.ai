@@ -319,15 +319,26 @@
     }
 
     .post-media img,
-    .post-media video {
+    .post-media video,
+    .post-media iframe {
       display: block;
+      width: 100%;
+    }
+
+    .post-media img,
+    .post-media video {
       max-height: 420px;
       object-fit: cover;
-      width: 100%;
     }
 
     .post-media video {
       background: #09090d;
+    }
+
+    .post-media iframe {
+      aspect-ratio: 9 / 16;
+      border: 0;
+      max-height: 620px;
     }
 
     .post-link {
@@ -561,6 +572,7 @@
           items: posts.map(function(post) {
             var network = post.network_name || 'Community';
             var media = post.media || {};
+            var tiktokEmbed = tiktokEmbedUrl(post);
             return {
               id: 'curator-' + post.id,
               source: 'curator',
@@ -571,7 +583,12 @@
               text: post.text || '',
               url: post.url || null,
               entities: null,
-              media: normalizeMedia({
+              media: normalizeMedia(tiktokEmbed ? {
+                type: 'embed',
+                url: tiktokEmbed,
+                poster: media.image_large || media.image || media.thumbnail || null,
+                title: 'TikTok video'
+              } : {
                 type: media.video ? 'video' : 'image',
                 url: media.video || media.image_large || media.image || media.thumbnail || null,
                 poster: media.image_large || media.image || media.thumbnail || null,
@@ -656,7 +673,8 @@
       }
 
       function renderMedia(item) {
-        var mediaWrapper = item.media.type === 'video'
+        var interactiveMedia = item.media.type === 'video' || item.media.type === 'embed';
+        var mediaWrapper = interactiveMedia
           ? document.createElement('div')
           : item.url ? document.createElement('a') : document.createElement('div');
         mediaWrapper.className = 'post-media';
@@ -665,6 +683,17 @@
           mediaWrapper.href = item.url;
           mediaWrapper.target = '_blank';
           mediaWrapper.rel = 'noopener';
+        }
+
+        if (item.media.type === 'embed') {
+          var iframe = document.createElement('iframe');
+          iframe.src = item.media.url;
+          iframe.title = item.media.title || 'Embedded post';
+          iframe.loading = 'lazy';
+          iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+          iframe.allowFullscreen = true;
+          mediaWrapper.appendChild(iframe);
+          return mediaWrapper;
         }
 
         if (item.media.type === 'video') {
@@ -833,13 +862,27 @@
       function normalizeMedia(media) {
         if (!media || !media.url) return null;
         return {
-          type: media.type === 'video' ? 'video' : 'image',
+          type: media.type === 'video' || media.type === 'embed' ? media.type : 'image',
           url: media.url,
           poster: media.poster || null,
           alt: media.alt || '',
+          title: media.title || '',
           width: media.width || null,
           height: media.height || null
         };
+      }
+
+      function tiktokEmbedUrl(post) {
+        var network = String(post.network_name || '').toLowerCase();
+        if (!network.includes('tiktok')) return null;
+
+        var id = post.source_identifier || '';
+        if (!id && post.url) {
+          var match = String(post.url).match(/\/video\/(\d+)/);
+          id = match ? match[1] : '';
+        }
+
+        return id ? 'https://www.tiktok.com/embed/v2/' + encodeURIComponent(id) : null;
       }
 
       function serviceIcon(sourceLabel) {
