@@ -1,0 +1,45 @@
+{
+  "source": "pinned",
+  "posts": [
+    {
+      "id": "391524040",
+      "source_identifier": "1ukuzlv",
+      "created_at": "2026-07-01T19:11:26.000000Z",
+      "last_modified": null,
+      "network_id": 23,
+      "network_name": "Reddit",
+      "source_type": 48,
+      "status": 1,
+      "post_status": "approved",
+      "is_html": false,
+      "text": "If you're trying to build useful software without burning hundreds of dollars a month on AI, you're in the right place.\n\nThis community is for developers who believe constraints create better engineering.\n\nMost of us aren't backed by VCs or sitting on massive GPU clusters. We have a couple of AI subscriptions, some free-tier models, maybe a local model running on a Mac mini, and a lot of ideas we'd rather build than just talk about.\n\nAgentSquid exists because of that mindset.\n\nIts goal isn't to replace your favorite coding agent. It's to help you get more out of the ones you already have; sharing context between them, choosing the right model for the job, and making every prompt count.\n\n# Why \"[AgentSquid](https://agentsquid.ai/)\"?\n\nThe inspiration comes from [Jogakbo](https://www.vam.ac.uk/articles/jogakbo-traditional-korean-patchwork), the traditional Korean patchwork cloth.\n\nCenturies ago, people saved every leftover piece of silk, ramie, and hemp that would otherwise be thrown away. Those tiny scraps were stitched together into something beautiful, durable, and genuinely useful.\n\nThat's exactly how many of us build software today.\n\nA couple of $20 subscriptions.\nA few cheap or free-tier models.\nA local open-weight model running on a 16GB Mac mini.\n\nIndividually they're just limited pieces.\n\nTogether they're enough to build real products.\n\nYou don't always need the biggest model or the biggest budget. You need good judgment about which model is good enough for each task.\n\n# The Squid Manifesto: EVERY. TOKEN. COUNTS!\n\n[](https://github.com/agent-squid/squid/blob/main/README.md#the-squid-manifesto-every-token-counts)\n\n* COUNT every token, every prompt!\n* UNIFY your subscriptions, free tiers, and local models into one workplace.\n* SHARE context explicitly across models, topics, sessions; no waste!\n* CLEAR old context without fear; AgentSquid alerts you to clear and let you choose exactly what stays!\n* PARALLELIZE your prompts, no more waiting!\n\nThis isn't about chasing benchmark scores.\n\nIt's about shipping.\nIt's about finding clever ways to stretch limited resources.\nIt's about proving that small teams and even solo developers can build serious products.\n\n# Show us what you're building\n\nWhether you're using AgentSquid or not, we'd love to see:\n\n* Your low-cost AI stack\n* Local model setups\n* Prompt and workflow ideas\n* Token-saving tricks\n* Automation projects\n* Indie products you're building\n* Things that failed (those are often the most interesting)\n\nEvery token counts.\n\nWelcome to the Squid community.",
+      "url": "https://reddit.com/r/AgentSquid/comments/1ukuzlv/welcome_to_the_agentsquid_user_group/",
+      "user": {
+        "screen_name": "aiagentsquid",
+        "full_name": "Welcome to the AgentSquid User Group",
+        "image": "https://cdn.curator.io/0.gif",
+        "url": "https://reddit.com/user/aiagentsquid"
+      },
+      "media": {
+        "has_media": true,
+        "has_image": false,
+        "has_video": false,
+        "image": "https://external-preview.redd.it/I_a3cRCtBMscp6nSf_blXLEzwUH1MM61WzNOkeiT7Mk.jpeg?auto=webp&s=fcaafd9218d25e4f1360813abe1660639f8c3f84",
+        "image_large": "https://external-preview.redd.it/I_a3cRCtBMscp6nSf_blXLEzwUH1MM61WzNOkeiT7Mk.jpeg?auto=webp&s=fcaafd9218d25e4f1360813abe1660639f8c3f84",
+        "thumbnail": null,
+        "video": null,
+        "image_width": 640,
+        "image_height": 360,
+        "video_width": 0,
+        "video_height": 0
+      },
+      "engagement": {
+        "likes": 0,
+        "comments": 0,
+        "views": 0
+      },
+      "pinned": true,
+      "pinned_at": "2026-07-09T00:00:00.000Z"
+    }
+  ]
+}
