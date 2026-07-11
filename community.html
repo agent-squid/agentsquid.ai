@@ -7,7 +7,7 @@
   <link rel="icon" type="image/png" href="agent_squid_400.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" />
   <style>
     :root {
@@ -61,7 +61,7 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-family: 'Rubik', system-ui, sans-serif;
       display: flex;
       justify-content: center;
       min-height: 100vh;
@@ -115,10 +115,10 @@
 
     .brand-title {
       color: var(--accent);
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-family: 'Rubik', system-ui, sans-serif;
       font-size: 0.86rem;
       font-weight: 700;
-      letter-spacing: 0.02em;
+      letter-spacing: 0;
     }
 
     .back-link {
@@ -143,7 +143,7 @@
       align-items: center;
       justify-content: flex-start;
       gap: 1rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.3rem;
     }
 
     .intro-actions {
@@ -158,7 +158,6 @@
     .user-group-pill {
       align-items: center;
       display: inline-flex;
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
       font-size: 0.72rem;
       white-space: nowrap;
     }
@@ -166,7 +165,8 @@
     .cache-pill {
       color: var(--text-dim);
       gap: 0.45rem;
-      padding: 0.35rem 0;
+      min-height: 28px;
+      padding: 0;
     }
 
     .user-group-pill {
@@ -177,8 +177,8 @@
       font-weight: 600;
       gap: 0.35rem;
       line-height: 1.2;
-      min-height: 30px;
-      padding: 0 0.75rem;
+      min-height: 28px;
+      padding: 0 0.65rem;
       text-decoration: none;
       transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
@@ -203,7 +203,7 @@
     .feed-shell {
       border-top: 1px solid var(--surface-3);
       min-height: 22rem;
-      padding-top: 0.85rem;
+      padding-top: 0.4rem;
     }
 
     .feed {
@@ -221,7 +221,6 @@
       color: var(--text-muted);
       cursor: pointer;
       display: inline-flex;
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
       font-size: 0.72rem;
       font-weight: 600;
       justify-content: center;
@@ -256,6 +255,7 @@
     }
 
     .post-card.has-media {
+      align-items: start;
       display: grid;
       grid-template-columns: minmax(136px, 26%) minmax(0, 1fr);
     }
@@ -311,7 +311,6 @@
 
     .source-name {
       color: var(--item-accent);
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
       font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.04em;
@@ -333,17 +332,25 @@
     }
 
     .pinned-badge {
-      background: #1c1a18;
-      border: 1px solid #3a3028;
-      border-radius: 6px;
+      align-items: center;
       color: var(--accent-dim);
+      display: inline-flex;
       flex: 0 0 auto;
-      font-family: 'JetBrains Mono', ui-monospace, monospace;
-      font-size: 0.68rem;
-      font-weight: 700;
-      line-height: 1;
-      padding: 0.24rem 0.42rem;
-      text-transform: uppercase;
+      justify-content: center;
+      margin-left: auto;
+      min-height: 1rem;
+      padding: 0;
+    }
+
+    .pinned-badge svg {
+      display: block;
+      height: 0.78rem;
+      width: 0.72rem;
+    }
+
+    .community-badge + .pinned-badge,
+    .pinned-badge + .post-link {
+      margin-left: 0;
     }
 
     a.post-author {
@@ -374,6 +381,10 @@
 
     .community-badge + .post-link {
       margin-left: 0;
+    }
+
+    .community-badge-mobile {
+      display: none;
     }
 
     .community-badge:hover {
@@ -490,6 +501,7 @@
     }
 
     .post-media {
+      align-self: start;
       background: #111118;
       border: 0;
       border-right: 1px solid rgba(46, 46, 62, 0.62);
@@ -662,6 +674,12 @@
       width: min(100%, 980px);
     }
 
+    .viewer-panel.is-text-primary {
+      grid-template-columns: 1fr;
+      grid-template-rows: minmax(160px, 34%) minmax(0, 1fr);
+      max-width: 760px;
+    }
+
     .viewer-stage {
       align-items: center;
       background: #08080c;
@@ -694,6 +712,11 @@
       width: min(100%, 430px);
     }
 
+    .viewer-panel.is-text-primary .viewer-stage {
+      height: 100%;
+      order: 1;
+    }
+
     .viewer-details {
       border-left: 1px solid rgba(255, 255, 255, 0.08);
       display: flex;
@@ -701,6 +724,15 @@
       min-height: 0;
       overflow: hidden;
       padding: 0.86rem;
+    }
+
+    .viewer-panel.is-text-primary .viewer-details {
+      border-left: 0;
+      border-right: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      min-height: 0;
+      order: 2;
+      overflow: hidden;
     }
 
     .viewer-details > div {
@@ -823,6 +855,28 @@
         padding-right: 0.68rem;
       }
 
+      .post-body .post-meta > .community-badge {
+        display: none;
+      }
+
+      .post-body .post-meta > .pinned-badge {
+        margin-left: auto;
+      }
+
+      .post-body > .community-badge-mobile {
+        display: inline-flex;
+        margin: 0 0 0.45rem;
+        width: max-content;
+      }
+
+      .post-meta .post-link {
+        margin-left: auto;
+      }
+
+      .post-meta > .pinned-badge + .post-link {
+        margin-left: 0;
+      }
+
       .post-card.has-media {
         display: grid;
         grid-template-columns: minmax(92px, 34%) minmax(0, 1fr);
@@ -866,6 +920,27 @@
         border-left: 0;
         border-top: 1px solid rgba(255, 255, 255, 0.08);
         max-height: 28dvh;
+      }
+
+      .viewer-panel.is-text-primary {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(118px, 28dvh) minmax(0, 1fr);
+      }
+
+      .viewer-panel.is-text-primary .viewer-stage {
+        height: 100%;
+        max-height: none;
+        min-height: 0;
+        order: 1;
+      }
+
+      .viewer-panel.is-text-primary .viewer-details {
+        border-right: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        max-height: none;
+        min-height: 0;
+        order: 2;
+        overflow: hidden;
       }
 
     }
@@ -944,6 +1019,7 @@
       var cacheLabel = document.getElementById('cache-label');
       var loadMore = document.getElementById('load-more');
       var mediaViewer = document.getElementById('media-viewer');
+      var viewerPanel = mediaViewer.querySelector('.viewer-panel');
       var viewerStage = document.getElementById('viewer-stage');
       var viewerDetails = document.getElementById('viewer-details');
       var viewerClose = document.getElementById('viewer-close');
@@ -1134,9 +1210,6 @@
         var meta = document.createElement('div');
         meta.className = 'post-meta';
         meta.appendChild(serviceIcon(item.sourceLabel));
-        if (item.pinned) {
-          appendTextSpan(meta, 'pinned-badge', 'Pinned');
-        }
         if (item.author) {
           appendAuthor(meta, item);
         }
@@ -1145,6 +1218,9 @@
           appendTextSpan(meta, 'post-time', postTime);
         }
         appendCommunityBadge(meta, item);
+        if (item.pinned) {
+          appendPinnedBadge(meta);
+        }
         if (item.url) {
           var link = document.createElement('a');
           link.className = 'post-link';
@@ -1156,6 +1232,7 @@
           meta.appendChild(link);
         }
         body.appendChild(meta);
+        appendCommunityBadge(body, item, 'community-badge-mobile');
 
         var text = document.createElement('div');
         text.className = 'post-text';
@@ -1235,6 +1312,7 @@
       }
 
       function openMediaViewer(item) {
+        viewerPanel.classList.toggle('is-text-primary', item.markdown);
         viewerStage.replaceChildren(renderViewerMedia(item));
         viewerDetails.replaceChildren(renderViewerDetails(item));
         mediaViewer.hidden = false;
@@ -1245,6 +1323,7 @@
       function closeMediaViewer() {
         mediaViewer.hidden = true;
         document.body.classList.remove('media-viewer-open');
+        viewerPanel.classList.remove('is-text-primary');
         viewerStage.replaceChildren();
         viewerDetails.replaceChildren();
       }
@@ -1282,9 +1361,6 @@
         var meta = document.createElement('div');
         meta.className = 'post-meta';
         meta.appendChild(serviceIcon(item.sourceLabel));
-        if (item.pinned) {
-          appendTextSpan(meta, 'pinned-badge', 'Pinned');
-        }
         if (item.author) {
           appendAuthor(meta, item);
         }
@@ -1293,6 +1369,9 @@
           appendTextSpan(meta, 'post-time', postTime);
         }
         appendCommunityBadge(meta, item);
+        if (item.pinned) {
+          appendPinnedBadge(meta);
+        }
         if (item.url) {
           var link = document.createElement('a');
           link.className = 'post-link';
@@ -1529,7 +1608,6 @@
         if (!subreddit) return null;
 
         return {
-          prefix: 'User Group:',
           label: 'r/' + subreddit,
           url: 'https://reddit.com/r/' + encodeURIComponent(subreddit)
         };
@@ -1628,25 +1706,36 @@
         appendTextSpan(parent, 'post-author', item.author);
       }
 
-      function appendCommunityBadge(parent, item) {
+      function appendCommunityBadge(parent, item, extraClass) {
         if (!item.community) return;
 
         var link = document.createElement('a');
-        link.className = 'community-badge';
+        link.className = extraClass ? 'community-badge ' + extraClass : 'community-badge';
         link.href = item.community.url;
         link.target = '_blank';
         link.rel = 'noopener';
 
-        var prefix = document.createElement('span');
-        prefix.className = 'community-badge-label';
-        prefix.textContent = item.community.prefix;
-        link.appendChild(prefix);
+        if (item.community.prefix) {
+          var prefix = document.createElement('span');
+          prefix.className = 'community-badge-label';
+          prefix.textContent = item.community.prefix;
+          link.appendChild(prefix);
+        }
 
         var label = document.createElement('span');
         label.textContent = item.community.label;
         link.appendChild(label);
 
         parent.appendChild(link);
+      }
+
+      function appendPinnedBadge(parent) {
+        var badge = document.createElement('span');
+        badge.className = 'pinned-badge';
+        badge.title = 'Pinned';
+        badge.setAttribute('aria-label', 'Pinned');
+        badge.innerHTML = '<svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M25 21v1H8v-1l2-2L11 4L9 2V1h15v1l-2 2l1 15l2 2zM16 31h1l1-8h-3l1 8z"></path></svg>';
+        parent.appendChild(badge);
       }
 
       function normalizeMedia(media) {
