@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "boot": {
+    "default": "More Done, Less Tokens.",
+    "templates": [
+      { "text": "Day {streak} streak. Absolute legend.", "when": { "streak": 365 } },
+      { "text": "100 days! You've become the squid.", "when": { "streak": 100 } },
+      { "text": "One-month champion. 🦑", "when": { "streak": 30 } },
+      { "text": "Two weeks strong. This is the way.", "when": { "streak": 14 } },
+      { "text": "7 days on a roll. Momentum is real.", "when": { "streak": 7 } },
+      { "text": "3 days in. The tentacles are waking up.", "when": { "streak": 3 } },
+      { "text": "Day 2. Back for more.", "when": { "streak": 2 } },
+      { "text": "Session #{hit}! Here comes the next big thing.", "when": { "sessions": { "milestone": [50, 100, 250, 500, 1000, 2000, 5000] } } },
+      { "text": "Burning the midnight oil? 🌙", "when": { "hour": [0, 5] } },
+      { "text": "Early bird gets the tokens. ☀️", "when": { "hour": [5, 9] } },
+      { "text": "Monday. Let's ink some code.", "when": { "dow": [1] } },
+      { "text": "Friday. Ship it.", "when": { "dow": [5] } },
+      { "text": "Weekend tinkering. Respect.", "when": { "dow": [0, 6] } },
+      { "text": "More tentacles, fewer tokens.", "when": { "random": 0.06 } },
+      { "text": "Ink wisely today.", "when": { "random": 0.04 } }
+    ]
+  },
+  "stats": {
+    "tips": [
+      { "text": "Tip: Click any chart point to see per-turn details.", "when": { "random": 0.2 } },
+      { "text": "Tip: Pin a session to protect it from auto-cleanup.", "when": { "random": 0.15 } },
+      { "text": "Tip: Use Ctrl+K to jump between topics instantly.", "when": { "random": 0.12 } }
+    ]
+  }
+}
