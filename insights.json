@@ -1,5 +1,16 @@
 {
-  "version": 1,
+  "measures": {
+    "period": "7d",
+    "values": [
+      { "key": "streak", "source": "local" },
+      { "key": "hour",   "source": "clock" },
+      { "key": "dow",    "source": "clock" },
+      { "key": "turns",     "measure": "turns" },
+      { "key": "turns_wow", "measure": "turns", "compare": "prev_period", "fmt": "delta" },
+      { "key": "cache",     "measure": "cache_hit_rate" },
+      { "key": "cache_wow", "measure": "cache_hit_rate", "compare": "prev_period", "fmt": "pp" }
+    ]
+  },
   "boot": {
     "default": "More Done, Less Tokens.",
     "templates": [
@@ -10,12 +21,13 @@
       { "text": "7 days on a roll. Momentum is real.", "when": { "streak": 7 } },
       { "text": "3 days in. The tentacles are waking up.", "when": { "streak": 3 } },
       { "text": "Day 2. Back for more.", "when": { "streak": 2 } },
-      { "text": "Prompt #{hit}! Here comes the next big thing.", "when": { "prompts": { "milestone": [50, 100, 250, 500, 1000, 2000, 5000] } } },
-      { "text": "Burning the midnight oil? 🌙", "when": { "hour": [0, 5] } },
-      { "text": "Early bird gets the tokens. ☀️", "when": { "hour": [5, 9] } },
-      { "text": "Monday. Let's ink some code.", "when": { "dow": [1] } },
-      { "text": "Friday. Ship it.", "when": { "dow": [5] } },
-      { "text": "Weekend tinkering. Respect.", "when": { "dow": [0, 6] } },
+      { "text": "{turns} turns this week! {turns_wow} from last week. 🦑", "when": { "turns": { "gte": 50 } } },
+      { "text": "Cache hit {cache} — {cache_wow} vs last week!", "when": { "cache": { "gte": 80 }, "cache_wow": { "gte": 1 } } },
+      { "text": "Burning the midnight oil? 🌙", "when": { "hour": { "between": [0, 5] } } },
+      { "text": "Early bird gets the tokens. ☀️", "when": { "hour": { "between": [5, 9] } } },
+      { "text": "Monday. Let's ink some code.", "when": { "dow": { "in": [1] } } },
+      { "text": "Friday. Ship it.", "when": { "dow": { "in": [5] } } },
+      { "text": "Weekend tinkering. Respect.", "when": { "dow": { "in": [0, 6] } } },
       { "text": "More tentacles, fewer tokens.", "when": { "random": 0.06 } },
       { "text": "Ink wisely today.", "when": { "random": 0.04 } }
     ]
