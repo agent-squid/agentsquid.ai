@@ -10,7 +10,7 @@
       { "text": "7 days on a roll. Momentum is real.", "when": { "streak": 7 } },
       { "text": "3 days in. The tentacles are waking up.", "when": { "streak": 3 } },
       { "text": "Day 2. Back for more.", "when": { "streak": 2 } },
-      { "text": "Session #{hit}! Here comes the next big thing.", "when": { "sessions": { "milestone": [50, 100, 250, 500, 1000, 2000, 5000] } } },
+      { "text": "Prompt #{hit}! Here comes the next big thing.", "when": { "prompts": { "milestone": [50, 100, 250, 500, 1000, 2000, 5000] } } },
       { "text": "Burning the midnight oil? 🌙", "when": { "hour": [0, 5] } },
       { "text": "Early bird gets the tokens. ☀️", "when": { "hour": [5, 9] } },
       { "text": "Monday. Let's ink some code.", "when": { "dow": [1] } },
