@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agent Squid</title>
+  <title>AgentSquid</title>
   <link rel="icon" type="image/png" href="agent_squid_400.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap&text=%E2%96%88%E2%96%84%E2%96%80%E2%95%94%E2%95%90%E2%95%97%E2%95%91%E2%95%9A%E2%95%9D" />
   <style>
@@ -24,7 +24,7 @@
     body {
       background: #0a0a0f;
       color: #f0ece4;
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: 'Rubik', sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -85,6 +85,15 @@
       background-clip: text;
     }
 
+    .wordmark {
+      color: #f0ece4;
+      font-family: 'Rubik', system-ui, sans-serif;
+      font-size: clamp(2.4rem, 8vw, 5rem);
+      font-weight: 700;
+      line-height: 0.95;
+      text-align: center;
+    }
+
     .github-link {
       font-size: 0.78rem;
       letter-spacing: 0.06em;
@@ -101,9 +110,10 @@
 <body>
   <div class="card">
     <div class="logo-wrap">
-      <img src="agent_squid_400.png" alt="Agent Squid logo" />
+      <img src="agent_squid_400.png" alt="AgentSquid logo" />
     </div>
-    <pre class="text-logo">🦑 AGENT
+    <h1 class="wordmark">AgentSquid</h1>
+    <pre class="text-logo">
    ██████╗ ██████╗ ██╗   ██╗██╗██████╗
    ██╔════╝██╔═══██╗██║   ██║██║██╔══██╗
    ╚█████╗ ██║   ██║██║   ██║██║██║  ██║

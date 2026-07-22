@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentSquid — Every Token Counts</title>
+  <meta name="description" content="Unify your AI subscriptions, track every token, and parallelize your prompts. AgentSquid is the CLI workspace for developers who count every token." />
+  <link rel="icon" type="image/png" href="agent_squid_400.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap&text=%E2%96%88%E2%96%84%E2%96%80%E2%95%94%E2%95%90%E2%95%97%E2%95%91%E2%95%9A%E2%95%9D" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #101018;
+      --border: #1e1e2e;
+      --border-hover: #2e2e42;
+      --text: #f0ece4;
+      --text-muted: #999;
+      --text-dim: #666;
+      --accent: #f07040;
+      --accent-light: #f5a060;
+      --accent-glow: rgba(220, 90, 40, 0.18);
+      --font: 'Rubik', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', 'Courier New', monospace;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, var(--accent-glow), transparent 70%),
+        radial-gradient(ellipse 40% 30% at 80% 80%, rgba(240, 112, 64, 0.06), transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── navigation ── */
+    .nav {
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 1.2rem;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .nav-brand {
+      align-items: center;
+      color: var(--text);
+      display: flex;
+      gap: 0.65rem;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+
+    .nav-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid rgba(240, 112, 64, 0.45);
+      overflow: hidden;
+      flex: 0 0 auto;
+    }
+
+    .nav-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.1);
+    }
+
+    .nav-links {
+      align-items: center;
+      display: flex;
+      gap: 1.2rem;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent-light);
+    }
+
+    .nav-cta {
+      background: var(--accent);
+      border: 0;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.45rem 1rem;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .nav-cta:hover {
+      background: #e05a30;
+      color: #fff;
+    }
+
+    /* ── hero ── */
+    .hero {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      justify-content: center;
+      min-height: calc(100vh - 73px);
+      padding: 2rem;
+      position: relative;
+      text-align: center;
+      z-index: 1;
+    }
+
+    .hero-logo {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid rgba(240, 112, 64, 0.5);
+      box-shadow: 0 0 0 6px rgba(240, 112, 64, 0.12), 0 8px 40px rgba(220, 90, 40, 0.4);
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .hero-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.1);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .hero-ascii {
+      font-family: var(--mono);
+      font-size: clamp(0.48rem, 1.2vw, 0.78rem);
+      line-height: 1.25;
+      white-space: pre;
+      background: linear-gradient(135deg, #f07040 0%, #f5a060 50%, #e84c1e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-tagline {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      max-width: 480px;
+    }
+
+    .hero-tagline em {
+      color: var(--accent-light);
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .hero-actions {
+      align-items: center;
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border: 0;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      display: inline-block;
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 0.7rem 1.6rem;
+      text-decoration: none;
+      transition: background 0.15s, box-shadow 0.15s;
+      box-shadow: 0 2px 16px rgba(240, 112, 64, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: #e05a30;
+      box-shadow: 0 4px 24px rgba(240, 112, 64, 0.4);
+      color: #fff;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-block;
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.7rem 1.6rem;
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+
+    /* ── manifesto ── */
+    .manifesto {
+      margin: 0 auto;
+      max-width: 860px;
+      padding: 4rem 2rem 6rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-title {
+      color: var(--text);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+
+    .section-title span {
+      background: linear-gradient(135deg, #f07040 0%, #f5a060 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .pillars {
+      display: grid;
+      gap: 1.2rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .pillar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.6rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .pillar:hover {
+      border-color: rgba(240, 112, 64, 0.28);
+      transform: translateY(-2px);
+    }
+
+    .pillar-icon {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.8rem;
+    }
+
+    .pillar h3 {
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .pillar p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    /* ── stats bar ── */
+    .stats-bar {
+      align-items: center;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      padding: 1.8rem 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      background: linear-gradient(135deg, #f07040 0%, #f5a060 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-family: var(--mono);
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      color: var(--text-dim);
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      margin-top: 0.15rem;
+      text-transform: uppercase;
+    }
+
+    /* ── footer ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.75rem;
+      padding: 2rem;
+      position: relative;
+      text-align: center;
+      z-index: 1;
+    }
+
+    .footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .footer a:hover {
+      color: var(--accent-light);
+    }
+
+    .footer-links {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-bottom: 0.8rem;
+    }
+
+    /* ── responsive ── */
+    @media (max-width: 640px) {
+      .nav {
+        padding: 0.8rem 1rem;
+      }
+
+      .nav-links {
+        gap: 0.8rem;
+      }
+
+      .hero {
+        min-height: calc(100vh - 65px);
+        padding: 1.5rem 1rem;
+      }
+
+      .hero-logo {
+        width: 110px;
+        height: 110px;
+      }
+
+      .manifesto {
+        padding: 3rem 1rem 4rem;
+      }
+
+      .pillars {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-bar {
+        gap: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a class="nav-brand" href="index2.html">
+      <div class="nav-logo">
+        <img src="agent_squid_400.png" alt="AgentSquid" />
+      </div>
+      AgentSquid
+    </a>
+    <div class="nav-links">
+      <a href="community.html">Community</a>
+      <a href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">Docs</a>
+      <a class="nav-cta" href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">Install</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-logo">
+      <img src="agent_squid_400.png" alt="AgentSquid" />
+    </div>
+    <pre class="hero-ascii">🦑 AGENT
+   ██████╗ ██████╗ ██╗   ██╗██╗██████╗
+   ██╔════╝██╔═══██╗██║   ██║██║██╔══██╗
+   ╚█████╗ ██║   ██║██║   ██║██║██║  ██║
+    ╚═══██╗██║▄▄ ██║██║   ██║██║██║  ██║
+   ██████╔╝╚██████╔╝╚██████╔╝██║██████╔╝
+   ╚═════╝  ╚══▀▀═╝  ╚═════╝ ╚═╝╚═════╝</pre>
+    <p class="hero-tagline">
+      The CLI workspace where <em>every token counts</em>.
+    </p>
+    <p class="hero-tagline" style="font-size: 0.9rem; margin-top: -1rem;">
+      Unify your subscriptions, parallelize prompts, and never lose context again.
+    </p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">Get Started</a>
+      <a class="btn-ghost" href="community.html">See What's New</a>
+    </div>
+  </section>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-value">5</div>
+      <div class="stat-label">Principles</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">∞</div>
+      <div class="stat-label">Models Supported</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">0</div>
+      <div class="stat-label">Tokens Wasted</div>
+    </div>
+  </div>
+
+  <section class="manifesto">
+    <h2 class="section-title">The Squid <span>Manifesto</span></h2>
+    <div class="pillars">
+
+      <div class="pillar">
+        <div class="pillar-icon">01 // COUNT</div>
+        <h3>Count Every Token</h3>
+        <p>Track usage across every model, every prompt, every session. Know exactly where your tokens go — no surprises at the end of the month.</p>
+      </div>
+
+      <div class="pillar">
+        <div class="pillar-icon">02 // UNIFY</div>
+        <h3>One Workspace, All Models</h3>
+        <p>Bring your paid subscriptions, free tiers, and local models into a single CLI. Switch providers without switching tools.</p>
+      </div>
+
+      <div class="pillar">
+        <div class="pillar-icon">03 // SHARE</div>
+        <h3>Context That Travels</h3>
+        <p>Share context explicitly across models, topics, and sessions. No copy-paste. No repeating yourself. Just smart context reuse.</p>
+      </div>
+
+      <div class="pillar">
+        <div class="pillar-icon">04 // CLEAR</div>
+        <h3>Clean Up Without Fear</h3>
+        <p>AgentSquid alerts you before clearing old context and lets you choose exactly what stays. Prune with confidence.</p>
+      </div>
+
+      <div class="pillar">
+        <div class="pillar-icon">05 // PARALLELIZE</div>
+        <h3>Stop Waiting in Line</h3>
+        <p>Run multiple prompts in parallel. No more sitting idle while one model thinks — fire off independent work and collect the results.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">GitHub</a>
+      <a href="community.html">Community Feed</a>
+      <a href="https://reddit.com/r/AgentSquid" target="_blank" rel="noopener">r/AgentSquid</a>
+      <a href="https://x.com/aiAgentSquid" target="_blank" rel="noopener">@aiAgentSquid</a>
+    </div>
+    <p>🦑 AgentSquid — Every Token Counts.</p>
+  </footer>
+
+</body>
+</html>
