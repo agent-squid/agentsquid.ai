@@ -41,6 +41,8 @@ jobs:
         run: |
           mkdir _site
           cp index.html community.html insights.json pinned-posts.json CNAME agent_squid_400.png agent_squid_400x400.png _site/
+          cp -r blog _site/blog
+          cp -r docs _site/docs
 
           curl --fail --silent --show-error --location \
             "$SITE_URL/x-posts.json" \

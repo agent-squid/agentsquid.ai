@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Start - Agent Squid Docs</title>
+  <meta name="description" content="Install a backend CLI, start Agent Squid, and open the browser UI." />
+  <link rel="icon" type="image/png" href="../agent_squid_400.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" />
+  <style>
+    :root {
+      --bg: #0b0b10;
+      --surface: #12121a;
+      --ink: #f1ece4;
+      --muted: #aaa59d;
+      --dim: #706c66;
+      --line: #252534;
+      --accent: #f07040;
+      --accent-2: #77c6b3;
+      --mono: 'JetBrains Mono', 'Courier New', monospace;
+      --font: 'Space Grotesk', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: linear-gradient(180deg, rgba(240, 112, 64, 0.06), transparent 320px), var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent-2); }
+
+    .nav {
+      align-items: center;
+      background: rgba(11, 11, 16, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+      padding: 0.9rem 2.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      align-items: center;
+      display: flex;
+      gap: 0.65rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .brand img {
+      border: 2px solid rgba(240, 112, 64, 0.5);
+      border-radius: 50%;
+      height: 34px;
+      object-fit: cover;
+      transform: scale(1.08);
+      width: 34px;
+    }
+
+    .nav-links { align-items: center; display: flex; gap: 1rem; }
+    .nav-links a { color: var(--muted); font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+    .nav-links a:hover, .nav-links a.active { color: var(--ink); }
+    .nav-links .install { background: var(--accent); border-radius: 7px; color: #fff; padding: 0.48rem 0.85rem; }
+
+    .layout {
+      display: grid;
+      gap: 3rem;
+      grid-template-columns: 220px minmax(0, 1fr);
+      margin: 0 auto;
+      max-width: 1100px;
+      padding: 2.75rem 2.5rem 5rem;
+    }
+
+    .sidebar { align-self: start; display: grid; gap: 0.15rem; position: sticky; top: 5.5rem; }
+    .sidebar-label { color: var(--dim); font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em; margin-bottom: 0.6rem; text-transform: uppercase; }
+    .sidebar a { border-radius: 6px; color: var(--muted); font-size: 0.88rem; padding: 0.4rem 0.6rem; text-decoration: none; }
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { background: var(--surface); color: var(--accent-2); font-weight: 600; }
+    .sidebar .external { color: var(--dim); margin-top: 0.8rem; }
+
+    article { color: var(--ink); max-width: 720px; }
+    article h1 { font-size: 2.4rem; line-height: 1.1; margin-bottom: 1.4rem; }
+    article h2 { font-size: 1.5rem; margin: 2.2rem 0 1rem; }
+    article p { color: var(--muted); font-size: 1rem; margin-bottom: 1.1rem; }
+    article ul, article ol { color: var(--muted); margin: 0 0 1.1rem 1.4rem; }
+    article li { margin-bottom: 0.45rem; }
+
+    article code {
+      background: #17171f;
+      border-radius: 4px;
+      color: var(--accent-2);
+      font-family: var(--mono);
+      font-size: 0.86em;
+      padding: 0.1rem 0.35rem;
+    }
+
+    article pre {
+      background: #0a0a0f;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin: 0 0 1.3rem;
+      overflow-x: auto;
+      padding: 1rem 1.1rem;
+    }
+
+    article pre code {
+      background: none;
+      color: #dfd8ce;
+      display: block;
+      font-size: 0.86rem;
+      line-height: 1.6;
+      padding: 0;
+      white-space: pre;
+    }
+
+    .table-wrap { margin-bottom: 1.3rem; overflow-x: auto; }
+    table { border: 1px solid var(--line); border-collapse: collapse; border-radius: 8px; font-size: 0.9rem; width: 100%; }
+    th, td { border-bottom: 1px solid var(--line); padding: 0.55rem 0.8rem; text-align: left; vertical-align: top; }
+    th { background: var(--surface); color: var(--ink); font-size: 0.78rem; letter-spacing: 0.03em; text-transform: uppercase; }
+    td { color: var(--muted); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .next-step {
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: flex;
+      gap: 0.75rem;
+      justify-content: space-between;
+      margin-top: 2rem;
+      padding: 1rem 1.2rem;
+    }
+
+    .next-step a { font-weight: 700; text-decoration: none; }
+
+    .footer { border-top: 1px solid var(--line); color: var(--dim); padding: 2rem 2.5rem; text-align: center; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 0.75rem; }
+    .footer a { color: var(--muted); font-size: 0.86rem; text-decoration: none; }
+    .footer a:hover { color: var(--accent-2); }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+    }
+
+    @media (max-width: 680px) {
+      .nav { align-items: flex-start; flex-direction: column; padding: 0.8rem 1rem; }
+      .nav-links { flex-wrap: wrap; }
+      .layout { padding: 2rem 1rem 3rem; }
+      article h1 { font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="../index.html">
+      <img src="../agent_squid_400.png" alt="Agent Squid logo" />
+      <span>Agent Squid</span>
+    </a>
+    <div class="nav-links">
+      <a href="../index.html#quickstart">Get Started</a>
+      <a href="../index.html#features">Features</a>
+      <a href="../blog/index.html">Blog</a>
+      <a class="active" href="index.html">Docs</a>
+      <a href="../community.html">Community</a>
+      <a class="install" href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </nav>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="sidebar-label">Documentation</p>
+      <a href="index.html">Overview</a>
+      <a href="quick-start.html" class="active">Quick Start</a>
+      <a href="basic-usage.html">Basic Usage</a>
+      <a href="squid-flow.html">Squid Flow</a>
+      <a href="remote-access.html">Remote Access</a>
+      <a href="comparison.html">How It's Different</a>
+      <a class="external" href="https://github.com/agent-squid/squid/tree/main/docs" target="_blank" rel="noopener">Developer docs ↗</a>
+    </aside>
+    <article>
+      <h1>Quick Start</h1>
+      <p>Squid controls local coding-agent CLIs — it doesn't replace them. Install at least one backend first, then start Squid.</p>
+
+      <h2>1. Install a backend CLI</h2>
+      <p>Pick one to start. You can add more agents later, mixing backends in the same workspace.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Backend</th><th>CLI</th><th>Install</th></tr></thead>
+          <tbody>
+            <tr><td>Claude Code</td><td><code>claude</code></td><td><code>curl -fsSL https://claude.ai/install.sh | bash</code></td></tr>
+            <tr><td>OpenAI Codex</td><td><code>codex</code></td><td><code>curl -fsSL https://chatgpt.com/codex/install.sh | sh</code></td></tr>
+            <tr><td>Cursor Agent</td><td><code>cursor-agent</code></td><td><code>curl -fsS https://cursor.com/install | bash</code></td></tr>
+            <tr><td>OpenCode</td><td><code>opencode</code></td><td><code>curl -fsSL https://opencode.ai/install | bash</code></td></tr>
+            <tr><td>Pi</td><td><code>pi</code></td><td><code>curl -fsSL https://pi.dev/install.sh | sh</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Log into the CLI directly first (usually <code>/login</code> inside it) so Squid can spawn it with working credentials.</p>
+
+      <h2>2. Install and run Agent Squid</h2>
+      <pre><code>curl -L https://github.com/agent-squid/squid/archive/refs/tags/v0.1.tar.gz | tar xz
+./squid-0.1/bin/start.sh</code></pre>
+
+      <h2>3. Open the browser UI</h2>
+      <pre><code>http://127.0.0.1:8000</code></pre>
+
+      <h2>4. Create your first agent</h2>
+      <p>Agents are created in the UI. An agent is a named config:</p>
+      <pre><code>agent name (@agent) = harness (Claude Code) + provider (Claude) + model (claude-sonnet-5) + working directory</code></pre>
+      <p>Once an agent exists, start typing anywhere in the chat: <code>#launch@claude write the release notes</code>. The topic (<code>#launch</code>) and agent (<code>@claude</code>) are created the moment you use them — no separate setup step.</p>
+
+      <div class="next-step">
+        <span>Next: learn the tag syntax for everyday use.</span>
+        <a href="basic-usage.html">Basic Usage →</a>
+      </div>
+    </article>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">GitHub</a>
+      <a href="../blog/index.html">Blog</a>
+      <a href="../community.html">Community Feed</a>
+      <a href="https://reddit.com/r/AgentSquid" target="_blank" rel="noopener">r/AgentSquid</a>
+      <a href="https://x.com/aiAgentSquid" target="_blank" rel="noopener">@aiAgentSquid</a>
+    </div>
+    <p>Agent Squid - Every token counts.</p>
+  </footer>
+</body>
+</html>

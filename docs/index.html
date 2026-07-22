@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documentation - Agent Squid</title>
+  <meta name="description" content="Agent Squid documentation: quick start, basic usage, Squid Flow, remote access, and how it compares to other tools." />
+  <link rel="icon" type="image/png" href="../agent_squid_400.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" />
+  <style>
+    :root {
+      --bg: #0b0b10;
+      --surface: #12121a;
+      --ink: #f1ece4;
+      --muted: #aaa59d;
+      --dim: #706c66;
+      --line: #252534;
+      --accent: #f07040;
+      --accent-2: #77c6b3;
+      --mono: 'JetBrains Mono', 'Courier New', monospace;
+      --font: 'Space Grotesk', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: linear-gradient(180deg, rgba(240, 112, 64, 0.06), transparent 320px), var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent-2); }
+
+    .nav {
+      align-items: center;
+      background: rgba(11, 11, 16, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+      padding: 0.9rem 2.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      align-items: center;
+      display: flex;
+      gap: 0.65rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .brand img {
+      border: 2px solid rgba(240, 112, 64, 0.5);
+      border-radius: 50%;
+      height: 34px;
+      object-fit: cover;
+      transform: scale(1.08);
+      width: 34px;
+    }
+
+    .nav-links { align-items: center; display: flex; gap: 1rem; }
+
+    .nav-links a {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover, .nav-links a.active { color: var(--ink); }
+
+    .nav-links .install {
+      background: var(--accent);
+      border-radius: 7px;
+      color: #fff;
+      padding: 0.48rem 0.85rem;
+    }
+
+    .layout {
+      display: grid;
+      gap: 3rem;
+      grid-template-columns: 220px minmax(0, 1fr);
+      margin: 0 auto;
+      max-width: 1100px;
+      padding: 2.75rem 2.5rem 5rem;
+    }
+
+    .sidebar {
+      align-self: start;
+      display: grid;
+      gap: 0.15rem;
+      position: sticky;
+      top: 5.5rem;
+    }
+
+    .sidebar-label {
+      color: var(--dim);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.6rem;
+      text-transform: uppercase;
+    }
+
+    .sidebar a {
+      border-radius: 6px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      padding: 0.4rem 0.6rem;
+      text-decoration: none;
+    }
+
+    .sidebar a:hover { color: var(--ink); }
+    .sidebar a.active { background: var(--surface); color: var(--accent-2); font-weight: 600; }
+    .sidebar .external { color: var(--dim); margin-top: 0.8rem; }
+
+    article { color: var(--ink); max-width: 720px; }
+    article h1 { font-size: 2.4rem; line-height: 1.1; margin-bottom: 1.2rem; }
+    article > p.lead { color: var(--muted); font-size: 1.1rem; margin-bottom: 2.2rem; max-width: 640px; }
+
+    .card-grid { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 2rem; }
+
+    .doc-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: block;
+      padding: 1.2rem;
+      text-decoration: none;
+      transition: border-color 0.15s;
+    }
+
+    .doc-card:hover { border-color: var(--accent-2); }
+    .doc-card h3 { color: var(--ink); font-size: 1.05rem; margin-bottom: 0.4rem; }
+    .doc-card p { color: var(--muted); font-size: 0.9rem; }
+
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--accent-2);
+      border-radius: 8px;
+      padding: 1.1rem 1.3rem;
+    }
+
+    .callout p { color: var(--muted); font-size: 0.95rem; }
+    .callout p + p { margin-top: 0.5rem; }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      color: var(--dim);
+      padding: 2rem 2.5rem;
+      text-align: center;
+    }
+
+    .footer-links { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 0.75rem; }
+    .footer a { color: var(--muted); font-size: 0.86rem; text-decoration: none; }
+    .footer a:hover { color: var(--accent-2); }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .card-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      .nav { align-items: flex-start; flex-direction: column; padding: 0.8rem 1rem; }
+      .nav-links { flex-wrap: wrap; }
+      .layout { padding: 2rem 1rem 3rem; }
+      article h1 { font-size: 1.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="../index.html">
+      <img src="../agent_squid_400.png" alt="Agent Squid logo" />
+      <span>Agent Squid</span>
+    </a>
+    <div class="nav-links">
+      <a href="../index.html#quickstart">Get Started</a>
+      <a href="../index.html#features">Features</a>
+      <a href="../blog/index.html">Blog</a>
+      <a class="active" href="index.html">Docs</a>
+      <a href="../community.html">Community</a>
+      <a class="install" href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </nav>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="sidebar-label">Documentation</p>
+      <a href="index.html" class="active">Overview</a>
+      <a href="quick-start.html">Quick Start</a>
+      <a href="basic-usage.html">Basic Usage</a>
+      <a href="squid-flow.html">Squid Flow</a>
+      <a href="remote-access.html">Remote Access</a>
+      <a href="comparison.html">How It's Different</a>
+      <a class="external" href="https://github.com/agent-squid/squid/tree/main/docs" target="_blank" rel="noopener">Developer docs ↗</a>
+    </aside>
+    <article>
+      <h1>Documentation</h1>
+      <p class="lead">Everything you need to install Agent Squid, learn the tag syntax, and get the most out of running several coding agents from one browser tab.</p>
+
+      <div class="card-grid">
+        <a class="doc-card" href="quick-start.html">
+          <h3>Quick Start</h3>
+          <p>Install a backend CLI, start Squid, and open the UI.</p>
+        </a>
+        <a class="doc-card" href="basic-usage.html">
+          <h3>Basic Usage</h3>
+          <p><code>#topic@agent</code>, adhoc turns, slash commands, and how tags work.</p>
+        </a>
+        <a class="doc-card" href="squid-flow.html">
+          <h3>Squid Flow</h3>
+          <p>Chain agents together: handoffs, round trips, joins, and scheduled runs.</p>
+        </a>
+        <a class="doc-card" href="remote-access.html">
+          <h3>Remote Access</h3>
+          <p>Couch coding from your phone or tablet with Tailscale.</p>
+        </a>
+        <a class="doc-card" href="comparison.html">
+          <h3>How It's Different</h3>
+          <p>Where Squid fits next to chat UIs, single-agent CLIs, and IDE agents.</p>
+        </a>
+        <a class="doc-card" href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">
+          <h3>GitHub Repo</h3>
+          <p>Source, releases, and issues.</p>
+        </a>
+      </div>
+
+      <div class="callout">
+        <p><strong>Looking for the architecture decision records, the full data model and API reference, the DB schema, or the Squid Flow grammar spec?</strong></p>
+        <p>Those live as plain markdown in the <a href="https://github.com/agent-squid/squid/tree/main/docs" target="_blank" rel="noopener">docs/ folder on GitHub</a> — written for contributors extending Squid itself, not end users.</p>
+      </div>
+    </article>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">GitHub</a>
+      <a href="../blog/index.html">Blog</a>
+      <a href="../community.html">Community Feed</a>
+      <a href="https://reddit.com/r/AgentSquid" target="_blank" rel="noopener">r/AgentSquid</a>
+      <a href="https://x.com/aiAgentSquid" target="_blank" rel="noopener">@aiAgentSquid</a>
+    </div>
+    <p>Agent Squid - Every token counts.</p>
+  </footer>
+</body>
+</html>

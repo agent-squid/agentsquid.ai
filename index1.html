@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Squid - Your Local Coding Agents, Unified</title>
+  <meta name="description" content="Agent Squid is a local meta harness for Claude Code, Codex, Cursor Agent, OpenCode, and Pi. Run named agent lanes, queue work, track tokens, and control coding agents from one browser UI." />
+  <link rel="icon" type="image/png" href="agent_squid_400.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap&text=%E2%96%88%E2%96%84%E2%96%80%E2%95%94%E2%95%90%E2%95%97%E2%95%91%E2%95%9A%E2%95%9D" />
+  <style>
+    :root {
+      --bg: #0b0b10;
+      --surface: #12121a;
+      --surface-2: #171722;
+      --ink: #f1ece4;
+      --muted: #aaa59d;
+      --dim: #706c66;
+      --line: #252534;
+      --line-strong: #343446;
+      --accent: #f07040;
+      --accent-2: #77c6b3;
+      --accent-3: #d8b867;
+      --danger: #d96767;
+      --mono: 'JetBrains Mono', 'Courier New', monospace;
+      --font: 'Space Grotesk', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background:
+        linear-gradient(180deg, rgba(240, 112, 64, 0.08), transparent 320px),
+        var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .nav {
+      align-items: center;
+      background: rgba(11, 11, 16, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+      padding: 0.9rem 2.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      align-items: center;
+      display: flex;
+      gap: 0.65rem;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .brand img {
+      border: 2px solid rgba(240, 112, 64, 0.5);
+      border-radius: 50%;
+      height: 34px;
+      object-fit: cover;
+      transform: scale(1.08);
+      width: 34px;
+    }
+
+    .nav-links {
+      align-items: center;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .nav-links a:hover {
+      color: var(--ink);
+    }
+
+    .nav-links .install {
+      background: var(--accent);
+      border-radius: 7px;
+      color: #fff;
+      padding: 0.48rem 0.85rem;
+    }
+
+    .nav-links .install:hover {
+      background: #de6235;
+      color: #fff;
+    }
+
+    .wrap {
+      margin: 0 auto;
+      max-width: 1180px;
+      padding: 0 2.5rem;
+    }
+
+    .hero {
+      align-items: center;
+      display: grid;
+      gap: 4rem;
+      grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.96fr);
+      min-height: calc(100vh - 65px);
+      padding: 6rem 0 3rem;
+    }
+
+    .eyebrow {
+      color: var(--accent-2);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      margin-bottom: 1.05rem;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 6rem;
+      line-height: 0.94;
+      letter-spacing: 0;
+      max-width: 9ch;
+    }
+
+    .hero-copy {
+      color: var(--muted);
+      font-size: 1.3rem;
+      margin-top: 1.4rem;
+      max-width: 670px;
+    }
+
+    .hero-copy strong {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      align-items: center;
+      border-radius: 7px;
+      display: inline-flex;
+      font-size: 0.92rem;
+      font-weight: 700;
+      min-height: 44px;
+      padding: 0.72rem 1.05rem;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #de6235;
+    }
+
+    .btn-secondary {
+      border: 1px solid var(--line-strong);
+      color: var(--ink);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent-2);
+      color: var(--accent-2);
+    }
+
+    .hero-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 22px 80px rgba(0, 0, 0, 0.28);
+      overflow: hidden;
+    }
+
+    .window-bar {
+      align-items: center;
+      background: #0f0f16;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 0.45rem;
+      padding: 0.85rem 1rem;
+    }
+
+    .dot {
+      border-radius: 50%;
+      height: 10px;
+      width: 10px;
+    }
+
+    .dot.red { background: var(--danger); }
+    .dot.gold { background: var(--accent-3); }
+    .dot.green { background: var(--accent-2); }
+
+    .terminal {
+      font-family: var(--mono);
+      font-size: 0.86rem;
+      line-height: 1.75;
+      overflow-x: auto;
+      padding: 1.2rem;
+      white-space: pre;
+    }
+
+    .terminal .muted { color: var(--dim); }
+    .terminal .topic { color: var(--accent-2); }
+    .terminal .agent { color: var(--accent); }
+    .terminal .bang { color: var(--accent-3); }
+    .terminal .ok { color: #9fd98c; }
+
+    .ascii {
+      color: var(--accent);
+      font-size: 0.68rem;
+      line-height: 1.18;
+      margin-bottom: 0.9rem;
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding: 5.5rem 0;
+    }
+
+    .section-head {
+      align-items: end;
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: minmax(0, 0.8fr) minmax(280px, 0.7fr);
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      font-size: 3.35rem;
+      line-height: 1;
+      letter-spacing: 0;
+      max-width: 12ch;
+    }
+
+    .section-head p,
+    .lead {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 640px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1.2rem;
+    }
+
+    .card h3 {
+      color: var(--ink);
+      font-size: 1rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .kicker {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.65rem;
+      text-transform: uppercase;
+    }
+
+    .landscape {
+      align-items: stretch;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr 1.1fr 1fr;
+    }
+
+    .stack-col {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .stack-item {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+    }
+
+    .stack-item strong {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .stack-item span {
+      color: var(--muted);
+      display: block;
+      font-size: 0.82rem;
+    }
+
+    .center-stack {
+      background: #15131a;
+      border: 1px solid rgba(240, 112, 64, 0.45);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 100%;
+      padding: 1.5rem;
+    }
+
+    .center-stack img {
+      border: 2px solid rgba(240, 112, 64, 0.45);
+      border-radius: 50%;
+      height: 72px;
+      margin-bottom: 1rem;
+      object-fit: cover;
+      transform: scale(1.08);
+      width: 72px;
+    }
+
+    .center-stack h3 {
+      font-size: 1.5rem;
+      line-height: 1.05;
+      margin-bottom: 0.7rem;
+    }
+
+    .center-stack p {
+      color: var(--muted);
+    }
+
+    .quickstart {
+      align-items: stretch;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr);
+    }
+
+    .code {
+      background: #0a0a0f;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: #dfd8ce;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.7;
+      overflow-x: auto;
+      padding: 1rem;
+      white-space: pre;
+    }
+
+    .syntax-table {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .syntax-row {
+      background: var(--surface);
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: minmax(190px, 0.55fr) minmax(0, 1fr);
+      padding: 0.85rem 1rem;
+    }
+
+    .syntax-row + .syntax-row {
+      border-top: 1px solid var(--line);
+    }
+
+    code {
+      color: var(--accent-2);
+      font-family: var(--mono);
+      font-size: 0.86em;
+    }
+
+    .syntax-row span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .two-col {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .quote {
+      border-left: 3px solid var(--accent-2);
+      color: var(--muted);
+      font-size: 1.08rem;
+      margin-top: 1.5rem;
+      max-width: 760px;
+      padding-left: 1rem;
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      color: var(--dim);
+      padding: 2rem 2.5rem;
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .footer a {
+      color: var(--muted);
+      font-size: 0.86rem;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      color: var(--accent-2);
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .section-head,
+      .quickstart,
+      .two-col,
+      .landscape {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 4rem;
+        max-width: 12ch;
+      }
+
+      h2 {
+        font-size: 2.6rem;
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 0.8rem 1rem;
+      }
+
+      .nav-links {
+        flex-wrap: wrap;
+      }
+
+      .wrap {
+        padding: 0 1rem;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 3.5rem 0 3rem;
+      }
+
+      h1 {
+        font-size: 3rem;
+      }
+
+      h2 {
+        font-size: 2.2rem;
+      }
+
+      .hero-copy {
+        font-size: 1.05rem;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .syntax-row {
+        gap: 0.25rem;
+        grid-template-columns: 1fr;
+      }
+
+      .terminal,
+      .code {
+        font-size: 0.72rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html">
+      <img src="agent_squid_400.png" alt="Agent Squid logo" />
+      <span>Agent Squid</span>
+    </a>
+    <div class="nav-links">
+      <a href="#quickstart">Get Started</a>
+      <a href="#features">Features</a>
+      <a href="#fit">Where it fits</a>
+      <a href="blog/index.html">Blog</a>
+      <a href="docs/index.html">Docs</a>
+      <a href="community.html">Community</a>
+      <a class="install" href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Meta harness for local coding agents</p>
+        <h1>Your local coding agents, unified.</h1>
+        <p class="hero-copy">
+          Agent Squid gives Claude Code, OpenAI Codex, Cursor Agent, OpenCode, and Pi a shared browser UI with <strong>named lanes</strong>, queues, live process control, history, mobile access, and token analytics.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">Start on GitHub</a>
+          <a class="btn btn-secondary" href="#quickstart">View quick start</a>
+        </div>
+      </div>
+
+      <div class="hero-panel" aria-label="Agent Squid command examples">
+        <div class="window-bar">
+          <span class="dot red"></span>
+          <span class="dot gold"></span>
+          <span class="dot green"></span>
+        </div>
+        <pre class="terminal"><span class="ascii">🦑 AGENT
+   ██████╗ ██████╗ ██╗   ██╗██╗██████╗
+   ██╔════╝██╔═══██╗██║   ██║██║██╔══██╗
+   ╚█████╗ ██║   ██║██║   ██║██║██║  ██║
+    ╚═══██╗██║▄▄ ██║██║   ██║██║██║  ██║
+   ██████╔╝╚██████╔╝╚██████╔╝██║██████╔╝
+   ╚═════╝  ╚══▀▀═╝  ╚═════╝ ╚═╝╚═════╝</span>
+
+<span class="muted"># named session lanes</span>
+<span class="topic">#launch</span><span class="agent">@claude</span> write the release notes
+<span class="topic">#launch</span><span class="agent">@codex</span><span class="bang">!</span> review the diff for regressions
+<span class="topic">#bug</span><span class="agent">@cursor</span> reproduce the auth failure
+<span class="topic">#ops</span><span class="agent">@opencode</span> summarize incident notes
+
+<span class="ok">✓ queued by topic, resumable by agent, visible from browser</span></pre>
+      </div>
+    </section>
+
+    <section class="section" id="fit">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Where Agent Squid fits</p>
+          <h2>The control layer around real local CLIs.</h2>
+        </div>
+        <p>
+          Squid is not another model chat app. Your local coding-agent CLI remains the runtime. Squid adds durable names, topic routing, queues, history, process controls, and analytics around those native sessions.
+        </p>
+      </div>
+
+      <div class="landscape">
+        <div class="stack-col">
+          <div class="stack-item">
+            <strong>Coding agent CLIs</strong>
+            <span>Claude Code, Codex, Cursor Agent, OpenCode, Pi</span>
+          </div>
+          <div class="stack-item">
+            <strong>Providers and models</strong>
+            <span>Claude, GPT, Cursor, OpenCode, NVIDIA, DeepSeek, local LLMs</span>
+          </div>
+          <div class="stack-item">
+            <strong>Your machine</strong>
+            <span>Repos, shell tools, credentials, native sessions</span>
+          </div>
+        </div>
+
+        <div class="center-stack">
+          <img src="agent_squid_400.png" alt="Agent Squid" />
+          <h3>Agent Squid meta harness</h3>
+          <p>One browser UI for named workstreams, sticky topics, native resume, parallel adhoc turns, context pins, stop controls, and usage rollups.</p>
+        </div>
+
+        <div class="stack-col">
+          <div class="stack-item">
+            <strong>Browser UI</strong>
+            <span>Single chat thread, filters, progress bubbles, history</span>
+          </div>
+          <div class="stack-item">
+            <strong>Phone and tablet</strong>
+            <span>Private Tailscale access for couch coding</span>
+          </div>
+          <div class="stack-item">
+            <strong>SQLite state</strong>
+            <span>Topics, stats, session handles, history, active processes</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">What you get</p>
+          <h2>Less terminal sprawl. More controlled agent work.</h2>
+        </div>
+        <p>
+          Use Squid when one terminal is no longer enough: multiple agents, multiple topics, long-running work, context experiments, mobile access, and visible usage.
+        </p>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <p class="kicker">#topic@agent</p>
+          <h3>Named agent lanes</h3>
+          <p>Give every workstream a durable identity, then resume or filter it without hunting through terminal tabs.</p>
+        </article>
+        <article class="card">
+          <p class="kicker">Native resume</p>
+          <h3>Real CLI sessions</h3>
+          <p>The underlying agent owns the real conversation context while Squid tracks handles, history, and UI state.</p>
+        </article>
+        <article class="card">
+          <p class="kicker">Parallel work</p>
+          <h3>Queues and adhoc jobs</h3>
+          <p>Session turns queue by lane. Add <code>!</code> to run a fresh parallel job without polluting the main session.</p>
+        </article>
+        <article class="card">
+          <p class="kicker">Live control</p>
+          <h3>Progress bubbles</h3>
+          <p>Watch queued state, tool activity, and partial output. Stop one process, stop a topic, drain queues, or clear context.</p>
+        </article>
+        <article class="card">
+          <p class="kicker">Context reuse</p>
+          <h3>Pins and bookmarks</h3>
+          <p>Keep useful answers and inject them into another session or one-off turn instead of repeating yourself.</p>
+        </article>
+        <article class="card">
+          <p class="kicker">Every token counts</p>
+          <h3>Usage analytics</h3>
+          <p>Inspect tokens, cache reads and writes, reasoning tokens, cost, duration, quota signals, and rollups by topic or agent.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="quickstart">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Quick start</p>
+          <h2>Install one backend CLI. Start Squid. Open the UI.</h2>
+        </div>
+        <p>
+          Agent Squid works with supported local agent CLIs. Install and log into at least one backend first, then start Squid locally at <code>127.0.0.1:8000</code>.
+        </p>
+      </div>
+
+      <div class="quickstart">
+        <div class="card">
+          <p class="kicker">Supported backends</p>
+          <h3>Bring the CLIs you already use</h3>
+          <p>Claude Code, OpenAI Codex, Cursor Agent, OpenCode, and Pi can all become named agents in the same browser workspace.</p>
+          <p class="quote">An agent is a named config: harness + provider + model + working directory.</p>
+        </div>
+        <pre class="code">curl -L https://github.com/agent-squid/squid/archive/refs/tags/v0.1.tar.gz | tar xz
+./squid-0.1/bin/start.sh
+
+# open in your browser
+http://127.0.0.1:8000</pre>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Basic usage</p>
+          <h2>Tags are the UI for agent work.</h2>
+        </div>
+        <p>
+          Create topics as you type, switch agents with <code>@agent</code>, and use <code>!</code> when you want an immediate one-off run with limited or no session history.
+        </p>
+      </div>
+
+      <div class="syntax-table">
+        <div class="syntax-row">
+          <code>#topic@agent message</code>
+          <span>Continue that topic and agent session.</span>
+        </div>
+        <div class="syntax-row">
+          <code>#topic@agent! message</code>
+          <span>Run a parallel adhoc turn with no session history.</span>
+        </div>
+        <div class="syntax-row">
+          <code>#topic@agent!3 message</code>
+          <span>Run adhoc with only the last three exchanges as context.</span>
+        </div>
+        <div class="syntax-row">
+          <code>/stop</code>
+          <span>Stop the current process scope.</span>
+        </div>
+        <div class="syntax-row">
+          <code>/stopall</code>
+          <span>Stop and drain the current topic.</span>
+        </div>
+        <div class="syntax-row">
+          <code>/clear</code>
+          <span>Create a new session when old context gets stale.</span>
+        </div>
+        <div class="syntax-row">
+          <code>/remote</code>
+          <span>Show a QR code for private phone or tablet access via Tailscale.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="flow">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Squid Flow</p>
+          <h2>Chain agents together with one line of syntax.</h2>
+        </div>
+        <p>
+          A route isn't limited to one agent. Add a hop operator and Squid dispatches the handoff, the round trip, or the join server-side — no open browser tab required. <a href="docs/squid-flow.html">Read the full Squid Flow reference</a> for the grammar and execution model.
+        </p>
+      </div>
+
+      <div class="syntax-table">
+        <div class="syntax-row">
+          <code>#squid@codex&gt;@review!</code>
+          <span>One-way handoff: codex's output becomes fresh @review's prompt.</span>
+        </div>
+        <div class="syntax-row">
+          <code>#t1@a1&lt;&gt;#t2+#t3</code>
+          <span>Round trip with a joined target: @t2 and @t3 run in parallel, then one return turn pins both.</span>
+        </div>
+        <div class="syntax-row">
+          <code>#t1@a+#t2@b&gt;#t3</code>
+          <span>Origin join: #t3 runs once, after both origins finish, with both pinned into its turn.</span>
+        </div>
+        <div class="syntax-row">
+          <code>#squid@codex=3:1d&gt;@review</code>
+          <span>Scheduled: three independent one-way handoffs to @review, one per day.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Architecture</p>
+          <h2>Local machine as the backend.</h2>
+        </div>
+        <p>
+          Squid binds locally and controls subprocesses on your machine. Your repo, shell tools, credentials, and installed CLIs stay where they already are.
+        </p>
+      </div>
+
+      <div class="two-col">
+        <pre class="code">Browser / phone / tablet
+        |
+        | HTTP + SSE
+        v
+FastAPI Squid server
+        |
+        +-- SQLite history, stats, topics
+        |
+        +-- TopicDispatcher
+              |
+              +-- FIFO worker per session lane
+              +-- ephemeral worker per adhoc turn
+        |
+        +-- local CLI subprocesses
+              claude / codex / cursor-agent / opencode / pi</pre>
+        <div class="card">
+          <p class="kicker">Why it matters</p>
+          <h3>Squid controls the workflow, not the model.</h3>
+          <p>Most chat UIs send messages to a model API and render text back. Squid wraps real local coding-agent CLIs, preserves their native session behavior, and adds the missing operating layer around them.</p>
+          <p class="quote">Use the agent directly when one terminal is enough. Use Squid when you need named sessions, mobile access, process control, recoverable long-running work, and usage analytics.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Good fit</p>
+          <h2>Built for multi-agent local workflows.</h2>
+        </div>
+        <p>
+          Squid is narrow by design: an orchestration layer for local coding agents, not a hosted team chat product or another coding engine.
+        </p>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Run several agents at once</h3>
+          <p>Compare Claude, Codex, Cursor, OpenCode, and Pi without scattering work across unnamed terminals.</p>
+        </article>
+        <article class="card">
+          <h3>Recover work by name</h3>
+          <p>Topics and agents make long-running sessions discoverable after a reboot, disconnect, or context reset.</p>
+        </article>
+        <article class="card">
+          <h3>Code from away from the desk</h3>
+          <p>Use Tailscale-backed private access so your workstation keeps doing the work while your phone or tablet controls it.</p>
+        </article>
+      </div>
+
+      <div class="actions">
+        <a class="btn btn-primary" href="docs/index.html">Read the full docs</a>
+        <a class="btn btn-secondary" href="blog/index.html">Read the blog</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">GitHub</a>
+      <a href="blog/index.html">Blog</a>
+      <a href="docs/index.html">Docs</a>
+      <a href="community.html">Community Feed</a>
+      <a href="https://reddit.com/r/AgentSquid" target="_blank" rel="noopener">r/AgentSquid</a>
+      <a href="https://x.com/aiAgentSquid" target="_blank" rel="noopener">@aiAgentSquid</a>
+    </div>
+    <p>Agent Squid - Every token counts.</p>
+  </footer>
+</body>
+</html>
