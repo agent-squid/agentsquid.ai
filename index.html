@@ -240,7 +240,7 @@
     }
 
     .hero-slides {
-      aspect-ratio: 16 / 12.4;
+      aspect-ratio: 1998 / 2274;
       overflow: hidden;
       position: relative;
     }
@@ -257,28 +257,19 @@
     }
 
     .hero-slide img {
+      background: var(--surface);
       display: block;
       height: 100%;
-      object-fit: cover;
-      object-position: top;
+      object-fit: contain;
+      object-position: center;
       width: 100%;
     }
 
-    .hero-slide-mobile img {
-      background: var(--surface);
-      object-fit: contain;
-      object-position: center;
-    }
-
     .hero-slide-caption {
-      background: linear-gradient(0deg, rgba(10, 10, 15, 0.92) 0%, rgba(10, 10, 15, 0) 100%);
-      bottom: 0;
-      color: var(--ink);
-      font-size: 0.82rem;
-      left: 0;
-      padding: 2.2rem 1rem 0.9rem;
-      position: absolute;
-      right: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      padding: 1rem 0.25rem 0;
+      text-align: center;
     }
 
     .hero-dots {
@@ -286,7 +277,7 @@
       display: flex;
       gap: 0.4rem;
       justify-content: center;
-      padding: 0.7rem 0 0;
+      padding: 0.9rem 0 0;
     }
 
     .hero-dot {
@@ -879,27 +870,23 @@
 
       <div class="hero-carousel" aria-label="AgentSquid screenshots" aria-roledescription="carousel">
         <div class="hero-slides" id="hero-slides">
-          <div class="hero-slide is-active">
+          <div class="hero-slide is-active" data-caption="Broadcast one prompt to every agent, get every answer in one thread.">
             <img src="images/promptbroadcastall.png" alt="One prompt broadcast to Claude, Codex, Cursor, OpenCode, and Pi at once" loading="eager" />
-            <p class="hero-slide-caption">Broadcast one prompt to every agent, get every answer in one thread.</p>
           </div>
-          <div class="hero-slide">
+          <div class="hero-slide" data-caption="Real CLI sessions, with diffs and revert built into the thread.">
             <img src="images/chat.png" alt="AgentSquid chat session with a diff review and revertable file changes" loading="lazy" />
-            <p class="hero-slide-caption">Real CLI sessions, with diffs and revert built into the thread.</p>
           </div>
-          <div class="hero-slide">
+          <div class="hero-slide" data-caption="Browse, filter, and edit project files without leaving the browser.">
             <img src="images/filebrowser.png" alt="AgentSquid file browser showing a project directory" loading="lazy" />
-            <p class="hero-slide-caption">Browse, filter, and edit project files without leaving the browser.</p>
           </div>
-          <div class="hero-slide">
+          <div class="hero-slide" data-caption="Tokens, cache hit rate, and cost tracked per turn, topic, and agent.">
             <img src="images/stats.png" alt="AgentSquid usage analytics dashboard with token and cache charts" loading="lazy" />
-            <p class="hero-slide-caption">Tokens, cache hit rate, and cost tracked per turn, topic, and agent.</p>
           </div>
-          <div class="hero-slide hero-slide-mobile">
+          <div class="hero-slide" data-caption="Full sessions from your phone, so a topic never has to wait on your desktop.">
             <img src="images/mobile_chat.jpg" alt="AgentSquid chat session open on a phone browser" loading="lazy" />
-            <p class="hero-slide-caption">Full sessions from your phone, so a topic never has to wait on your desktop.</p>
           </div>
         </div>
+        <p class="hero-slide-caption" id="hero-caption">Broadcast one prompt to every agent, get every answer in one thread.</p>
         <div class="hero-dots" id="hero-dots" role="tablist" aria-label="Screenshot selector">
           <button class="hero-dot is-active" type="button" aria-label="Show screenshot 1" aria-selected="true" role="tab"></button>
           <button class="hero-dot" type="button" aria-label="Show screenshot 2" aria-selected="false" role="tab"></button>
@@ -1204,6 +1191,7 @@ http://127.0.0.1:8000</pre>
     (function () {
       var slidesEl = document.getElementById('hero-slides');
       var dotsEl = document.getElementById('hero-dots');
+      var captionEl = document.getElementById('hero-caption');
       if (!slidesEl || !dotsEl) return;
 
       var slides = Array.prototype.slice.call(slidesEl.querySelectorAll('.hero-slide'));
@@ -1220,6 +1208,7 @@ http://127.0.0.1:8000</pre>
           dot.classList.toggle('is-active', i === current);
           dot.setAttribute('aria-selected', i === current ? 'true' : 'false');
         });
+        if (captionEl) captionEl.textContent = slides[current].dataset.caption || '';
       }
 
       function start() {
