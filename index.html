@@ -273,11 +273,6 @@
       width: 100%;
     }
 
-    .hero-slide-mobile img {
-      object-fit: cover;
-      object-position: top;
-    }
-
     .hero-slide-caption {
       color: var(--muted);
       font-size: 0.92rem;
@@ -895,7 +890,7 @@
           <div class="hero-slide" data-caption="Tokens, cache hit rate, and cost tracked per turn, topic, and agent.">
             <img src="images/stats.png" alt="AgentSquid usage analytics dashboard with token and cache charts" loading="lazy" />
           </div>
-          <div class="hero-slide hero-slide-mobile" data-caption="Full sessions from your phone, so a topic never has to wait on your desktop.">
+          <div class="hero-slide" data-caption="Full sessions from your phone, so a topic never has to wait on your desktop.">
             <img src="images/mobile_chat.jpg" alt="AgentSquid chat session open on a phone browser" loading="lazy" />
           </div>
         </div>
@@ -1049,27 +1044,11 @@ http://127.0.0.1:8000</pre>
         </div>
         <div class="syntax-row">
           <code>#topic@agent! message</code>
-          <span>Run a parallel adhoc turn with no session history.</span>
+          <span>Run a parallel adhoc turn with no session history (a.k.a Goldfish mode).</span>
         </div>
         <div class="syntax-row">
           <code>#topic@agent!3 message</code>
           <span>Run adhoc with only the last three exchanges as context.</span>
-        </div>
-        <div class="syntax-row">
-          <code>/stop</code>
-          <span>Stop the current process scope.</span>
-        </div>
-        <div class="syntax-row">
-          <code>/stopall</code>
-          <span>Stop and drain the current topic.</span>
-        </div>
-        <div class="syntax-row">
-          <code>/clear</code>
-          <span>Create a new session when old context gets stale.</span>
-        </div>
-        <div class="syntax-row">
-          <code>/remote</code>
-          <span>Show a QR code for private phone or tablet access via Tailscale.</span>
         </div>
       </div>
     </section>
