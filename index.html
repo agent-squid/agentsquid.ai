@@ -137,8 +137,8 @@
     .hero {
       align-items: center;
       display: grid;
-      gap: 4rem;
-      grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.96fr);
+      gap: 2.5rem;
+      grid-template-columns: minmax(0, 0.7fr) minmax(460px, 1.3fr);
       min-height: calc(100vh - 65px);
       padding: 6rem 0 3rem;
     }
@@ -216,29 +216,10 @@
     .hero-panel {
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 8px;
-      box-shadow: 0 22px 80px rgba(0, 0, 0, 0.28);
+      border-radius: 10px;
+      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
       overflow: hidden;
     }
-
-    .window-bar {
-      align-items: center;
-      background: #0f0f16;
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      gap: 0.45rem;
-      padding: 0.85rem 1rem;
-    }
-
-    .dot {
-      border-radius: 50%;
-      height: 10px;
-      width: 10px;
-    }
-
-    .dot.red { background: var(--danger); }
-    .dot.gold { background: var(--accent-3); }
-    .dot.green { background: var(--accent-2); }
 
     .terminal {
       font-family: var(--mono);
@@ -267,7 +248,7 @@
     }
 
     .hero-slides {
-      aspect-ratio: 16 / 9.6;
+      aspect-ratio: 16 / 12.4;
       overflow: hidden;
       position: relative;
     }
@@ -923,11 +904,6 @@
       </div>
 
       <div class="hero-panel hero-carousel" aria-label="AgentSquid screenshots" aria-roledescription="carousel">
-        <div class="window-bar">
-          <span class="dot red"></span>
-          <span class="dot gold"></span>
-          <span class="dot green"></span>
-        </div>
         <div class="hero-slides" id="hero-slides">
           <div class="hero-slide is-active">
             <img src="images/promptbroadcastall.png" alt="One prompt broadcast to Claude, Codex, Cursor, OpenCode, and Pi at once" loading="eager" />
