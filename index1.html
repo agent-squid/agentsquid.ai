@@ -115,6 +115,14 @@
       color: #fff;
     }
 
+    .mobile-page-title {
+      display: none;
+    }
+
+    .nav-burger {
+      display: none;
+    }
+
     .wrap {
       margin: 0 auto;
       max-width: 1180px;
@@ -486,13 +494,50 @@
 
     @media (max-width: 680px) {
       .nav {
-        align-items: flex-start;
-        flex-direction: column;
         padding: 0.8rem 1rem;
+        position: relative;
+      }
+
+      .mobile-page-title {
+        display: inline-block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-right: auto;
+      }
+
+      .nav-burger {
+        align-items: center;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 8px;
+        color: inherit;
+        cursor: pointer;
+        display: inline-flex;
+        flex: 0 0 auto;
+        height: 32px;
+        justify-content: center;
+        padding: 0;
+        width: 32px;
       }
 
       .nav-links {
-        flex-wrap: wrap;
+        align-items: flex-start;
+        background: #15151f;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        display: none;
+        flex-direction: column;
+        gap: 0.2rem;
+        padding: 0.6rem 0.9rem;
+        position: absolute;
+        right: 1rem;
+        top: calc(100% + 6px);
+        z-index: 30;
+      }
+
+      .nav-links.open {
+        display: flex;
       }
 
       .wrap {
@@ -538,6 +583,14 @@
       <img src="agent_squid_400.png" alt="AgentSquid logo" />
       <span>AgentSquid</span>
     </a>
+    <span class="mobile-page-title">Home</span>
+    <button class="nav-burger" type="button" aria-label="Menu" aria-expanded="false">
+      <svg width="15" height="13" viewBox="0 0 15 13" fill="currentColor" aria-hidden="true">
+        <rect x="0" y="0" width="15" height="1.8" rx="0.9"/>
+        <rect x="0" y="5.6" width="15" height="1.8" rx="0.9"/>
+        <rect x="0" y="11.2" width="15" height="1.8" rx="0.9"/>
+      </svg>
+    </button>
     <div class="nav-links">
       <a href="#quickstart">Get Started</a>
       <a href="#features">Features</a>
@@ -860,5 +913,6 @@ FastAPI Squid server
     </div>
     <p>AgentSquid - Every token counts.</p>
   </footer>
+  <script src="nav-toggle.js"></script>
 </body>
 </html>

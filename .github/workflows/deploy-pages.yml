@@ -40,7 +40,7 @@ jobs:
           CURATOR_FEED_ID: ${{ secrets.CURATOR_FEED_ID }}
         run: |
           mkdir _site
-          cp index.html index1.html community.html insights.json pinned-posts.json CNAME agent_squid_400.png agent_squid_400x400.png _site/
+          cp index.html index1.html community.html nav-toggle.js insights.json pinned-posts.json CNAME agent_squid_400.png agent_squid_400x400.png _site/
           cp -r blog _site/blog
           cp -r docs _site/docs
 
