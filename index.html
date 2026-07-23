@@ -239,6 +239,15 @@
       position: relative;
     }
 
+    .hero-carousel::before {
+      background: radial-gradient(ellipse 65% 55% at 50% 42%, rgba(220, 90, 40, 0.22) 0%, rgba(220, 90, 40, 0.08) 45%, transparent 75%);
+      content: '';
+      filter: blur(50px);
+      inset: -12% -10%;
+      pointer-events: none;
+      position: absolute;
+    }
+
     .hero-slides {
       aspect-ratio: 1998 / 2274;
       overflow: hidden;
@@ -257,7 +266,6 @@
     }
 
     .hero-slide img {
-      background: var(--surface);
       display: block;
       height: 100%;
       object-fit: contain;
