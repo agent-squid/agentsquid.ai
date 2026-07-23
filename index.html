@@ -273,6 +273,11 @@
       width: 100%;
     }
 
+    .hero-slide-mobile img {
+      object-fit: cover;
+      object-position: top;
+    }
+
     .hero-slide-caption {
       color: var(--muted);
       font-size: 0.92rem;
@@ -890,7 +895,7 @@
           <div class="hero-slide" data-caption="Tokens, cache hit rate, and cost tracked per turn, topic, and agent.">
             <img src="images/stats.png" alt="AgentSquid usage analytics dashboard with token and cache charts" loading="lazy" />
           </div>
-          <div class="hero-slide" data-caption="Full sessions from your phone, so a topic never has to wait on your desktop.">
+          <div class="hero-slide hero-slide-mobile" data-caption="Full sessions from your phone, so a topic never has to wait on your desktop.">
             <img src="images/mobile_chat.jpg" alt="AgentSquid chat session open on a phone browser" loading="lazy" />
           </div>
         </div>
