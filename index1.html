@@ -262,6 +262,71 @@
       margin-bottom: 0.9rem;
     }
 
+    .hero-carousel {
+      position: relative;
+    }
+
+    .hero-slides {
+      aspect-ratio: 16 / 9.6;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-slide {
+      inset: 0;
+      opacity: 0;
+      position: absolute;
+      transition: opacity 0.6s ease;
+    }
+
+    .hero-slide.is-active {
+      opacity: 1;
+    }
+
+    .hero-slide img {
+      display: block;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      width: 100%;
+    }
+
+    .hero-slide-caption {
+      background: linear-gradient(0deg, rgba(10, 10, 15, 0.92) 0%, rgba(10, 10, 15, 0) 100%);
+      bottom: 0;
+      color: var(--ink);
+      font-size: 0.82rem;
+      left: 0;
+      padding: 2.2rem 1rem 0.9rem;
+      position: absolute;
+      right: 0;
+    }
+
+    .hero-dots {
+      align-items: center;
+      background: #0f0f16;
+      border-top: 1px solid var(--line);
+      display: flex;
+      gap: 0.4rem;
+      justify-content: center;
+      padding: 0.7rem;
+    }
+
+    .hero-dot {
+      background: var(--line-strong);
+      border: 0;
+      border-radius: 50%;
+      cursor: pointer;
+      height: 7px;
+      padding: 0;
+      transition: background 0.2s ease;
+      width: 7px;
+    }
+
+    .hero-dot.is-active {
+      background: var(--accent);
+    }
+
     .section {
       border-top: 1px solid var(--line);
       padding: 5.5rem 0;
@@ -440,6 +505,219 @@
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
 
+    .arch-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 2rem 1.5rem;
+    }
+
+    .arch-diagram {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .arch-node {
+      background: var(--surface-2);
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 0.65rem 1.15rem;
+      text-align: center;
+    }
+
+    .arch-node-server {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .arch-edge,
+    .arch-trunk {
+      align-items: center;
+      display: flex;
+      height: 2.5rem;
+      justify-content: center;
+      position: relative;
+      width: 1px;
+    }
+
+    .arch-trunk {
+      height: 1.75rem;
+    }
+
+    .arch-edge::before,
+    .arch-trunk::before {
+      background: var(--line-strong);
+      content: '';
+      height: 100%;
+      position: absolute;
+      width: 1px;
+    }
+
+    .arch-edge-label {
+      background: var(--surface);
+      color: var(--accent-2);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.55rem;
+      position: relative;
+      text-transform: uppercase;
+      white-space: nowrap;
+      z-index: 1;
+    }
+
+    .arch-branches {
+      display: grid;
+      gap: 1.25rem;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      position: relative;
+      width: 100%;
+    }
+
+    .arch-branches::before {
+      background: var(--line-strong);
+      content: '';
+      height: 1px;
+      left: 16.6667%;
+      position: absolute;
+      right: 16.6667%;
+      top: 0;
+    }
+
+    .arch-branch {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      padding-top: 1.5rem;
+      position: relative;
+    }
+
+    .arch-branch::before {
+      background: var(--line-strong);
+      content: '';
+      height: 1.5rem;
+      left: 50%;
+      position: absolute;
+      top: 0;
+      transform: translateX(-50%);
+      width: 1px;
+    }
+
+    .arch-node-leaf {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      width: 100%;
+    }
+
+    .arch-node-leaf strong {
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 0.82rem;
+    }
+
+    .arch-node-leaf span {
+      color: var(--dim);
+      font-family: var(--mono);
+      font-size: 0.66rem;
+    }
+
+    .arch-twigs {
+      display: grid;
+      gap: 0.6rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 1.35rem;
+      position: relative;
+      width: 100%;
+    }
+
+    .arch-twigs::before {
+      background: var(--line);
+      content: '';
+      height: 1px;
+      left: 25%;
+      position: absolute;
+      right: 25%;
+      top: -0.85rem;
+    }
+
+    .arch-twigs::after {
+      background: var(--line);
+      content: '';
+      height: 0.5rem;
+      left: 50%;
+      position: absolute;
+      top: -1.35rem;
+      transform: translateX(-50%);
+      width: 1px;
+    }
+
+    .arch-twig {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      padding: 0.5rem 0.5rem;
+      position: relative;
+      text-align: center;
+    }
+
+    .arch-twig::before {
+      background: var(--line);
+      content: '';
+      height: 0.85rem;
+      left: 50%;
+      position: absolute;
+      top: -0.85rem;
+      transform: translateX(-50%);
+      width: 1px;
+    }
+
+    .arch-twig span {
+      color: var(--dim);
+      display: block;
+      font-size: 0.62rem;
+      margin-top: 0.15rem;
+    }
+
+    .arch-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      justify-content: center;
+      margin-top: 1.1rem;
+      position: relative;
+    }
+
+    .arch-pills::before {
+      background: var(--line);
+      content: '';
+      height: 1.1rem;
+      left: 50%;
+      position: absolute;
+      top: -1.1rem;
+      transform: translateX(-50%);
+      width: 1px;
+    }
+
+    .arch-pills span {
+      background: rgba(240, 112, 64, 0.08);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      padding: 0.28rem 0.65rem;
+    }
+
     .quote {
       border-left: 3px solid var(--accent-2);
       color: var(--muted);
@@ -481,6 +759,24 @@
       .two-col,
       .landscape {
         grid-template-columns: 1fr;
+      }
+
+      .arch-branches,
+      .arch-twigs {
+        gap: 0.75rem;
+        grid-template-columns: 1fr;
+      }
+
+      .arch-branches::before,
+      .arch-branch::before,
+      .arch-twigs::before,
+      .arch-twigs::after,
+      .arch-twig::before {
+        display: none;
+      }
+
+      .arch-branch {
+        padding-top: 0;
       }
 
       h1 {
@@ -626,27 +922,36 @@
         </div>
       </div>
 
-      <div class="hero-panel" aria-label="AgentSquid command examples">
+      <div class="hero-panel hero-carousel" aria-label="AgentSquid screenshots" aria-roledescription="carousel">
         <div class="window-bar">
           <span class="dot red"></span>
           <span class="dot gold"></span>
           <span class="dot green"></span>
         </div>
-        <pre class="terminal"><span class="ascii">🦑 AGENT
-   ██████╗ ██████╗ ██╗   ██╗██╗██████╗
-   ██╔════╝██╔═══██╗██║   ██║██║██╔══██╗
-   ╚█████╗ ██║   ██║██║   ██║██║██║  ██║
-    ╚═══██╗██║▄▄ ██║██║   ██║██║██║  ██║
-   ██████╔╝╚██████╔╝╚██████╔╝██║██████╔╝
-   ╚═════╝  ╚══▀▀═╝  ╚═════╝ ╚═╝╚═════╝</span>
-
-<span class="muted"># named session lanes</span>
-<span class="topic">#launch</span><span class="agent">@claude</span> write the release notes
-<span class="topic">#launch</span><span class="agent">@codex</span><span class="bang">!</span> review the diff for regressions
-<span class="topic">#bug</span><span class="agent">@cursor</span> reproduce the auth failure
-<span class="topic">#ops</span><span class="agent">@opencode</span> summarize incident notes
-
-<span class="ok">✓ queued by topic, resumable by agent, visible from browser</span></pre>
+        <div class="hero-slides" id="hero-slides">
+          <div class="hero-slide is-active">
+            <img src="images/promptbroadcastall.png" alt="One prompt broadcast to Claude, Codex, Cursor, OpenCode, and Pi at once" loading="eager" />
+            <p class="hero-slide-caption">Broadcast one prompt to every agent, get every answer in one thread.</p>
+          </div>
+          <div class="hero-slide">
+            <img src="images/chat.png" alt="AgentSquid chat session with a diff review and revertable file changes" loading="lazy" />
+            <p class="hero-slide-caption">Real CLI sessions, with diffs and revert built into the thread.</p>
+          </div>
+          <div class="hero-slide">
+            <img src="images/filebrowser.png" alt="AgentSquid file browser showing a project directory" loading="lazy" />
+            <p class="hero-slide-caption">Browse, filter, and edit project files without leaving the browser.</p>
+          </div>
+          <div class="hero-slide">
+            <img src="images/stats.png" alt="AgentSquid usage analytics dashboard with token and cache charts" loading="lazy" />
+            <p class="hero-slide-caption">Tokens, cache hit rate, and cost tracked per turn, topic, and agent.</p>
+          </div>
+        </div>
+        <div class="hero-dots" id="hero-dots" role="tablist" aria-label="Screenshot selector">
+          <button class="hero-dot is-active" type="button" aria-label="Show screenshot 1" aria-selected="true" role="tab"></button>
+          <button class="hero-dot" type="button" aria-label="Show screenshot 2" aria-selected="false" role="tab"></button>
+          <button class="hero-dot" type="button" aria-label="Show screenshot 3" aria-selected="false" role="tab"></button>
+          <button class="hero-dot" type="button" aria-label="Show screenshot 4" aria-selected="false" role="tab"></button>
+        </div>
       </div>
     </section>
 
@@ -857,21 +1162,45 @@ http://127.0.0.1:8000</pre>
       </div>
 
       <div class="two-col">
-        <pre class="code">Browser / phone / tablet
-        |
-        | HTTP + SSE
-        v
-FastAPI Squid server
-        |
-        +-- SQLite history, stats, topics
-        |
-        +-- TopicDispatcher
-              |
-              +-- FIFO worker per session lane
-              +-- ephemeral worker per adhoc turn
-        |
-        +-- local CLI subprocesses
-              claude / codex / cursor-agent / opencode / pi</pre>
+        <div class="arch-panel">
+          <div class="arch-diagram" role="img" aria-label="Architecture diagram: browser, phone, or tablet connects over HTTP and SSE to a local FastAPI Squid server, which manages SQLite storage, a topic dispatcher with a FIFO worker per session lane and an ephemeral worker per adhoc turn, and local CLI subprocesses for claude, codex, cursor-agent, opencode, and pi">
+            <div class="arch-node">Browser / phone / tablet</div>
+            <div class="arch-edge">
+              <span class="arch-edge-label">HTTP + SSE</span>
+            </div>
+            <div class="arch-node arch-node-server">FastAPI Squid server</div>
+            <div class="arch-trunk"></div>
+            <div class="arch-branches">
+              <div class="arch-branch">
+                <div class="arch-node arch-node-leaf">
+                  <strong>SQLite</strong>
+                  <span>history · stats · topics</span>
+                </div>
+              </div>
+              <div class="arch-branch">
+                <div class="arch-node arch-node-leaf">
+                  <strong>TopicDispatcher</strong>
+                </div>
+                <div class="arch-twigs">
+                  <div class="arch-twig">FIFO worker<span>per session lane</span></div>
+                  <div class="arch-twig">Ephemeral worker<span>per adhoc turn</span></div>
+                </div>
+              </div>
+              <div class="arch-branch">
+                <div class="arch-node arch-node-leaf">
+                  <strong>Local CLI subprocesses</strong>
+                </div>
+                <div class="arch-pills">
+                  <span>claude</span>
+                  <span>codex</span>
+                  <span>cursor-agent</span>
+                  <span>opencode</span>
+                  <span>pi</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="card">
           <p class="kicker">Why it matters</p>
           <h3>Squid controls the workflow, not the model.</h3>
@@ -924,5 +1253,50 @@ FastAPI Squid server
     <p>AgentSquid - Every token counts.</p>
   </footer>
   <script src="nav-toggle.js"></script>
+  <script>
+    (function () {
+      var slidesEl = document.getElementById('hero-slides');
+      var dotsEl = document.getElementById('hero-dots');
+      if (!slidesEl || !dotsEl) return;
+
+      var slides = Array.prototype.slice.call(slidesEl.querySelectorAll('.hero-slide'));
+      var dots = Array.prototype.slice.call(dotsEl.querySelectorAll('.hero-dot'));
+      var current = 0;
+      var timer = null;
+
+      function show(index) {
+        current = (index + slides.length) % slides.length;
+        slides.forEach(function (slide, i) {
+          slide.classList.toggle('is-active', i === current);
+        });
+        dots.forEach(function (dot, i) {
+          dot.classList.toggle('is-active', i === current);
+          dot.setAttribute('aria-selected', i === current ? 'true' : 'false');
+        });
+      }
+
+      function start() {
+        stop();
+        timer = window.setInterval(function () { show(current + 1); }, 4500);
+      }
+
+      function stop() {
+        if (timer) window.clearInterval(timer);
+        timer = null;
+      }
+
+      dots.forEach(function (dot, i) {
+        dot.addEventListener('click', function () {
+          show(i);
+          start();
+        });
+      });
+
+      slidesEl.addEventListener('mouseenter', stop);
+      slidesEl.addEventListener('mouseleave', start);
+
+      start();
+    })();
+  </script>
 </body>
 </html>
