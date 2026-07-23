@@ -77,7 +77,7 @@
     }
 
     .brand img {
-      background: radial-gradient(circle at 50% 45%, rgba(245, 160, 96, 0.22) 0%, rgba(208, 106, 58, 0.12) 60%, rgba(208, 106, 58, 0.04) 100%);
+      background: radial-gradient(circle at 50% 45%, rgba(220, 90, 40, 0.2) 0%, rgba(220, 90, 40, 0.08) 60%, rgba(220, 90, 40, 0.03) 100%);
       border: 2px solid rgba(240, 112, 64, 0.5);
       border-radius: 50%;
       height: 34px;
@@ -213,14 +213,6 @@
       color: var(--accent-2);
     }
 
-    .hero-panel {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      box-shadow: 0 40px 120px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
-      overflow: hidden;
-    }
-
     .terminal {
       font-family: var(--mono);
       font-size: 0.86rem;
@@ -272,6 +264,12 @@
       width: 100%;
     }
 
+    .hero-slide-mobile img {
+      background: var(--surface);
+      object-fit: contain;
+      object-position: center;
+    }
+
     .hero-slide-caption {
       background: linear-gradient(0deg, rgba(10, 10, 15, 0.92) 0%, rgba(10, 10, 15, 0) 100%);
       bottom: 0;
@@ -285,12 +283,10 @@
 
     .hero-dots {
       align-items: center;
-      background: #0f0f16;
-      border-top: 1px solid var(--line);
       display: flex;
       gap: 0.4rem;
       justify-content: center;
-      padding: 0.7rem;
+      padding: 0.7rem 0 0;
     }
 
     .hero-dot {
@@ -881,7 +877,7 @@
         </div>
       </div>
 
-      <div class="hero-panel hero-carousel" aria-label="AgentSquid screenshots" aria-roledescription="carousel">
+      <div class="hero-carousel" aria-label="AgentSquid screenshots" aria-roledescription="carousel">
         <div class="hero-slides" id="hero-slides">
           <div class="hero-slide is-active">
             <img src="images/promptbroadcastall.png" alt="One prompt broadcast to Claude, Codex, Cursor, OpenCode, and Pi at once" loading="eager" />
@@ -899,12 +895,17 @@
             <img src="images/stats.png" alt="AgentSquid usage analytics dashboard with token and cache charts" loading="lazy" />
             <p class="hero-slide-caption">Tokens, cache hit rate, and cost tracked per turn, topic, and agent.</p>
           </div>
+          <div class="hero-slide hero-slide-mobile">
+            <img src="images/mobile_chat.jpg" alt="AgentSquid chat session open on a phone browser" loading="lazy" />
+            <p class="hero-slide-caption">Full sessions from your phone, so a topic never has to wait on your desktop.</p>
+          </div>
         </div>
         <div class="hero-dots" id="hero-dots" role="tablist" aria-label="Screenshot selector">
           <button class="hero-dot is-active" type="button" aria-label="Show screenshot 1" aria-selected="true" role="tab"></button>
           <button class="hero-dot" type="button" aria-label="Show screenshot 2" aria-selected="false" role="tab"></button>
           <button class="hero-dot" type="button" aria-label="Show screenshot 3" aria-selected="false" role="tab"></button>
           <button class="hero-dot" type="button" aria-label="Show screenshot 4" aria-selected="false" role="tab"></button>
+          <button class="hero-dot" type="button" aria-label="Show screenshot 5" aria-selected="false" role="tab"></button>
         </div>
       </div>
     </section>
