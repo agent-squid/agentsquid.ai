@@ -76,6 +76,8 @@
       width: 34px;
     }
 
+    .brand span { color: var(--accent); }
+
     .nav-links {
       align-items: center;
       display: flex;
@@ -233,19 +235,24 @@
       }
 
       .nav-links {
-        align-items: flex-start;
+        align-items: stretch;
         background: #15151f;
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 10px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
         display: none;
         flex-direction: column;
-        gap: 0.2rem;
-        padding: 0.6rem 0.9rem;
+        gap: 0.15rem;
+        min-width: 160px;
+        padding: 0.5rem;
         position: absolute;
         right: 1rem;
         top: calc(100% + 6px);
         z-index: 30;
+      }
+
+      .nav-links a {
+        padding: 0.6rem 0.7rem;
       }
 
       .nav-links.open {

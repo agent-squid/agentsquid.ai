@@ -69,6 +69,8 @@
       width: 34px;
     }
 
+    .brand span { color: var(--accent); }
+
     .nav-links { align-items: center; display: flex; gap: 1rem; }
     .nav-links a { color: var(--muted); font-size: 0.82rem; font-weight: 600; text-decoration: none; }
     .nav-links a:hover, .nav-links a.active { color: var(--ink); }
@@ -141,8 +143,9 @@
       .nav { padding: 0.8rem 1rem; position: relative; }
       .mobile-page-title { display: inline-block; font-size: 0.85rem; font-weight: 700; margin-right: auto; }
       .nav-burger { align-items: center; background: transparent; border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 8px; color: inherit; cursor: pointer; display: inline-flex; flex: 0 0 auto; height: 32px; justify-content: center; padding: 0; width: 32px; }
-      .nav-links { align-items: flex-start; background: #15151f; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); display: none; flex-direction: column; gap: 0.2rem; padding: 0.6rem 0.9rem; position: absolute; right: 1rem; top: calc(100% + 6px); z-index: 30; }
+      .nav-links { align-items: stretch; background: #15151f; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); display: none; flex-direction: column; gap: 0.15rem; min-width: 160px; padding: 0.5rem; position: absolute; right: 1rem; top: calc(100% + 6px); z-index: 30; }
       .nav-links.open { display: flex; }
+      .nav-links a { padding: 0.6rem 0.7rem; }
       .layout { padding: 2rem 1rem 3rem; }
       article h1 { font-size: 1.9rem; }
       .syntax-row { gap: 0.25rem; grid-template-columns: 1fr; }
