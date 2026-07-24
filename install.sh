@@ -52,5 +52,6 @@ fi
 rm -f "$LOG_FILE"
 
 echo ""
+echo -e "  ${BOLD}Now running agentsquid…${RESET}"
 echo -e "  ${BOLD}Run:${RESET}  agentsquid"
 echo ""
