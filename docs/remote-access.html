@@ -182,8 +182,8 @@
 
       <h2>Tailscale</h2>
       <p>Tailscale's Personal plan is free for non-commercial use and creates a private WireGuard network across your own devices. Your phone, tablet, laptop, and workstation can talk to each other inside that private network without opening a public port.</p>
-      <p>Squid always binds to <code>127.0.0.1</code> — it never exposes itself directly on the network. <code>bin/start.sh</code> configures Tailscale's HTTPS proxy automatically if Tailscale is installed:</p>
-      <pre><code>bin/start.sh   # configures tailscale serve automatically</code></pre>
+      <p>Squid always binds to <code>127.0.0.1</code> — it never exposes itself directly on the network. Starting squid configures Tailscale's HTTPS proxy automatically if Tailscale is installed:</p>
+      <pre><code>agentsquid   # configures tailscale serve automatically</code></pre>
 
       <h2>Connecting from your phone</h2>
       <p>Type <code>/remote</code> in the chat to get a QR code with the full HTTPS URL and your access token already included — point your phone camera at it to open Squid in one tap:</p>

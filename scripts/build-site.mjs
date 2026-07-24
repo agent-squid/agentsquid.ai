@@ -70,6 +70,7 @@ const STATIC_FILES = [
   "CNAME",
   "agent_squid_400.png",
   "agent_squid_400x400.png",
+  "install.sh",
 ];
 const STATIC_DIRS = ["blog", "docs", "images"];
 
