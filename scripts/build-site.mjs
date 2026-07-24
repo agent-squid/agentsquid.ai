@@ -183,13 +183,13 @@ ${style
   }
   .flow-playground-source a { color: var(--text-mid); }
 </style>
+<script src="playground/flow-lang.js"></script>
 <main class="flow-playground-page">
 ${content.replace(/This page is standalone — not wired into the live composer or backend yet\./g, "This public playground mirrors Squid's current Flow grammar.")}
   <p class="flow-playground-source">
     Synced from <a href="https://github.com/agent-squid/squid/blob/main/ui/flow-playground.html" target="_blank" rel="noopener">Squid's playground source</a>.
   </p>
-</main>
-<script src="playground/flow-lang.js"></script>`;
+</main>`;
 }
 
 function renderPartial(kind, section, base, templates) {
