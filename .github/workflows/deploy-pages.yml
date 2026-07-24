@@ -3,6 +3,8 @@ name: Deploy Pages
 on:
   push:
     branches: [main]
+  repository_dispatch:
+    types: [squid-playground-updated]
   schedule:
     - cron: "17 */4 * * *"
   workflow_dispatch:
@@ -36,6 +38,7 @@ jobs:
 
       - name: Build static site
         env:
+          SQUID_RAW_BASE: https://raw.githubusercontent.com/agent-squid/squid/${{ github.event.client_payload.squid_sha || 'main' }}
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
           CURATOR_FEED_ID: ${{ secrets.CURATOR_FEED_ID }}
         run: |

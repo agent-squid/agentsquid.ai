@@ -1,14 +1,17 @@
-import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_DIR = path.join(ROOT, "_site");
+const SQUID_RAW_BASE = process.env.SQUID_RAW_BASE || "https://raw.githubusercontent.com/agent-squid/squid/main";
+const SQUID_REPO_ROOT = process.env.SQUID_REPO_ROOT || "";
 
 const PAGE_TITLES = {
   home: "Home",
   docs: "Docs",
   blog: "Blog",
+  playground: "Squid Flow",
 };
 
 // href is root-relative; external links are left untouched, internal links
@@ -38,6 +41,14 @@ const NAV_LINKS = {
     { href: "docs/index.html", label: "Docs" },
     { href: "community.html", label: "Community" },
   ],
+  playground: [
+    { href: "index.html#fit", label: "Where it fits" },
+    { href: "index.html#features", label: "Features" },
+    { href: "index.html#quickstart", label: "Get Started" },
+    { href: "blog/index.html", label: "Blog" },
+    { href: "docs/index.html", label: "Docs" },
+    { href: "community.html", label: "Community" },
+  ],
 };
 
 const FOOTER_LINKS = {
@@ -54,6 +65,12 @@ const FOOTER_LINKS = {
   ],
   blog: [
     { href: "https://github.com/agent-squid/squid", label: "GitHub", external: true },
+    { href: "community.html", label: "Community Feed" },
+  ],
+  playground: [
+    { href: "https://github.com/agent-squid/squid", label: "GitHub", external: true },
+    { href: "blog/index.html", label: "Blog" },
+    { href: "docs/index.html", label: "Docs" },
     { href: "community.html", label: "Community Feed" },
   ],
 };
@@ -87,9 +104,11 @@ const TEMPLATED_HTML = [
   { file: "blog/index.html", section: "blog" },
   { file: "blog/introducing-agent-squid.html", section: "blog" },
   { file: "blog/named-lanes-vs-terminal-tabs.html", section: "blog" },
+  { file: "flow-playground.html", section: "playground" },
 ];
 
 const INCLUDE_RE = /^[ \t]*<!--\s*INCLUDE\s+(header|footer):(\w+)\s*-->\r?\n/gm;
+const FLOW_PLAYGROUND_RE = /^[ \t]*<!--\s*INCLUDE\s+squid-flow-playground\s*-->\r?\n/gm;
 
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
@@ -99,6 +118,7 @@ async function main() {
     readFile(path.join(ROOT, "partials/footer.html"), "utf8"),
   ]);
   const templates = { header: headerTemplate.trimEnd(), footer: footerTemplate.trimEnd() };
+  const squidPlayground = await loadSquidPlayground();
 
   for (const name of STATIC_FILES) {
     await cp(path.join(ROOT, name), path.join(OUT_DIR, name));
@@ -115,11 +135,61 @@ async function main() {
         throw new Error(`${file}: unknown section "${includeSection}" in "${match}"`);
       }
       return `${renderPartial(kind, includeSection, base, templates)}\n`;
-    });
+    }).replace(FLOW_PLAYGROUND_RE, `${squidPlayground.html}\n`);
     await writeFile(path.join(OUT_DIR, file), rendered, "utf8");
   }
 
   console.log(`Built ${TEMPLATED_HTML.length} templated pages into ${path.relative(ROOT, OUT_DIR)}/`);
+}
+
+async function loadSquidPlayground() {
+  const [html, lang] = await Promise.all([
+    readSquidFile("ui/flow-playground.html"),
+    readSquidFile("ui/flow-lang.js"),
+  ]);
+  await mkdir(path.join(OUT_DIR, "playground"), { recursive: true });
+  await writeFile(path.join(OUT_DIR, "playground", "flow-lang.js"), lang, "utf8");
+  return { html: renderSquidPlayground(html) };
+}
+
+async function readSquidFile(file) {
+  if (SQUID_REPO_ROOT) {
+    return readFile(path.join(SQUID_REPO_ROOT, file), "utf8");
+  }
+  const url = `${SQUID_RAW_BASE.replace(/\/$/, "")}/${file}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`);
+  return res.text();
+}
+
+function renderSquidPlayground(source) {
+  const style = source.match(/<style>([\s\S]*?)<\/style>/i)?.[1];
+  const body = source.match(/<body[^>]*>([\s\S]*?)<\/body>/i)?.[1];
+  if (!style || !body) {
+    throw new Error("Could not extract Squid Flow playground style/body from Squid source");
+  }
+  const content = body
+    .replace(/<script\s+src=["']flow-lang\.js["']><\/script>\s*/i, "")
+    .replace(/<footer>[\s\S]*?<\/footer>/i, "")
+    .trim();
+  return `<style>
+${style
+  .replace(/\bbody\s*\{/g, ".flow-playground-page {")
+  .replace(/footer\b/g, ".flow-playground-source")}
+  .flow-playground-source {
+    color: var(--text-dim);
+    font-size: 0.72em;
+    margin-top: 2rem;
+  }
+  .flow-playground-source a { color: var(--text-mid); }
+</style>
+<main class="flow-playground-page">
+${content.replace(/This page is standalone — not wired into the live composer or backend yet\./g, "This public playground mirrors Squid's current Flow grammar.")}
+  <p class="flow-playground-source">
+    Synced from <a href="https://github.com/agent-squid/squid/blob/main/ui/flow-playground.html" target="_blank" rel="noopener">Squid's playground source</a>.
+  </p>
+</main>
+<script src="playground/flow-lang.js"></script>`;
 }
 
 function renderPartial(kind, section, base, templates) {
