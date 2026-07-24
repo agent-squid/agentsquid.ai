@@ -72,7 +72,60 @@ else
 fi
 rm -f "$LOG_FILE"
 
+# pipx's shim dir isn't necessarily on PATH yet in this same shell — `pipx
+# ensurepath` only edits shell rc files for future shells, it can't affect
+# the process already running this script.
+export PATH="$PATH:$HOME/.local/bin"
+
+# ── run it, in the background, and print a copy-pasteable URL ───────────────
+SQUID_HOME="$HOME/.squid"
+CONFIG="$SQUID_HOME/squid.yaml"
+PID_FILE="$SQUID_HOME/agentsquid.pid"
+BOOT_LOG="$SQUID_HOME/logs/boot.log"
+mkdir -p "$SQUID_HOME/logs"
+
 echo ""
-echo -e "  ${BOLD}Now running agentsquid…${RESET}"
-echo -e "  ${BOLD}Run:${RESET}  agentsquid"
+if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+  ALREADY_RUNNING=1
+else
+  ALREADY_RUNNING=0
+  nohup agentsquid >"$BOOT_LOG" 2>&1 &
+  echo $! > "$PID_FILE"
+fi
+
+# ~/.squid/squid.yaml is bootstrapped by agent/config.py on first launch, so
+# on a brand-new install it doesn't exist until the process above starts.
+for i in {1..10}; do
+  [[ -f "$CONFIG" ]] && break
+  sleep 0.2
+done
+PORT=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'port:' | grep -oE '[0-9]+')
+HOST=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'host:' | grep -oE '[0-9.]+')
+PORT=${PORT:-8000}
+HOST=${HOST:-127.0.0.1}
+
+if [[ "$ALREADY_RUNNING" == "1" ]]; then
+  ok "agentsquid already running (PID $(cat "$PID_FILE")) → http://${HOST}:${PORT}"
+else
+  echo -n "  starting agentsquid"
+  started=0
+  for i in {1..20}; do
+    sleep 0.5
+    if curl -sf "http://${HOST}:${PORT}/health" >/dev/null 2>&1; then
+      started=1
+      break
+    fi
+    echo -n "."
+  done
+  echo ""
+  if [[ "$started" == "1" ]]; then
+    ok "agentsquid is up → http://${HOST}:${PORT}"
+  else
+    warn "agentsquid did not respond within 10s — check $BOOT_LOG"
+  fi
+fi
+
+echo ""
+echo -e "  ${BOLD}Open:${RESET}  http://${HOST}:${PORT}"
+echo -e "  ${BOLD}Stop:${RESET}  kill \$(cat $PID_FILE)"
 echo ""
