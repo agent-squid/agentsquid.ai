@@ -11,7 +11,7 @@ const PAGE_TITLES = {
   home: "Home",
   docs: "Docs",
   blog: "Blog",
-  playground: "Squid Flow",
+  playground: "Squid Flow => Playground",
 };
 
 // href is root-relative; external links are left untouched, internal links
@@ -51,29 +51,12 @@ const NAV_LINKS = {
   ],
 };
 
-const FOOTER_LINKS = {
-  home: [
-    { href: "https://github.com/agent-squid/squid", label: "GitHub", external: true },
-    { href: "blog/index.html", label: "Blog" },
-    { href: "docs/index.html", label: "Docs" },
-    { href: "community.html", label: "Community Feed" },
-  ],
-  docs: [
-    { href: "https://github.com/agent-squid/squid", label: "GitHub", external: true },
-    { href: "blog/index.html", label: "Blog" },
-    { href: "community.html", label: "Community Feed" },
-  ],
-  blog: [
-    { href: "https://github.com/agent-squid/squid", label: "GitHub", external: true },
-    { href: "community.html", label: "Community Feed" },
-  ],
-  playground: [
-    { href: "https://github.com/agent-squid/squid", label: "GitHub", external: true },
-    { href: "blog/index.html", label: "Blog" },
-    { href: "docs/index.html", label: "Docs" },
-    { href: "community.html", label: "Community Feed" },
-  ],
-};
+const SHARED_FOOTER_LINKS = [
+  { href: "https://github.com/agent-squid/squid", label: "GitHub", external: true },
+  { href: "blog/index.html", label: "Blog" },
+  { href: "docs/index.html", label: "Docs" },
+  { href: "community.html", label: "Community Feed" },
+];
 
 // Top-level static entries copied verbatim into _site (mirrors the previous
 // hand-written cp list in .github/workflows/deploy-pages.yml).
@@ -202,7 +185,7 @@ function renderPartial(kind, section, base, templates) {
 
   return templates.footer.replace(
     "{{FOOTER_LINKS}}",
-    FOOTER_LINKS[section].map((link) => renderLink(link, base)).join("\n"),
+    SHARED_FOOTER_LINKS.map((link) => renderLink(link, base)).join("\n"),
   );
 }
 

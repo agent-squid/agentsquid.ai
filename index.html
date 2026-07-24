@@ -960,7 +960,7 @@
           <h2>Less terminal sprawl. More controlled agent work.</h2>
         </div>
         <p>
-          Use Squid when one terminal is no longer enough: multiple agents, multiple topics, long-running work, context experiments, mobile access, and visible usage.
+          Use Squid when one terminal is no longer enough: multiple agents, multiple topics, long-running work, context experiments, mobile access, and per-prompt usage stats.
         </p>
       </div>
 
@@ -991,9 +991,9 @@
           <p>Keep useful answers and inject them into another session or one-off turn instead of repeating yourself.</p>
         </article>
         <article class="card">
-          <p class="kicker">Every token counts</p>
-          <h3>Usage analytics</h3>
-          <p>Inspect tokens, cache reads and writes, reasoning tokens, cost, duration, quota signals, and rollups by topic or agent.</p>
+          <p class="kicker">Per-prompt stats</p>
+          <h3>Usage analytics for every turn</h3>
+          <p>Inspect tokens, cache reads and writes, reasoning tokens, cost, duration, and quota signals for each prompt, then roll them up by topic or agent.</p>
         </article>
       </div>
     </section>
@@ -1002,10 +1002,10 @@
       <div class="section-head">
         <div>
           <p class="eyebrow">Quick start</p>
-          <h2>Install one backend CLI. Start Squid. Open the UI.</h2>
+          <h2>Install one backend CLI. Install Squid. Open the UI.</h2>
         </div>
         <p>
-          AgentSquid works with supported local agent CLIs. Install and log into at least one backend first, then start Squid locally at <code>127.0.0.1:8000</code>.
+          AgentSquid works with supported local agent CLIs. Install and log into at least one backend first, then run the installer. It starts Squid locally and prints the browser URL.
         </p>
       </div>
 
@@ -1017,9 +1017,8 @@
           <p class="quote">An agent is a named config: harness + provider + model + working directory.</p>
         </div>
         <pre class="code">curl -fsSL https://agentsquid.ai/install.sh | sh
-agentsquid
 
-# open in your browser
+# then open in your browser
 http://127.0.0.1:8000</pre>
       </div>
     </section>
