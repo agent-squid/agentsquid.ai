@@ -12,19 +12,25 @@ echo -e "\n${BOLD}agentsquid — install${RESET}\n"
 
 if ! command -v pipx &>/dev/null; then
   warn "pipx not found — installing"
-  if command -v brew &>/dev/null; then
-    brew install pipx
+  pipx_ready=0
+  # A working `brew` binary doesn't guarantee `brew install` works — a broken
+  # Cellar (e.g. ownership reset by an OS update) fails here often enough
+  # that a hard stop on brew's error is the wrong default; fall through to
+  # the pip-based path instead of leaving pipx (and therefore agentsquid)
+  # never installed.
+  if command -v brew &>/dev/null && brew install pipx; then
     pipx ensurepath &>/dev/null || true
+    pipx_ready=1
   elif command -v python3 &>/dev/null; then
     python3 -m pip install --user --quiet pipx
     python3 -m pipx ensurepath &>/dev/null || true
     export PATH="$PATH:$(python3 -m site --user-base)/bin"
-  else
-    fail "Python 3 not found — install Python 3.9+ first, then re-run this script"
-    exit 1
+    pipx_ready=1
   fi
-  if ! command -v pipx &>/dev/null; then
-    fail "pipx installed but not on PATH yet — restart your shell and re-run this script"
+  if [[ "$pipx_ready" != "1" ]] || ! command -v pipx &>/dev/null; then
+    fail "Could not install pipx automatically."
+    fail "Fix Homebrew (see its error above) or install Python 3.9+, then re-run this script."
+    fail "Or install pipx yourself: python3 -m pip install --user pipx && python3 -m pipx ensurepath"
     exit 1
   fi
   ok "pipx installed"
