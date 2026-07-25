@@ -62,6 +62,7 @@ const SHARED_FOOTER_LINKS = [
 // hand-written cp list in .github/workflows/deploy-pages.yml).
 const STATIC_FILES = [
   "index.html",
+  "index1.html",
   "index2.html",
   "index3.html",
   "index4.html",
