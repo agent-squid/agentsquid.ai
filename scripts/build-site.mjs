@@ -62,6 +62,9 @@ const SHARED_FOOTER_LINKS = [
 // hand-written cp list in .github/workflows/deploy-pages.yml).
 const STATIC_FILES = [
   "index.html",
+  "index2.html",
+  "index3.html",
+  "index4.html",
   "community.html",
   "nav-toggle.js",
   "insights.json",
@@ -103,7 +106,16 @@ async function main() {
   const squidPlayground = await loadSquidPlayground();
 
   for (const name of STATIC_FILES) {
-    await cp(path.join(ROOT, name), path.join(OUT_DIR, name));
+    const src = path.join(ROOT, name);
+    try {
+      await cp(src, path.join(OUT_DIR, name));
+    } catch (err) {
+      if (err.code === "ENOENT") {
+        console.log(`Skipping missing static file: ${name}`);
+        continue;
+      }
+      throw err;
+    }
   }
   for (const name of STATIC_DIRS) {
     await cp(path.join(ROOT, name), path.join(OUT_DIR, name), { recursive: true });

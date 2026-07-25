@@ -43,6 +43,7 @@
       font-family: var(--font);
       line-height: 1.6;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     body::before {
@@ -176,6 +177,8 @@
       font-size: clamp(0.48rem, 1.2vw, 0.78rem);
       line-height: 1.25;
       white-space: pre;
+      max-width: 100%;
+      overflow-x: auto;
       background: linear-gradient(135deg, #f07040 0%, #f5a060 50%, #e84c1e 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
