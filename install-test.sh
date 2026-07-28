@@ -10,7 +10,7 @@ fail() { echo -e "  ${RED}✗${RESET}  $1"; }
 
 VERSION="${1:-}"
 if [[ -z "$VERSION" ]]; then
-  fail "usage: curl -fsSL https://agentsquid.ai/install-test.sh | sh -s -- <version>"
+  fail "usage: curl -fsSL https://agentsquid.ai/install-test.sh | bash -s -- <version>"
   exit 1
 fi
 
@@ -21,13 +21,13 @@ trap 'rm -rf "$TMPDIR"' EXIT
 
 echo -e "\n${BOLD}agentsquid — install-test (TestPyPI, ${VERSION})${RESET}\n"
 
+export PATH="$PATH:$HOME/.local/bin"
+
 if ! command -v pipx &>/dev/null; then
   fail "pipx not found — install pipx first (see install.sh), then re-run this script."
   exit 1
 fi
 ok "pipx found"
-
-export PATH="$PATH:$HOME/.local/bin"
 
 echo ""
 python3 -m pip download \
