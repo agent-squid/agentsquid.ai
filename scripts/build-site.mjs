@@ -74,6 +74,7 @@ const STATIC_FILES = [
   "agent_squid_400.png",
   "agent_squid_400x400.png",
   "install.sh",
+  "install-test.sh",
 ];
 const STATIC_DIRS = ["blog", "docs", "images"];
 
