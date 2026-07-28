@@ -185,14 +185,10 @@
 
       <div class="syntax-table">
         <div class="syntax-row"><code>#topic@agent message</code><span>Continue that topic and agent session.</span></div>
-        <div class="syntax-row"><code>#topic@agent! message</code><span>Run a parallel adhoc turn with no session history.</span></div>
+        <div class="syntax-row"><code>#topic@agent! message</code><span>Run a parallel adhoc turn with no session history (a.k.a Goldfish mode).</span></div>
         <div class="syntax-row"><code>#topic@agent!3 message</code><span>Run adhoc with only the last three exchanges as context.</span></div>
-        <div class="syntax-row"><code>/stop</code><span>Stop the current process scope.</span></div>
-        <div class="syntax-row"><code>/stopall</code><span>Stop and drain the current topic.</span></div>
-        <div class="syntax-row"><code>/clear</code><span>Create a new session when old context gets stale.</span></div>
-        <div class="syntax-row"><code>/f</code>, <code>/filter</code><span>Filter history to the current topic/agent lane.</span></div>
-        <div class="syntax-row"><code>/s</code>, <code>/search</code><span>Search history in the current topic/agent lane.</span></div>
-        <div class="syntax-row"><code>/remote</code><span>Show a QR code for private phone or tablet access via Tailscale.</span></div>
+        <div class="syntax-row"><span><code>/f</code>, <code>/filter</code></span><span>Filter history to the current topic/agent lane.</span></div>
+        <div class="syntax-row"><span><code>/s</code>, <code>/search</code></span><span>Search history in the current topic/agent lane.</span></div>
       </div>
 
       <h2>Topics are sticky</h2>
