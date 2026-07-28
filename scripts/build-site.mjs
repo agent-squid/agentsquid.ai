@@ -1,11 +1,13 @@
-import { cp, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_DIR = path.join(ROOT, "_site");
+const SITE_URL = (process.env.SITE_URL || "https://agentsquid.ai").replace(/\/$/, "");
 const SQUID_RAW_BASE = process.env.SQUID_RAW_BASE || "https://raw.githubusercontent.com/agent-squid/squid/main";
 const SQUID_REPO_ROOT = process.env.SQUID_REPO_ROOT || "";
+const DEFAULT_SOCIAL_IMAGE = "agent_squid_400x400.png";
 
 const PAGE_TITLES = {
   home: "Home",
@@ -62,10 +64,6 @@ const SHARED_FOOTER_LINKS = [
 // hand-written cp list in .github/workflows/deploy-pages.yml).
 const STATIC_FILES = [
   "index.html",
-  "index1.html",
-  "index2.html",
-  "index3.html",
-  "index4.html",
   "community.html",
   "nav-toggle.js",
   "insights.json",
@@ -91,6 +89,82 @@ const TEMPLATED_HTML = [
   { file: "flow-playground.html", section: "playground" },
 ];
 
+const STATIC_HTML = [
+  "community.html",
+];
+
+const SEO_META = {
+  "index.html": {
+    description: "AgentSquid is a local meta harness for Claude Code, Codex, Cursor Agent, OpenCode, and Pi. Run named agent lanes, queue work, track tokens, and control coding agents from one browser UI.",
+    type: "website",
+    schema: "SoftwareApplication",
+  },
+  "docs/index.html": {
+    description: "AgentSquid documentation: quick start, basic usage, Squid Flow, remote access, and how it compares to other tools.",
+    type: "article",
+    schema: "TechArticle",
+  },
+  "docs/quick-start.html": {
+    description: "Install a backend CLI, start AgentSquid, and open the browser UI.",
+    type: "article",
+    schema: "TechArticle",
+  },
+  "docs/basic-usage.html": {
+    description: "Tag syntax, adhoc turns, and slash commands for everyday AgentSquid use.",
+    type: "article",
+    schema: "TechArticle",
+  },
+  "docs/comparison.html": {
+    description: "Where AgentSquid fits next to chat UIs, single-agent CLIs, and IDE agents, and when it's not the right tool.",
+    type: "article",
+    schema: "TechArticle",
+  },
+  "docs/remote-access.html": {
+    description: "Couch coding from your phone or tablet with Tailscale.",
+    type: "article",
+    schema: "TechArticle",
+  },
+  "docs/squid-flow.html": {
+    description: "Chain agents together with Squid Flow: one-way handoffs, round trips, joins, and scheduled runs.",
+    type: "article",
+    schema: "TechArticle",
+  },
+  "flow-playground.html": {
+    description: "Try Squid Flow route expressions and see canonical routes, branch breakdowns, and expanded execution forms.",
+    type: "website",
+    schema: "WebApplication",
+  },
+  "blog/index.html": {
+    description: "Release notes, design notes, and field reports from the AgentSquid team.",
+    type: "website",
+    schema: "CollectionPage",
+  },
+  "blog/introducing-agent-squid.html": {
+    description: "Why we built a meta harness for local coding agents instead of another chat UI.",
+    type: "article",
+    schema: "BlogPosting",
+    published: "2026-07-28",
+  },
+  "blog/named-lanes-vs-terminal-tabs.html": {
+    description: "How #topic@agent routing replaces a desktop full of unlabeled terminal windows.",
+    type: "article",
+    schema: "BlogPosting",
+    published: "2026-07-28",
+  },
+  "blog/parallel-conflicts.html": {
+    description: "How Squid isolates parallel agent turns with per-turn worktrees, merges them with a real Git three-way merge, and surfaces true conflicts instead of silent data loss.",
+    type: "article",
+    schema: "BlogPosting",
+    published: "2026-07-28",
+  },
+  "community.html": {
+    title: "Community - AgentSquid",
+    description: "Follow AgentSquid community updates, curated posts, demos, and developer conversations from one feed.",
+    type: "website",
+    schema: "CollectionPage",
+  },
+};
+
 // Every *.html file under blog/ is templated with the shared blog header/footer —
 // new posts just need the INCLUDE markers, not a manual entry here.
 async function discoverBlogPages() {
@@ -104,6 +178,7 @@ const INCLUDE_RE = /^[ \t]*<!--\s*INCLUDE\s+(header|footer):(\w+)\s*-->\r?\n/gm;
 const FLOW_PLAYGROUND_RE = /^[ \t]*<!--\s*INCLUDE\s+squid-flow-playground\s*-->\r?\n/gm;
 
 async function main() {
+  await rm(OUT_DIR, { recursive: true, force: true });
   await mkdir(OUT_DIR, { recursive: true });
 
   const [headerTemplate, footerTemplate] = await Promise.all([
@@ -139,8 +214,19 @@ async function main() {
       }
       return `${renderPartial(kind, includeSection, base, templates)}\n`;
     }).replace(FLOW_PLAYGROUND_RE, `${squidPlayground.html}\n`);
-    await writeFile(path.join(OUT_DIR, file), rendered, "utf8");
+    await writeFile(path.join(OUT_DIR, file), injectSeo(file, rendered), "utf8");
   }
+
+  for (const file of STATIC_HTML) {
+    const source = await readFile(path.join(ROOT, file), "utf8");
+    await writeFile(path.join(OUT_DIR, file), injectSeo(file, source), "utf8");
+  }
+
+  const publicHtml = uniqueFiles([...templatedHtml.map(({ file }) => file), ...STATIC_HTML]);
+  await Promise.all([
+    writeFile(path.join(OUT_DIR, "robots.txt"), renderRobots(), "utf8"),
+    writeFile(path.join(OUT_DIR, "sitemap.xml"), renderSitemap(publicHtml), "utf8"),
+  ]);
 
   console.log(`Built ${templatedHtml.length} templated pages into ${path.relative(ROOT, OUT_DIR)}/`);
 }
@@ -214,6 +300,132 @@ function renderLink({ href, label, external, active, bare }, base) {
   const classAttr = active ? ' class="active"' : "";
   const externalAttrs = external ? ' target="_blank" rel="noopener"' : "";
   return `      <a${classAttr} href="${finalHref}"${externalAttrs}>${label}</a>`;
+}
+
+function injectSeo(file, html) {
+  const meta = SEO_META[file] || {};
+  const title = meta.title || html.match(/<title>([^<]+)<\/title>/i)?.[1] || "AgentSquid";
+  const description = meta.description || html.match(/<meta\s+name=["']description["']\s+content=["']([^"']+)["']\s*\/?>/i)?.[1] || "";
+  const canonical = urlForFile(file);
+  const image = `${SITE_URL}/${DEFAULT_SOCIAL_IMAGE}`;
+  const tags = [
+    `<link rel="canonical" href="${escapeHtml(canonical)}" />`,
+    `<meta property="og:site_name" content="AgentSquid" />`,
+    `<meta property="og:type" content="${escapeHtml(meta.type || "website")}" />`,
+    `<meta property="og:title" content="${escapeHtml(title)}" />`,
+    `<meta property="og:description" content="${escapeHtml(description)}" />`,
+    `<meta property="og:url" content="${escapeHtml(canonical)}" />`,
+    `<meta property="og:image" content="${escapeHtml(image)}" />`,
+    `<meta name="twitter:card" content="summary_large_image" />`,
+    `<meta name="twitter:title" content="${escapeHtml(title)}" />`,
+    `<meta name="twitter:description" content="${escapeHtml(description)}" />`,
+    `<meta name="twitter:image" content="${escapeHtml(image)}" />`,
+    `<script type="application/ld+json">${JSON.stringify(schemaFor(file, title, description, canonical, image))}</script>`,
+  ];
+
+  let next = stripManagedSeo(html);
+  if (description && !/<meta\s+name=["']description["']/i.test(next)) {
+    next = next.replace(/(<title>[^<]+<\/title>)/i, `$1\n  <meta name="description" content="${escapeHtml(description)}" />`);
+  }
+  return next.replace(/(<meta\s+name=["']description["'][^>]*>\s*)/i, `$1\n  ${tags.join("\n  ")}\n  `);
+}
+
+function stripManagedSeo(html) {
+  return html
+    .replace(/\n?\s*<link\s+rel=["']canonical["'][^>]*>\s*/gi, "\n")
+    .replace(/\n?\s*<meta\s+(?:property=["']og:[^"']+["']|name=["']twitter:[^"']+["'])[^>]*>\s*/gi, "\n")
+    .replace(/\n?\s*<script\s+type=["']application\/ld\+json["']>[\s\S]*?<\/script>\s*/gi, "\n");
+}
+
+function schemaFor(file, title, description, canonical, image) {
+  const meta = SEO_META[file] || {};
+  const base = {
+    "@context": "https://schema.org",
+    "@type": meta.schema || "WebPage",
+    name: title,
+    description,
+    url: canonical,
+    image,
+    publisher: organizationSchema(),
+  };
+
+  if (meta.schema === "SoftwareApplication") {
+    return {
+      ...base,
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "macOS, Linux",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      downloadUrl: "https://github.com/agent-squid/squid",
+    };
+  }
+
+  if (meta.schema === "BlogPosting" || meta.schema === "TechArticle") {
+    return {
+      ...base,
+      headline: title,
+      author: organizationSchema(),
+      datePublished: meta.published,
+      dateModified: meta.modified || meta.published,
+      mainEntityOfPage: canonical,
+    };
+  }
+
+  return base;
+}
+
+function organizationSchema() {
+  return {
+    "@type": "Organization",
+    name: "AgentSquid",
+    url: SITE_URL,
+    logo: `${SITE_URL}/agent_squid_400x400.png`,
+    sameAs: [
+      "https://github.com/agent-squid/squid",
+    ],
+  };
+}
+
+function renderRobots() {
+  return `User-agent: *
+Allow: /
+
+Sitemap: ${SITE_URL}/sitemap.xml
+`;
+}
+
+function renderSitemap(files) {
+  const urls = files.map((file) => `  <url>
+    <loc>${escapeXml(urlForFile(file))}</loc>
+  </url>`).join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>
+`;
+}
+
+function urlForFile(file) {
+  return file === "index.html" ? `${SITE_URL}/` : `${SITE_URL}/${file}`;
+}
+
+function uniqueFiles(files) {
+  return [...new Set(files)].sort((a, b) => urlForFile(a).localeCompare(urlForFile(b)));
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function escapeXml(value) {
+  return escapeHtml(value).replace(/'/g, "&apos;");
 }
 
 main().catch((error) => {
