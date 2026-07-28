@@ -1,4 +1,4 @@
-import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { cp, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -87,11 +87,17 @@ const TEMPLATED_HTML = [
   { file: "docs/comparison.html", section: "docs" },
   { file: "docs/remote-access.html", section: "docs" },
   { file: "docs/squid-flow.html", section: "docs" },
-  { file: "blog/index.html", section: "blog" },
-  { file: "blog/introducing-agent-squid.html", section: "blog" },
-  { file: "blog/named-lanes-vs-terminal-tabs.html", section: "blog" },
   { file: "flow-playground.html", section: "playground" },
 ];
+
+// Every *.html file under blog/ is templated with the shared blog header/footer —
+// new posts just need the INCLUDE markers, not a manual entry here.
+async function discoverBlogPages() {
+  const entries = await readdir(path.join(ROOT, "blog"), { withFileTypes: true });
+  return entries
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".html"))
+    .map((entry) => ({ file: `blog/${entry.name}`, section: "blog" }));
+}
 
 const INCLUDE_RE = /^[ \t]*<!--\s*INCLUDE\s+(header|footer):(\w+)\s*-->\r?\n/gm;
 const FLOW_PLAYGROUND_RE = /^[ \t]*<!--\s*INCLUDE\s+squid-flow-playground\s*-->\r?\n/gm;
@@ -105,6 +111,7 @@ async function main() {
   ]);
   const templates = { header: headerTemplate.trimEnd(), footer: footerTemplate.trimEnd() };
   const squidPlayground = await loadSquidPlayground();
+  const templatedHtml = [...TEMPLATED_HTML, ...(await discoverBlogPages())];
 
   for (const name of STATIC_FILES) {
     const src = path.join(ROOT, name);
@@ -122,7 +129,7 @@ async function main() {
     await cp(path.join(ROOT, name), path.join(OUT_DIR, name), { recursive: true });
   }
 
-  for (const { file, section } of TEMPLATED_HTML) {
+  for (const { file, section } of templatedHtml) {
     const base = file.includes("/") ? "../" : "";
     const source = await readFile(path.join(ROOT, file), "utf8");
     const rendered = source.replace(INCLUDE_RE, (match, kind, includeSection) => {
@@ -134,7 +141,7 @@ async function main() {
     await writeFile(path.join(OUT_DIR, file), rendered, "utf8");
   }
 
-  console.log(`Built ${TEMPLATED_HTML.length} templated pages into ${path.relative(ROOT, OUT_DIR)}/`);
+  console.log(`Built ${templatedHtml.length} templated pages into ${path.relative(ROOT, OUT_DIR)}/`);
 }
 
 async function loadSquidPlayground() {
