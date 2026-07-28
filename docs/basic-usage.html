@@ -118,6 +118,8 @@
     .syntax-row + .syntax-row { border-top: 1px solid var(--line); }
     .syntax-row span { color: var(--muted); font-size: 0.9rem; }
 
+    .doc-shot { border: 1px solid var(--line); border-radius: 10px; display: block; margin-bottom: 1.2rem; max-width: 360px; width: 100%; }
+
     .next-step {
       align-items: center;
       background: var(--surface);
@@ -201,6 +203,18 @@
       <h2>Watching work happen</h2>
       <p>While an agent runs, Squid shows a progress bubble instead of a frozen terminal: queue position, tool activity, and streamed partial output. Stop a run from the bubble's control, or type <code>/stop</code> or <code>/stopall</code> for the same effect with clearer scope.</p>
       <p>Every completed turn carries usage metadata — tokens, cache reads/writes, reasoning tokens where available, cost, duration, and quota signals — rolled up by topic or agent in the analytics view.</p>
+
+      <h2>Mobile composer</h2>
+      <p>The mobile composer puts the same history tools as desktop within thumb's reach, as tappable icons instead of typed commands. Swipe up at the bottom of the chat to refresh the thread. Five icons sit next to the input box, followed by a dedicated pinned-context button and the send arrow:</p>
+      <img class="doc-shot" src="../images/composer_mobile.jpg" alt="AgentSquid mobile composer with bookmark, filter, search, clear, archive, and pinned-context icons" loading="lazy" />
+      <ul>
+        <li><strong>Bookmark</strong> — toggles the history view to bookmarked responses only, so you can jump back to anything you flagged without scrolling. Tap it while it's showing nothing to browse every bookmark saved in the topic instead.</li>
+        <li><strong>Filter</strong> — the tap equivalent of <code>/f</code> / <code>/filter</code> from the table above. It cycles between two states: showing only your own prompts, then narrowing further to just the current route (<code>#topic@agent</code>) so replies from other topics or agents don't clutter the thread.</li>
+        <li><strong>Search</strong> — the tap equivalent of <code>/s</code> / <code>/search</code>, scoped to the current route.</li>
+        <li><strong>Clear</strong> (broom icon) — shortcut for typing <code>/clear</code>: starts a fresh session for your next message without leaving the composer.</li>
+        <li><strong>Archive</strong> — stashes whatever you've typed instead of sending it, so a half-written prompt isn't lost if you switch topics. Tap it with an empty composer to reopen your most recently stashed prompts.</li>
+        <li><strong>Pinned context</strong> — set apart with its own button and a badge showing how many responses are currently pinned. Anything pinned here is injected as context into adhoc turns (<code>#topic@agent!</code>), which otherwise run with no session history — see "Session turns queue, adhoc turns don't" above.</li>
+      </ul>
 
       <div class="next-step">
         <span>Next: chain agents together with Squid Flow.</span>
