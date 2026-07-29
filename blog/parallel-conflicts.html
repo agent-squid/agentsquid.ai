@@ -144,7 +144,8 @@
       padding: 1.1rem 1.3rem;
     }
 
-    .callout p { color: var(--muted); font-size: 0.95rem; margin-bottom: 0; }
+    .callout p { color: var(--muted); font-size: 0.95rem; margin-bottom: 0.8rem; }
+    .callout p:last-child { margin-bottom: 0; }
 
     .diagram {
       margin: 0.5rem 0 2rem;
@@ -442,6 +443,20 @@ git add -A &amp;&amp; git commit -q -m seed</code></pre>
       Edit two different lines instead of the same one and you'll see the other half of this story: both turns merge
       in cleanly, no conflict at all, because Git only refuses to auto-merge when both sides touched the same lines.
     </p>
+
+    <div class="callout">
+      <p>
+        If you already have your own isolation workflow and don't want Squid creating per-turn directories, turn the
+        feature off in <code>~/.squid/squid.yaml</code>:
+      </p>
+      <pre><code>worktree:
+  enabled: false</code></pre>
+      <p>
+        With <code>worktree.enabled</code> set to <code>false</code>, agents write directly to the configured code root.
+        That keeps Squid out of your repo isolation strategy, but also means you give up the private turn directories,
+        merge promotion, and conflict surfacing described above.
+      </p>
+    </div>
 
     <div class="callout">
       <p>This covers the behavior you'll actually run into. For the full mechanics &mdash; hidden snapshot commits,
