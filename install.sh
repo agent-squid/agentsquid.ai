@@ -64,7 +64,6 @@ if [[ -n "$VERSION" ]]; then
   INSTALL_LABEL="${VERSION}"
 elif [[ "$ALLOW_PRE" == "1" ]]; then
   INSTALL_LABEL="latest prerelease"
-  PIPX_PIP_ARGS=(--pip-args "--pre")
 fi
 
 echo -e "\n${BOLD}agentsquid — install (${INSTALL_LABEL})${RESET}\n"
@@ -132,14 +131,14 @@ if [[ -n "$VERSION" ]]; then
     rm -f "$LOG_FILE"
     exit 1
   fi
-elif [[ "$ALLOW_PRE" == "1" ]] && pipx upgrade agentsquid --pip-args "--pre" >"$LOG_FILE" 2>&1; then
+elif [[ "$ALLOW_PRE" == "1" ]] && pipx upgrade agentsquid --pip-args=--pre >"$LOG_FILE" 2>&1; then
   ok "agentsquid up to date"
 elif [[ "$ALLOW_PRE" != "1" ]] && pipx upgrade agentsquid >"$LOG_FILE" 2>&1; then
   ok "agentsquid up to date"
 else
   if [[ "$ALLOW_PRE" == "1" ]]; then
     install_ok=0
-    pipx install "$PACKAGE_SPEC" --pip-args "--pre" >"$LOG_FILE" 2>&1 && install_ok=1
+    pipx install "$PACKAGE_SPEC" --pip-args=--pre >"$LOG_FILE" 2>&1 && install_ok=1
   else
     install_ok=0
     pipx install "$PACKAGE_SPEC" >"$LOG_FILE" 2>&1 && install_ok=1
