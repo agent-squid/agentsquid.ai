@@ -8,6 +8,45 @@ ok()   { echo -e "  ${GREEN}✓${RESET}  $1"; }
 warn() { echo -e "  ${YELLOW}!${RESET}  $1"; }
 fail() { echo -e "  ${RED}✗${RESET}  $1"; }
 
+run_with_spinner() {
+  local message="$1"
+  shift
+  local spin='-\|/'
+  local i=0
+  local pid
+
+  "$@" &
+  pid=$!
+  while kill -0 "$pid" 2>/dev/null; do
+    printf "\r  %s %s" "$message" "${spin:i++%${#spin}:1}"
+    sleep 0.15
+  done
+  wait "$pid"
+  local status=$?
+  printf "\r  %s\n" "$message"
+  return "$status"
+}
+
+run_logged_with_spinner() {
+  local message="$1"
+  local log_file="$2"
+  shift 2
+  local spin='-\|/'
+  local i=0
+  local pid
+
+  "$@" >"$log_file" 2>&1 &
+  pid=$!
+  while kill -0 "$pid" 2>/dev/null; do
+    printf "\r  %s %s" "$message" "${spin:i++%${#spin}:1}"
+    sleep 0.15
+  done
+  wait "$pid"
+  local status=$?
+  printf "\r  %s\n" "$message"
+  return "$status"
+}
+
 ALLOW_PRE=0
 VERSION=""
 
@@ -84,7 +123,7 @@ if ! command -v pipx &>/dev/null; then
     BREW_CELLAR=$(brew --cellar 2>/dev/null || echo /usr/local/Cellar)
     if [[ ! -e "$BREW_CELLAR" || -w "$BREW_CELLAR" ]]; then
       brew_attempted=1
-      if brew install pipx >"$BREW_LOG" 2>&1; then
+      if run_logged_with_spinner "installing pipx with Homebrew" "$BREW_LOG" brew install pipx; then
         pipx ensurepath &>/dev/null || true
         pipx_ready=1
       fi
@@ -95,7 +134,7 @@ if ! command -v pipx &>/dev/null; then
     fi
   fi
   if [[ "$pipx_ready" != "1" ]] && command -v python3 &>/dev/null; then
-    python3 -m pip install --user --quiet pipx
+    run_with_spinner "installing pipx with Python" python3 -m pip install --user --quiet pipx
     python3 -m pipx ensurepath &>/dev/null || true
     export PATH="$PATH:$(python3 -m site --user-base)/bin"
     pipx_ready=1
@@ -121,9 +160,10 @@ fi
 # version installs use --force so rc test installs replace an existing stable
 # package. Unpinned installs keep the normal upgrade-then-install behavior.
 echo ""
+PREVIOUS_VERSION=$(pipx runpip agentsquid show agentsquid 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}' || true)
 LOG_FILE=$(mktemp -t agentsquid-install.XXXXXX)
 if [[ -n "$VERSION" ]]; then
-  if pipx install --force "$PACKAGE_SPEC" >"$LOG_FILE" 2>&1; then
+  if run_logged_with_spinner "installing agentsquid ${VERSION}" "$LOG_FILE" pipx install --force "$PACKAGE_SPEC"; then
     ok "agentsquid ${VERSION} installed"
   else
     fail "could not install ${PACKAGE_SPEC}"
@@ -131,17 +171,17 @@ if [[ -n "$VERSION" ]]; then
     rm -f "$LOG_FILE"
     exit 1
   fi
-elif [[ "$ALLOW_PRE" == "1" ]] && pipx upgrade agentsquid --pip-args=--pre >"$LOG_FILE" 2>&1; then
+elif [[ "$ALLOW_PRE" == "1" ]] && run_logged_with_spinner "upgrading agentsquid" "$LOG_FILE" pipx upgrade agentsquid --pip-args=--pre; then
   ok "agentsquid up to date"
-elif [[ "$ALLOW_PRE" != "1" ]] && pipx upgrade agentsquid >"$LOG_FILE" 2>&1; then
+elif [[ "$ALLOW_PRE" != "1" ]] && run_logged_with_spinner "upgrading agentsquid" "$LOG_FILE" pipx upgrade agentsquid; then
   ok "agentsquid up to date"
 else
   if [[ "$ALLOW_PRE" == "1" ]]; then
     install_ok=0
-    pipx install "$PACKAGE_SPEC" --pip-args=--pre >"$LOG_FILE" 2>&1 && install_ok=1
+    run_logged_with_spinner "installing agentsquid" "$LOG_FILE" pipx install "$PACKAGE_SPEC" --pip-args=--pre && install_ok=1
   else
     install_ok=0
-    pipx install "$PACKAGE_SPEC" >"$LOG_FILE" 2>&1 && install_ok=1
+    run_logged_with_spinner "installing agentsquid" "$LOG_FILE" pipx install "$PACKAGE_SPEC" && install_ok=1
   fi
   if [[ "$install_ok" == "1" ]]; then
     ok "agentsquid installed"
@@ -155,8 +195,14 @@ fi
 rm -f "$LOG_FILE"
 
 INSTALLED_VERSION=$(pipx runpip agentsquid show agentsquid 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}' || true)
+RESTART_FOR_UPGRADE=0
 if [[ -n "$INSTALLED_VERSION" ]]; then
-  ok "installed version: agentsquid ${INSTALLED_VERSION}"
+  if [[ -n "$PREVIOUS_VERSION" && "$PREVIOUS_VERSION" != "$INSTALLED_VERSION" ]]; then
+    ok "upgraded agentsquid ${PREVIOUS_VERSION} → ${INSTALLED_VERSION}"
+    RESTART_FOR_UPGRADE=1
+  else
+    ok "installed version: agentsquid ${INSTALLED_VERSION}"
+  fi
 else
   warn "installed version could not be determined"
 fi
@@ -170,15 +216,35 @@ export PATH="$PATH:$HOME/.local/bin"
 SQUID_HOME="$HOME/.squid"
 CONFIG="$SQUID_HOME/squid.yaml"
 PID_FILE="$SQUID_HOME/agentsquid.pid"
-BOOT_LOG="$SQUID_HOME/logs/boot.log"
+SERVER_LOG="$SQUID_HOME/logs/server.log"
 mkdir -p "$SQUID_HOME/logs"
 
 echo ""
 if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
-  ALREADY_RUNNING=1
+  if [[ "$RESTART_FOR_UPGRADE" == "1" ]]; then
+    OLD_PID=$(cat "$PID_FILE")
+    echo -n "  restarting agentsquid"
+    kill "$OLD_PID" 2>/dev/null || true
+    for i in {1..20}; do
+      kill -0 "$OLD_PID" 2>/dev/null || break
+      sleep 0.25
+      echo -n "."
+    done
+    echo ""
+    if kill -0 "$OLD_PID" 2>/dev/null; then
+      warn "agentsquid upgraded, but PID $OLD_PID is still running — stop it and run agentsquid again"
+      ALREADY_RUNNING=1
+    else
+      ALREADY_RUNNING=0
+      nohup agentsquid >"$SERVER_LOG" 2>&1 &
+      echo $! > "$PID_FILE"
+    fi
+  else
+    ALREADY_RUNNING=1
+  fi
 else
   ALREADY_RUNNING=0
-  nohup agentsquid >"$BOOT_LOG" 2>&1 &
+  nohup agentsquid >"$SERVER_LOG" 2>&1 &
   echo $! > "$PID_FILE"
 fi
 
@@ -210,11 +276,13 @@ else
   if [[ "$started" == "1" ]]; then
     ok "agentsquid is up → http://${HOST}:${PORT}"
   else
-    warn "agentsquid did not respond within 10s — check $BOOT_LOG"
+    warn "agentsquid did not respond within 10s — check $SERVER_LOG"
   fi
 fi
 
 echo ""
 echo -e "  ${BOLD}Open:${RESET}  http://${HOST}:${PORT}"
-echo -e "  ${BOLD}Stop:${RESET}  kill \$(cat $PID_FILE)"
+echo -e "  ${BOLD}Stop:${RESET}  pkill -f agentsquid"
+echo -e "  ${BOLD}Config:${RESET} $CONFIG"
+echo -e "  ${BOLD}Logs:${RESET}   tail -f $SERVER_LOG"
 echo ""
