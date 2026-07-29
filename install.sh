@@ -154,6 +154,13 @@ else
 fi
 rm -f "$LOG_FILE"
 
+INSTALLED_VERSION=$(pipx runpip agentsquid show agentsquid 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}' || true)
+if [[ -n "$INSTALLED_VERSION" ]]; then
+  ok "installed version: agentsquid ${INSTALLED_VERSION}"
+else
+  warn "installed version could not be determined"
+fi
+
 # pipx's shim dir isn't necessarily on PATH yet in this same shell — `pipx
 # ensurepath` only edits shell rc files for future shells, it can't affect
 # the process already running this script.
