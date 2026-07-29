@@ -58,7 +58,6 @@ done
 
 PACKAGE_SPEC="agentsquid"
 INSTALL_LABEL="latest stable"
-PIPX_PIP_ARGS=()
 
 if [[ -n "$VERSION" ]]; then
   PACKAGE_SPEC="agentsquid==${VERSION}"
@@ -133,10 +132,19 @@ if [[ -n "$VERSION" ]]; then
     rm -f "$LOG_FILE"
     exit 1
   fi
-elif pipx upgrade agentsquid "${PIPX_PIP_ARGS[@]}" >"$LOG_FILE" 2>&1; then
+elif [[ "$ALLOW_PRE" == "1" ]] && pipx upgrade agentsquid --pip-args "--pre" >"$LOG_FILE" 2>&1; then
+  ok "agentsquid up to date"
+elif [[ "$ALLOW_PRE" != "1" ]] && pipx upgrade agentsquid >"$LOG_FILE" 2>&1; then
   ok "agentsquid up to date"
 else
-  if pipx install "$PACKAGE_SPEC" "${PIPX_PIP_ARGS[@]}" >"$LOG_FILE" 2>&1; then
+  if [[ "$ALLOW_PRE" == "1" ]]; then
+    install_ok=0
+    pipx install "$PACKAGE_SPEC" --pip-args "--pre" >"$LOG_FILE" 2>&1 && install_ok=1
+  else
+    install_ok=0
+    pipx install "$PACKAGE_SPEC" >"$LOG_FILE" 2>&1 && install_ok=1
+  fi
+  if [[ "$install_ok" == "1" ]]; then
     ok "agentsquid installed"
   else
     fail "could not install ${PACKAGE_SPEC}"
