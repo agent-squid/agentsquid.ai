@@ -222,6 +222,8 @@
       <h2>2. Install AgentSquid</h2>
       <p>The installer starts Squid locally and prints the browser URL when it is ready.</p>
       <pre><code>curl -fsSL https://agentsquid.ai/install.sh | bash</code></pre>
+      <p>To test a release candidate, pass an explicit version:</p>
+      <pre><code>curl -fsSL https://agentsquid.ai/install.sh | bash -s -- --version 0.1.1rc2</code></pre>
 
       <h2>3. Open the browser UI</h2>
       <pre><code>http://127.0.0.1:8000</code></pre>

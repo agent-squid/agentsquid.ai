@@ -8,7 +8,67 @@ ok()   { echo -e "  ${GREEN}✓${RESET}  $1"; }
 warn() { echo -e "  ${YELLOW}!${RESET}  $1"; }
 fail() { echo -e "  ${RED}✗${RESET}  $1"; }
 
-echo -e "\n${BOLD}agentsquid — install${RESET}\n"
+ALLOW_PRE=0
+VERSION=""
+
+usage() {
+  cat <<'EOF'
+usage: install.sh [--pre|--rc] [--version VERSION]
+
+Options:
+  --pre, --rc          Allow pip to resolve prerelease versions.
+  --version VERSION    Install an exact agentsquid version, such as 0.1.1rc2.
+  -h, --help           Show this help.
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --pre|--rc)
+      ALLOW_PRE=1
+      shift
+      ;;
+    --version)
+      if [[ -z "${2:-}" ]]; then
+        fail "--version requires a value"
+        exit 1
+      fi
+      VERSION="$2"
+      shift 2
+      ;;
+    --version=*)
+      VERSION="${1#--version=}"
+      if [[ -z "$VERSION" ]]; then
+        fail "--version requires a value"
+        exit 1
+      fi
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      fail "unknown option: $1"
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+PACKAGE_SPEC="agentsquid"
+INSTALL_LABEL="latest stable"
+PIPX_PIP_ARGS=()
+
+if [[ -n "$VERSION" ]]; then
+  PACKAGE_SPEC="agentsquid==${VERSION}"
+  INSTALL_LABEL="${VERSION}"
+elif [[ "$ALLOW_PRE" == "1" ]]; then
+  INSTALL_LABEL="latest prerelease"
+  PIPX_PIP_ARGS=(--pip-args "--pre")
+fi
+
+echo -e "\n${BOLD}agentsquid — install (${INSTALL_LABEL})${RESET}\n"
 
 if ! command -v pipx &>/dev/null; then
   warn "pipx not found — installing"
@@ -59,16 +119,31 @@ else
   ok "pipx found"
 fi
 
-# `pipx install` on an already-installed app is a no-op (exit 0) rather than
-# an upgrade, so try upgrade first — it exits non-zero only when nothing is
-# installed yet, which is exactly the fresh-install case.
+# `pipx install` on an already-installed app is a no-op unless forced. Exact
+# version installs use --force so rc test installs replace an existing stable
+# package. Unpinned installs keep the normal upgrade-then-install behavior.
 echo ""
 LOG_FILE=$(mktemp -t agentsquid-install.XXXXXX)
-if pipx upgrade agentsquid >"$LOG_FILE" 2>&1; then
+if [[ -n "$VERSION" ]]; then
+  if pipx install --force "$PACKAGE_SPEC" >"$LOG_FILE" 2>&1; then
+    ok "agentsquid ${VERSION} installed"
+  else
+    fail "could not install ${PACKAGE_SPEC}"
+    sed -n '1,40p' "$LOG_FILE" >&2
+    rm -f "$LOG_FILE"
+    exit 1
+  fi
+elif pipx upgrade agentsquid "${PIPX_PIP_ARGS[@]}" >"$LOG_FILE" 2>&1; then
   ok "agentsquid up to date"
 else
-  pipx install agentsquid
-  ok "agentsquid installed"
+  if pipx install "$PACKAGE_SPEC" "${PIPX_PIP_ARGS[@]}" >"$LOG_FILE" 2>&1; then
+    ok "agentsquid installed"
+  else
+    fail "could not install ${PACKAGE_SPEC}"
+    sed -n '1,40p' "$LOG_FILE" >&2
+    rm -f "$LOG_FILE"
+    exit 1
+  fi
 fi
 rm -f "$LOG_FILE"
 
