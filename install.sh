@@ -158,7 +158,7 @@ fi
 
 # `pipx install` on an already-installed app is a no-op unless forced. Exact
 # version installs use --force so rc test installs replace an existing stable
-# package. Unpinned installs keep the normal upgrade-then-install behavior.
+# package. Unpinned installs upgrade only when pipx already has agentsquid.
 echo ""
 PREVIOUS_VERSION=$(pipx runpip agentsquid show agentsquid 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}' || true)
 LOG_FILE=$(mktemp -t agentsquid-install.XXXXXX)
@@ -171,10 +171,22 @@ if [[ -n "$VERSION" ]]; then
     rm -f "$LOG_FILE"
     exit 1
   fi
-elif [[ "$ALLOW_PRE" == "1" ]] && run_logged_with_spinner "upgrading agentsquid" "$LOG_FILE" pipx upgrade agentsquid --pip-args=--pre; then
-  ok "agentsquid up to date"
-elif [[ "$ALLOW_PRE" != "1" ]] && run_logged_with_spinner "upgrading agentsquid" "$LOG_FILE" pipx upgrade agentsquid; then
-  ok "agentsquid up to date"
+elif [[ -n "$PREVIOUS_VERSION" ]]; then
+  if [[ "$ALLOW_PRE" == "1" ]]; then
+    upgrade_ok=0
+    run_logged_with_spinner "upgrading agentsquid" "$LOG_FILE" pipx upgrade agentsquid --pip-args=--pre && upgrade_ok=1
+  else
+    upgrade_ok=0
+    run_logged_with_spinner "upgrading agentsquid" "$LOG_FILE" pipx upgrade agentsquid && upgrade_ok=1
+  fi
+  if [[ "$upgrade_ok" == "1" ]]; then
+    ok "agentsquid up to date"
+  else
+    fail "could not upgrade ${PACKAGE_SPEC}"
+    sed -n '1,40p' "$LOG_FILE" >&2
+    rm -f "$LOG_FILE"
+    exit 1
+  fi
 else
   if [[ "$ALLOW_PRE" == "1" ]]; then
     install_ok=0
@@ -217,7 +229,53 @@ SQUID_HOME="$HOME/.squid"
 CONFIG="$SQUID_HOME/squid.yaml"
 PID_FILE="$SQUID_HOME/agentsquid.pid"
 SERVER_LOG="$SQUID_HOME/logs/server.log"
+STOP_SCRIPT="$SQUID_HOME/stop.sh"
 mkdir -p "$SQUID_HOME/logs"
+
+cat > "$STOP_SCRIPT" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+PID_FILE="${SQUID_PID_FILE:-$HOME/.squid/agentsquid.pid}"
+
+if [[ ! -f "$PID_FILE" ]]; then
+  echo "agentsquid is not running: no PID file at $PID_FILE"
+  exit 0
+fi
+
+pid=$(cat "$PID_FILE" 2>/dev/null || true)
+if [[ ! "$pid" =~ ^[0-9]+$ ]]; then
+  echo "agentsquid PID file is invalid: $PID_FILE"
+  exit 1
+fi
+
+if ! kill -0 "$pid" 2>/dev/null; then
+  echo "agentsquid is not running; removing stale PID file"
+  rm -f "$PID_FILE"
+  exit 0
+fi
+
+command_line=$(ps -p "$pid" -o command= 2>/dev/null || true)
+if [[ "$command_line" != *agentsquid* ]]; then
+  echo "refusing to stop PID $pid because it does not look like agentsquid"
+  exit 1
+fi
+
+echo "stopping agentsquid (PID $pid)"
+kill "$pid"
+for _ in {1..20}; do
+  if ! kill -0 "$pid" 2>/dev/null; then
+    rm -f "$PID_FILE"
+    echo "agentsquid stopped"
+    exit 0
+  fi
+  sleep 0.25
+done
+
+echo "agentsquid was signaled but is still running; wait for active work to finish or stop it manually"
+exit 1
+EOF
+chmod +x "$STOP_SCRIPT"
 
 echo ""
 if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
@@ -254,8 +312,8 @@ for i in {1..10}; do
   [[ -f "$CONFIG" ]] && break
   sleep 0.2
 done
-PORT=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'port:' | grep -oE '[0-9]+')
-HOST=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'host:' | grep -oE '[0-9.]+')
+PORT=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'port:' | grep -oE '[0-9]+' || true)
+HOST=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'host:' | grep -oE '[0-9.]+' || true)
 PORT=${PORT:-8000}
 HOST=${HOST:-127.0.0.1}
 
@@ -282,7 +340,8 @@ fi
 
 echo ""
 echo -e "  ${BOLD}Open:${RESET}  http://${HOST}:${PORT}"
-echo -e "  ${BOLD}Stop:${RESET}  pkill -f agentsquid"
+echo -e "  ${BOLD}Active runs:${RESET} let them finish, or use /stop or /stopall in Squid"
+echo -e "  ${BOLD}Stop app:${RESET} $STOP_SCRIPT"
 echo -e "  ${BOLD}Config:${RESET} $CONFIG"
 echo -e "  ${BOLD}Logs:${RESET}   tail -f $SERVER_LOG"
 echo ""
