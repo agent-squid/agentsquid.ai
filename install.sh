@@ -220,13 +220,14 @@ fi
 rm -f "$LOG_FILE"
 
 INSTALLED_VERSION=$(pipx runpip agentsquid show agentsquid 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}' || true)
-RESTART_FOR_UPGRADE=0
+RESTART_AFTER_INSTALL=0
 if [[ -n "$INSTALLED_VERSION" ]]; then
   if [[ -n "$PREVIOUS_VERSION" && "$PREVIOUS_VERSION" != "$INSTALLED_VERSION" ]]; then
     ok "upgraded agentsquid ${PREVIOUS_VERSION} → ${INSTALLED_VERSION}"
-    RESTART_FOR_UPGRADE=1
+    RESTART_AFTER_INSTALL=1
   elif [[ -n "$PREVIOUS_VERSION" ]]; then
     ok "agentsquid already at ${INSTALLED_VERSION}"
+    RESTART_AFTER_INSTALL=1
   else
     ok "installed version: agentsquid ${INSTALLED_VERSION}"
   fi
@@ -243,64 +244,11 @@ export PATH="$PATH:$HOME/.local/bin"
 SQUID_HOME="$HOME/.squid"
 CONFIG="$SQUID_HOME/squid.yaml"
 SERVER_LOG="$SQUID_HOME/logs/server.log"
-START_SCRIPT="$SQUID_HOME/start.sh"
-STOP_SCRIPT="$SQUID_HOME/stop.sh"
-RESTART_SCRIPT="$SQUID_HOME/restart.sh"
-STATUS_SCRIPT="$SQUID_HOME/status.sh"
 mkdir -p "$SQUID_HOME/logs"
-
-cat > "$START_SCRIPT" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-exec agentsquid start "$@"
-EOF
-chmod +x "$START_SCRIPT"
-
-cat > "$STOP_SCRIPT" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-
-output=""
-status=0
-output=$(agentsquid stop "$@" 2>&1) || status=$?
-printf '%s\n' "$output"
-
-if [[ "$status" != "0" || "$output" != *"not running"* ]]; then
-  exit "$status"
-fi
-
-CONFIG="$HOME/.squid/squid.yaml"
-PORT=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'port:' | grep -oE '[0-9]+' || true)
-HOST=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'host:' | grep -oE '[0-9.]+' || true)
-PORT=${PORT:-8000}
-HOST=${HOST:-127.0.0.1}
-
-if curl -sf "http://${HOST}:${PORT}/health" >/dev/null 2>&1; then
-  curl -sf -X POST "http://${HOST}:${PORT}/cmd" \
-    -H 'Content-Type: application/json' \
-    -d '{"command":"stop"}' >/dev/null
-  echo "agentsquid stop requested at http://${HOST}:${PORT}"
-fi
-EOF
-chmod +x "$STOP_SCRIPT"
-
-cat > "$RESTART_SCRIPT" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-exec agentsquid restart "$@"
-EOF
-chmod +x "$RESTART_SCRIPT"
-
-cat > "$STATUS_SCRIPT" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-exec agentsquid status "$@"
-EOF
-chmod +x "$STATUS_SCRIPT"
 
 echo ""
 LIFECYCLE_LOG=$(mktemp -t agentsquid-lifecycle.XXXXXX)
-if [[ "$RESTART_FOR_UPGRADE" == "1" ]]; then
+if [[ "$RESTART_AFTER_INSTALL" == "1" ]]; then
   if run_logged_with_spinner "restarting agentsquid" "$LIFECYCLE_LOG" agentsquid restart; then
     ok "agentsquid restarted"
   else
@@ -352,10 +300,10 @@ fi
 echo ""
 echo -e "  ${BOLD}Open:${RESET}  http://${HOST}:${PORT}"
 echo -e "  ${BOLD}Active runs:${RESET} let them finish, or use /stop or /stopall in Squid"
-echo -e "  ${BOLD}Start app:${RESET} $START_SCRIPT"
-echo -e "  ${BOLD}Stop app:${RESET} $STOP_SCRIPT"
-echo -e "  ${BOLD}Restart:${RESET}  $RESTART_SCRIPT"
-echo -e "  ${BOLD}Status:${RESET}   $STATUS_SCRIPT"
+echo -e "  ${BOLD}Start app:${RESET} agentsquid start"
+echo -e "  ${BOLD}Stop app:${RESET}  agentsquid stop"
+echo -e "  ${BOLD}Restart:${RESET}   agentsquid restart"
+echo -e "  ${BOLD}Status:${RESET}    agentsquid status"
 echo -e "  ${BOLD}Config:${RESET} $CONFIG"
 echo -e "  ${BOLD}Logs:${RESET}   tail -f $SERVER_LOG"
 echo ""
