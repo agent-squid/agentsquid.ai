@@ -246,7 +246,28 @@ chmod +x "$START_SCRIPT"
 cat > "$STOP_SCRIPT" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
-exec agentsquid stop "$@"
+
+output=""
+status=0
+output=$(agentsquid stop "$@" 2>&1) || status=$?
+printf '%s\n' "$output"
+
+if [[ "$status" != "0" || "$output" != *"not running"* ]]; then
+  exit "$status"
+fi
+
+CONFIG="$HOME/.squid/squid.yaml"
+PORT=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'port:' | grep -oE '[0-9]+' || true)
+HOST=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'host:' | grep -oE '[0-9.]+' || true)
+PORT=${PORT:-8000}
+HOST=${HOST:-127.0.0.1}
+
+if curl -sf "http://${HOST}:${PORT}/health" >/dev/null 2>&1; then
+  curl -sf -X POST "http://${HOST}:${PORT}/cmd" \
+    -H 'Content-Type: application/json' \
+    -d '{"command":"stop"}' >/dev/null
+  echo "agentsquid stop requested at http://${HOST}:${PORT}"
+fi
 EOF
 chmod +x "$STOP_SCRIPT"
 
