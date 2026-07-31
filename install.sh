@@ -110,8 +110,22 @@ echo -e "\n${BOLD}agentsquid — install (${INSTALL_LABEL})${RESET}\n"
 if ! command -v pipx &>/dev/null; then
   warn "pipx not found — installing"
   pipx_ready=0
+  python_attempted=0
   brew_attempted=0
+  PYTHON_LOG=$(mktemp -t agentsquid-python.XXXXXX)
   BREW_LOG=$(mktemp -t agentsquid-brew.XXXXXX)
+
+  if command -v python3 &>/dev/null; then
+    python_attempted=1
+    if run_logged_with_spinner "installing pipx with Python" "$PYTHON_LOG" python3 -m pip install --user --quiet pipx; then
+      python3 -m pipx ensurepath &>/dev/null || true
+      export PATH="$PATH:$(python3 -m site --user-base)/bin"
+      pipx_ready=1
+    else
+      warn "Python pipx install failed — trying Homebrew"
+    fi
+  fi
+
   # A working `brew` binary doesn't guarantee `brew install` works — a broken
   # Cellar (ownership reset by an OS update, more common on Macs running past
   # their official macOS support window, e.g. via OpenCore Legacy Patcher)
@@ -119,7 +133,7 @@ if ! command -v pipx &>/dev/null; then
   # other brew failure in a log instead of dumping it to the screen — beats
   # printing Homebrew's own multi-line permissions error for a failure mode
   # that isn't actually fatal to installing agentsquid.
-  if command -v brew &>/dev/null; then
+  if [[ "$pipx_ready" != "1" ]] && command -v brew &>/dev/null; then
     BREW_CELLAR=$(brew --cellar 2>/dev/null || echo /usr/local/Cellar)
     if [[ ! -e "$BREW_CELLAR" || -w "$BREW_CELLAR" ]]; then
       brew_attempted=1
@@ -129,28 +143,27 @@ if ! command -v pipx &>/dev/null; then
       fi
     else
       BREW_PREFIX=$(dirname "$BREW_CELLAR")
-      warn "Homebrew found but $BREW_CELLAR isn't writable — using pip instead"
+      warn "Homebrew found but $BREW_CELLAR isn't writable — skipping Homebrew fallback"
       warn "(fix later with: sudo chown -R \$(whoami) $BREW_PREFIX)"
     fi
   fi
-  if [[ "$pipx_ready" != "1" ]] && command -v python3 &>/dev/null; then
-    run_with_spinner "installing pipx with Python" python3 -m pip install --user --quiet pipx
-    python3 -m pipx ensurepath &>/dev/null || true
-    export PATH="$PATH:$(python3 -m site --user-base)/bin"
-    pipx_ready=1
-  fi
+
   if [[ "$pipx_ready" != "1" ]] || ! command -v pipx &>/dev/null; then
     fail "Could not install pipx automatically."
+    if [[ "$python_attempted" == "1" && -s "$PYTHON_LOG" ]]; then
+      fail "Python's error:"
+      sed -n '1,20p' "$PYTHON_LOG" >&2
+    fi
     if [[ "$brew_attempted" == "1" && -s "$BREW_LOG" ]]; then
       fail "Homebrew's error:"
       sed -n '1,20p' "$BREW_LOG" >&2
     fi
-    fail "Fix Homebrew or install Python 3.9+, then re-run this script."
+    fail "Install Python 3.9+ or fix Homebrew, then re-run this script."
     fail "Or install pipx yourself: python3 -m pip install --user pipx && python3 -m pipx ensurepath"
-    rm -f "$BREW_LOG"
+    rm -f "$PYTHON_LOG" "$BREW_LOG"
     exit 1
   fi
-  rm -f "$BREW_LOG"
+  rm -f "$PYTHON_LOG" "$BREW_LOG"
   ok "pipx installed"
 else
   ok "pipx found"
