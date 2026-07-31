@@ -174,13 +174,13 @@ if [[ -n "$VERSION" ]]; then
 elif [[ -n "$PREVIOUS_VERSION" ]]; then
   if [[ "$ALLOW_PRE" == "1" ]]; then
     upgrade_ok=0
-    run_logged_with_spinner "upgrading agentsquid" "$LOG_FILE" pipx upgrade agentsquid --pip-args=--pre && upgrade_ok=1
+    run_logged_with_spinner "upgrading agentsquid (${INSTALL_LABEL})" "$LOG_FILE" pipx upgrade agentsquid --pip-args=--pre && upgrade_ok=1
   else
     upgrade_ok=0
-    run_logged_with_spinner "upgrading agentsquid" "$LOG_FILE" pipx upgrade agentsquid && upgrade_ok=1
+    run_logged_with_spinner "upgrading agentsquid (${INSTALL_LABEL})" "$LOG_FILE" pipx upgrade agentsquid && upgrade_ok=1
   fi
   if [[ "$upgrade_ok" == "1" ]]; then
-    ok "agentsquid up to date"
+    ok "agentsquid package resolved"
   else
     fail "could not upgrade ${PACKAGE_SPEC}"
     sed -n '1,40p' "$LOG_FILE" >&2
@@ -212,6 +212,8 @@ if [[ -n "$INSTALLED_VERSION" ]]; then
   if [[ -n "$PREVIOUS_VERSION" && "$PREVIOUS_VERSION" != "$INSTALLED_VERSION" ]]; then
     ok "upgraded agentsquid ${PREVIOUS_VERSION} → ${INSTALLED_VERSION}"
     RESTART_FOR_UPGRADE=1
+  elif [[ -n "$PREVIOUS_VERSION" ]]; then
+    ok "agentsquid already at ${INSTALLED_VERSION}"
   else
     ok "installed version: agentsquid ${INSTALLED_VERSION}"
   fi
@@ -224,87 +226,66 @@ fi
 # the process already running this script.
 export PATH="$PATH:$HOME/.local/bin"
 
-# ── run it, in the background, and print a copy-pasteable URL ───────────────
+# ── start it through the installed CLI lifecycle ───────────────────────────
 SQUID_HOME="$HOME/.squid"
 CONFIG="$SQUID_HOME/squid.yaml"
-PID_FILE="$SQUID_HOME/agentsquid.pid"
 SERVER_LOG="$SQUID_HOME/logs/server.log"
+START_SCRIPT="$SQUID_HOME/start.sh"
 STOP_SCRIPT="$SQUID_HOME/stop.sh"
+RESTART_SCRIPT="$SQUID_HOME/restart.sh"
+STATUS_SCRIPT="$SQUID_HOME/status.sh"
 mkdir -p "$SQUID_HOME/logs"
+
+cat > "$START_SCRIPT" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+exec agentsquid start "$@"
+EOF
+chmod +x "$START_SCRIPT"
 
 cat > "$STOP_SCRIPT" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
-
-PID_FILE="${SQUID_PID_FILE:-$HOME/.squid/agentsquid.pid}"
-
-if [[ ! -f "$PID_FILE" ]]; then
-  echo "agentsquid is not running: no PID file at $PID_FILE"
-  exit 0
-fi
-
-pid=$(cat "$PID_FILE" 2>/dev/null || true)
-if [[ ! "$pid" =~ ^[0-9]+$ ]]; then
-  echo "agentsquid PID file is invalid: $PID_FILE"
-  exit 1
-fi
-
-if ! kill -0 "$pid" 2>/dev/null; then
-  echo "agentsquid is not running; removing stale PID file"
-  rm -f "$PID_FILE"
-  exit 0
-fi
-
-command_line=$(ps -p "$pid" -o command= 2>/dev/null || true)
-if [[ "$command_line" != *agentsquid* ]]; then
-  echo "refusing to stop PID $pid because it does not look like agentsquid"
-  exit 1
-fi
-
-echo "stopping agentsquid (PID $pid)"
-kill "$pid"
-for _ in {1..20}; do
-  if ! kill -0 "$pid" 2>/dev/null; then
-    rm -f "$PID_FILE"
-    echo "agentsquid stopped"
-    exit 0
-  fi
-  sleep 0.25
-done
-
-echo "agentsquid was signaled but is still running; wait for active work to finish or stop it manually"
-exit 1
+exec agentsquid stop "$@"
 EOF
 chmod +x "$STOP_SCRIPT"
 
+cat > "$RESTART_SCRIPT" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+exec agentsquid restart "$@"
+EOF
+chmod +x "$RESTART_SCRIPT"
+
+cat > "$STATUS_SCRIPT" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+exec agentsquid status "$@"
+EOF
+chmod +x "$STATUS_SCRIPT"
+
 echo ""
-if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
-  if [[ "$RESTART_FOR_UPGRADE" == "1" ]]; then
-    OLD_PID=$(cat "$PID_FILE")
-    echo -n "  restarting agentsquid"
-    kill "$OLD_PID" 2>/dev/null || true
-    for i in {1..20}; do
-      kill -0 "$OLD_PID" 2>/dev/null || break
-      sleep 0.25
-      echo -n "."
-    done
-    echo ""
-    if kill -0 "$OLD_PID" 2>/dev/null; then
-      warn "agentsquid upgraded, but PID $OLD_PID is still running — stop it and run agentsquid again"
-      ALREADY_RUNNING=1
-    else
-      ALREADY_RUNNING=0
-      nohup agentsquid >"$SERVER_LOG" 2>&1 &
-      echo $! > "$PID_FILE"
-    fi
+LIFECYCLE_LOG=$(mktemp -t agentsquid-lifecycle.XXXXXX)
+if [[ "$RESTART_FOR_UPGRADE" == "1" ]]; then
+  if run_logged_with_spinner "restarting agentsquid" "$LIFECYCLE_LOG" agentsquid restart; then
+    ok "agentsquid restarted"
   else
-    ALREADY_RUNNING=1
+    fail "could not restart agentsquid"
+    sed -n '1,40p' "$LIFECYCLE_LOG" >&2
+    rm -f "$LIFECYCLE_LOG"
+    exit 1
   fi
 else
-  ALREADY_RUNNING=0
-  nohup agentsquid >"$SERVER_LOG" 2>&1 &
-  echo $! > "$PID_FILE"
+  if run_logged_with_spinner "starting agentsquid" "$LIFECYCLE_LOG" agentsquid start; then
+    ok "agentsquid started"
+  else
+    fail "could not start agentsquid"
+    sed -n '1,40p' "$LIFECYCLE_LOG" >&2
+    rm -f "$LIFECYCLE_LOG"
+    exit 1
+  fi
 fi
+rm -f "$LIFECYCLE_LOG"
 
 # ~/.squid/squid.yaml is bootstrapped by agent/config.py on first launch, so
 # on a brand-new install it doesn't exist until the process above starts.
@@ -317,31 +298,30 @@ HOST=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'host:' | grep -oE '
 PORT=${PORT:-8000}
 HOST=${HOST:-127.0.0.1}
 
-if [[ "$ALREADY_RUNNING" == "1" ]]; then
-  ok "agentsquid already running (PID $(cat "$PID_FILE")) → http://${HOST}:${PORT}"
-else
-  echo -n "  starting agentsquid"
-  started=0
-  for i in {1..20}; do
-    sleep 0.5
-    if curl -sf "http://${HOST}:${PORT}/health" >/dev/null 2>&1; then
-      started=1
-      break
-    fi
-    echo -n "."
-  done
-  echo ""
-  if [[ "$started" == "1" ]]; then
-    ok "agentsquid is up → http://${HOST}:${PORT}"
-  else
-    warn "agentsquid did not respond within 10s — check $SERVER_LOG"
+echo -n "  checking agentsquid"
+started=0
+for i in {1..20}; do
+  sleep 0.5
+  if curl -sf "http://${HOST}:${PORT}/health" >/dev/null 2>&1; then
+    started=1
+    break
   fi
+  echo -n "."
+done
+echo ""
+if [[ "$started" == "1" ]]; then
+  ok "agentsquid is up → http://${HOST}:${PORT}"
+else
+  warn "agentsquid did not respond within 10s — check $SERVER_LOG"
 fi
 
 echo ""
 echo -e "  ${BOLD}Open:${RESET}  http://${HOST}:${PORT}"
 echo -e "  ${BOLD}Active runs:${RESET} let them finish, or use /stop or /stopall in Squid"
+echo -e "  ${BOLD}Start app:${RESET} $START_SCRIPT"
 echo -e "  ${BOLD}Stop app:${RESET} $STOP_SCRIPT"
+echo -e "  ${BOLD}Restart:${RESET}  $RESTART_SCRIPT"
+echo -e "  ${BOLD}Status:${RESET}   $STATUS_SCRIPT"
 echo -e "  ${BOLD}Config:${RESET} $CONFIG"
 echo -e "  ${BOLD}Logs:${RESET}   tail -f $SERVER_LOG"
 echo ""
