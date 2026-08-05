@@ -86,7 +86,7 @@
       padding: 1.4rem 1rem 3rem;
     }
 
-    .page-header {
+    .nav {
       display: flex;
       align-items: center;
       background: rgba(15, 15, 19, 0.9);
@@ -120,7 +120,7 @@
       width: 34px;
     }
 
-    .brand-title {
+    .brand span {
       color: var(--accent);
       font-family: 'Rubik', system-ui, sans-serif;
       font-size: 1rem;
@@ -864,7 +864,7 @@
     }
 
     body.embed-mode::before,
-    body.embed-mode .page-header {
+    body.embed-mode .nav {
       display: none;
     }
 
@@ -878,7 +878,7 @@
     }
 
     @media (max-width: 640px) {
-      .page-header {
+      .nav {
         padding: 0.8rem 1rem;
         position: relative;
       }
@@ -1070,28 +1070,7 @@
   </style>
 </head>
 <body>
-  <header class="page-header">
-    <a class="brand" href="index.html">
-      <img src="agent_squid_400.png" alt="AgentSquid" />
-      <div class="brand-title">AgentSquid</div>
-    </a>
-    <span class="mobile-page-title">Community</span>
-    <button class="nav-burger" type="button" aria-label="Menu" aria-expanded="false">
-      <svg width="15" height="13" viewBox="0 0 15 13" fill="currentColor" aria-hidden="true">
-        <rect x="0" y="0" width="15" height="1.8" rx="0.9"/>
-        <rect x="0" y="5.6" width="15" height="1.8" rx="0.9"/>
-        <rect x="0" y="11.2" width="15" height="1.8" rx="0.9"/>
-      </svg>
-    </button>
-    <div class="nav-links">
-      <a href="index.html#quickstart">Get Started</a>
-      <a href="index.html#features">Features</a>
-      <a href="blog/index.html">Blog</a>
-      <a href="docs/index.html">Docs</a>
-      <a class="active" href="community.html">Community</a>
-      <a class="install" href="https://github.com/agent-squid/squid" target="_blank" rel="noopener">GitHub</a>
-    </div>
-  </header>
+  <!-- INCLUDE header:community -->
 
   <div class="container">
 

@@ -14,6 +14,7 @@ const PAGE_TITLES = {
   docs: "Docs",
   blog: "Blog",
   playground: "Squid Flow => Playground",
+  community: "Community",
 };
 
 // href is root-relative; external links are left untouched, internal links
@@ -51,6 +52,14 @@ const NAV_LINKS = {
     { href: "docs/index.html", label: "Docs" },
     { href: "community.html", label: "Community" },
   ],
+  community: [
+    { href: "index.html#fit", label: "Where it fits" },
+    { href: "index.html#features", label: "Features" },
+    { href: "index.html#quickstart", label: "Get Started" },
+    { href: "blog/index.html", label: "Blog" },
+    { href: "docs/index.html", label: "Docs" },
+    { href: "community.html", label: "Community", active: true, bare: true },
+  ],
 };
 
 const SHARED_FOOTER_LINKS = [
@@ -87,11 +96,10 @@ const TEMPLATED_HTML = [
   { file: "docs/remote-access.html", section: "docs" },
   { file: "docs/squid-flow.html", section: "docs" },
   { file: "flow-playground.html", section: "playground" },
+  { file: "community.html", section: "community" },
 ];
 
-const STATIC_HTML = [
-  "community.html",
-];
+const STATIC_HTML = [];
 
 const SEO_META = {
   "index.html": {
