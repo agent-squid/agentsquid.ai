@@ -124,12 +124,12 @@
 
     <div class="agent-grid" aria-label="Two agent configurations compared in one topic">
       <div class="agent-card">
-        <code>#auth@codex!</code>
-        <p>OpenAI model, Codex harness, project cwd, its own home and instructions.</p>
+        <code>#auth@codex</code>
+        <p>OpenAI model, Codex harness, topic cwd for instructions.</p>
       </div>
       <div class="agent-card">
-        <code>#auth@claude!</code>
-        <p>Anthropic model, Claude Code harness, the same project, a separate native session.</p>
+        <code>#auth@claude</code>
+        <p>Anthropic model, Claude Code harness, the same topic, a separate native session.</p>
       </div>
     </div>
 
@@ -158,7 +158,9 @@
 
     <div class="callout">
       <p><strong>A useful pairing:</strong> ask the builder to implement the feature, then ask a fresh reviewer persona to challenge the result.</p>
-      <p><code>#feature@codex&gt;@clarev!</code> turns that habit into a repeatable handoff without mixing the review into the builder's session.</p>
+      <p><code>#feature@codex&gt;@clarev!</code> turns that habit into a repeatable handoff without mixing the review into the builder's session.
+      Don't worry, you do not need to type all. It will auto complete and you can easily select previous route you used by just start typing.
+      </p>
     </div>
 
     <h2>Measure the hidden difference: consumption</h2>
@@ -178,8 +180,8 @@
 
     <h2>A simple comparison loop</h2>
     <ol>
-      <li>Create two named agents pointed at the same codebase, changing only the variable you want to compare.</li>
-      <li>Broadcast the same bounded prompt to both as fresh turns so neither inherits an accidental advantage.</li>
+      <li>Create two named topics pulled the same codebase in different local path.</li>
+      <li>Broadcast the same bounded prompt (#cmp_a@codex,#cmp_b@claude add a feature) to both as fresh turns so neither inherits an accidental advantage.</li>
       <li>Compare their explanations, changed files, tests, and assumptions side by side.</li>
       <li>Check per-prompt analytics and quota movement, then record which tradeoff mattered for the task.</li>
       <li>Repeat across several real tasks before deciding which agent should be your default.</li>
