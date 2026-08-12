@@ -7,7 +7,7 @@ const OUT_DIR = path.join(ROOT, "_site");
 const SITE_URL = (process.env.SITE_URL || "https://agentsquid.ai").replace(/\/$/, "");
 const SQUID_RAW_BASE = process.env.SQUID_RAW_BASE || "https://raw.githubusercontent.com/agent-squid/squid/main";
 const SQUID_REPO_ROOT = process.env.SQUID_REPO_ROOT || "";
-const DEFAULT_SOCIAL_IMAGE = "agent_squid_400x400.png";
+const DEFAULT_SOCIAL_IMAGE = "agent_squid_400.png";
 
 const PAGE_TITLES = {
   home: "Home",
@@ -79,7 +79,6 @@ const STATIC_FILES = [
   "pinned-posts.json",
   "CNAME",
   "agent_squid_400.png",
-  "agent_squid_400x400.png",
   "install.sh",
   "install-test.sh",
 ];
@@ -164,6 +163,12 @@ const SEO_META = {
     type: "article",
     schema: "BlogPosting",
     published: "2026-07-28",
+  },
+  "blog/multiple-coding-agents-one-workspace.html": {
+    description: "How to compare coding agents, models, and personas on the same real task while tracking their code changes, token usage, and quota consumption in AgentSquid.",
+    type: "article",
+    schema: "BlogPosting",
+    published: "2026-08-12",
   },
   "community.html": {
     title: "Community - AgentSquid",
@@ -390,7 +395,7 @@ function organizationSchema() {
     "@type": "Organization",
     name: "AgentSquid",
     url: SITE_URL,
-    logo: `${SITE_URL}/agent_squid_400x400.png`,
+    logo: `${SITE_URL}/${DEFAULT_SOCIAL_IMAGE}`,
     sameAs: [
       "https://github.com/agent-squid/squid",
     ],
