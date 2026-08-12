@@ -170,6 +170,12 @@ const SEO_META = {
     schema: "BlogPosting",
     published: "2026-08-12",
   },
+  "blog/mixing-frontier-local-models.html": {
+    description: "How to mix frontier, mid-tier, free-tier, and local coding models in one workspace without losing context or control of token costs.",
+    type: "article",
+    schema: "BlogPosting",
+    published: "2026-08-12",
+  },
   "community.html": {
     title: "Community - AgentSquid",
     description: "Follow AgentSquid community updates, curated posts, demos, and developer conversations from one feed.",
