@@ -81,6 +81,11 @@
     .callout p { font-size: 0.95rem; margin-bottom: 0.7rem; }
     .callout p:last-child { margin-bottom: 0; }
 
+    .video-embed { margin: 2rem auto; max-width: 360px; }
+    .video-frame { aspect-ratio: 9 / 16; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .video-frame iframe { border: 0; display: block; height: 100%; width: 100%; }
+    .video-caption { color: var(--dim); font-size: 0.82rem; margin-top: 0.65rem; text-align: center; }
+
     .back { color: var(--muted); display: inline-block; font-size: 0.85rem; margin-top: 1rem; text-decoration: none; }
     .back:hover { color: var(--accent-2); }
     .footer { border-top: 1px solid var(--line); color: var(--dim); padding: 2rem 2.5rem; text-align: center; }
@@ -131,6 +136,19 @@
         <code>#auth@claude</code>
         <p>Anthropic model, Claude Code harness, the same topic, a separate native session.</p>
       </div>
+    </div>
+
+    <div class="video-embed">
+      <div class="video-frame">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/Z66pYgtjIdk"
+          title="Sharing context between coding agents in AgentSquid"
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen></iframe>
+      </div>
+      <p class="video-caption"><a href="https://youtube.com/shorts/Z66pYgtjIdk" target="_blank" rel="noopener">Watch context sharing in AgentSquid on YouTube</a></p>
     </div>
 
     <h2>Compare work, not benchmark trivia</h2>
