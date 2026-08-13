@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The model is not the agent - AgentSquid Blog</title>
+  <meta name="description" content="Why coding harnesses matter more for smaller models, and how AgentSquid turns project and global components into named, autocompleted agents." />
+  <link rel="icon" type="image/png" href="../agent_squid_400.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" />
+  <style>
+    :root {
+      --bg: #0b0b10; --surface: #12121a; --ink: #f1ece4; --muted: #aaa59d;
+      --dim: #706c66; --line: #252534; --accent: #f07040; --accent-2: #77c6b3;
+      --accent-3: #d8b867; --mono: 'JetBrains Mono', 'Courier New', monospace;
+      --font: 'Rubik', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: linear-gradient(180deg, rgba(240, 112, 64, 0.08), transparent 320px), var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.6; min-height: 100vh; }
+    a { color: var(--accent-2); }
+    .nav { align-items: center; background: rgba(11, 11, 16, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); display: flex; gap: 1rem; justify-content: space-between; padding: 0.9rem 2.5rem; position: sticky; top: 0; z-index: 10; }
+    .brand { align-items: center; color: var(--ink); display: flex; gap: 0.65rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+    .brand img { background: radial-gradient(circle at 50% 45%, rgba(245, 160, 96, 0.22) 0%, rgba(208, 106, 58, 0.12) 60%, rgba(208, 106, 58, 0.04) 100%); border: 2px solid rgba(240, 112, 64, 0.5); border-radius: 50%; height: 34px; object-fit: cover; transform: scale(1.08); width: 34px; }
+    .brand span { color: var(--accent); }
+    .nav-links { align-items: center; display: flex; gap: 1rem; }
+    .nav-links a { color: var(--muted); font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-links .install { background: var(--accent); border-radius: 7px; color: #fff; padding: 0.48rem 0.85rem; }
+    .mobile-page-title, .nav-burger { display: none; }
+    article { margin: 0 auto; max-width: 720px; padding: 4rem 2.5rem 5rem; }
+    .post-meta { color: var(--dim); font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.04em; margin-bottom: 1rem; text-transform: uppercase; }
+    h1 { font-size: 2.7rem; line-height: 1.06; margin-bottom: 1.5rem; }
+    article p { color: var(--muted); font-size: 1.05rem; margin-bottom: 1.3rem; }
+    article h2 { color: var(--ink); font-size: 1.55rem; margin: 2.4rem 0 1rem; }
+    article ol, article ul { color: var(--muted); font-size: 1rem; margin: 0 0 1.3rem 1.3rem; }
+    article li { margin-bottom: 0.65rem; }
+    article strong { color: var(--ink); }
+    article code { background: var(--surface); border-radius: 4px; color: var(--accent-2); font-family: var(--mono); font-size: 0.88em; padding: 0.1rem 0.35rem; }
+    .equation { background: var(--surface); border: 1px solid var(--line); border-radius: 9px; color: var(--ink); font-family: var(--mono); font-size: 0.94rem; margin: 1.8rem 0; padding: 1.2rem; text-align: center; }
+    .stack-grid { display: grid; gap: 0.75rem; grid-template-columns: 1fr 1fr; margin: 1.8rem 0; }
+    .stack-card { background: var(--surface); border: 1px solid var(--line); border-radius: 9px; padding: 1rem; }
+    .stack-card strong { display: block; margin-bottom: 0.35rem; }
+    .stack-card p { font-size: 0.9rem; margin: 0; }
+    .callout { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent-3); border-radius: 8px; margin: 2rem 0; padding: 1.1rem 1.3rem; }
+    .callout p { font-size: 0.95rem; margin: 0; }
+    .back { color: var(--muted); display: inline-block; font-size: 0.85rem; margin-top: 1rem; text-decoration: none; }
+    .back:hover { color: var(--accent-2); }
+    .footer { border-top: 1px solid var(--line); color: var(--dim); padding: 2rem 2.5rem; text-align: center; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 0.75rem; }
+    .footer a { color: var(--muted); font-size: 0.86rem; text-decoration: none; }
+    .footer a:hover { color: var(--accent-2); }
+    @media (max-width: 680px) {
+      .nav { padding: 0.8rem 1rem; position: relative; }
+      .mobile-page-title { display: inline-block; font-size: 0.85rem; font-weight: 700; margin-right: auto; }
+      .nav-burger { align-items: center; background: transparent; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; color: inherit; cursor: pointer; display: inline-flex; height: 32px; justify-content: center; padding: 0; width: 32px; }
+      .nav-links { align-items: stretch; background: #15151f; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.45); display: none; flex-direction: column; gap: 0.15rem; min-width: 160px; padding: 0.5rem; position: absolute; right: 1rem; top: calc(100% + 6px); z-index: 30; }
+      .nav-links.open { display: flex; } .nav-links a { padding: 0.6rem 0.7rem; }
+      article { padding: 3rem 1.25rem 4rem; } h1 { font-size: 2.05rem; }
+      .stack-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- INCLUDE header:blog -->
+
+  <article>
+    <p class="post-meta">2026-08-13 &middot; Field guide</p>
+    <h1>The model is not the agent</h1>
+
+    <p>
+      Ask which is the best model for coding and the conversation usually jumps straight to coding agents: Claude Code or Codex. 
+      But a model does not inspect your repository, choose tools, apply patches, manage context, or recover from a
+      failed command by itself. A harness does that. What you experience as an “agent” is the combination.
+    </p>
+
+    <div class="equation" aria-label="The components that make a coding agent">
+      agent = harness + model + project components + global components
+    </div>
+
+    <p>
+      So, does the harness make the difference? Yes—but not by the same amount for every model. With a frontier model,
+      the gap between competent harnesses can feel surprisingly small. The model is capable enough to plan around rough
+      edges, recover from weak tool calls, and infer missing instructions. Change the harness and you may improve speed,
+      ergonomics, or token use without completely changing whether the task succeeds.
+    </p>
+
+    <p>
+      Move down to a mid-tier, free-tier, or local model and that answer changes. The harness stops being packaging and
+      starts becoming leverage.
+    </p>
+
+    <h2>Smaller models expose the harness</h2>
+    <p>
+      A less capable model has less room for wasted motion. Vague tool descriptions, oversized context, noisy command
+      output, and poor edit feedback consume a larger share of its attention. A strong harness narrows the next decision,
+      presents the right evidence, and turns a large coding job into a sequence of tractable actions. A weak one asks the
+      model to compensate for the machinery around it.
+    </p>
+
+    <div class="stack-grid" aria-label="How harness impact changes by model tier">
+      <div class="stack-card"><strong>Frontier models</strong><p>The model can often compensate for harness limitations. Differences still matter, but they may be incremental.</p></div>
+      <div class="stack-card"><strong>Mid-tier models</strong><p>Tool design, prompt discipline, and context selection begin to decide whether a task stays on track.</p></div>
+      <div class="stack-card"><strong>Free-tier models</strong><p>A good harness helps turn limited quotas and uneven capability into useful, bounded work.</p></div>
+      <div class="stack-card"><strong>Local models</strong><p>Every token and tool call matters. The surrounding system can be the difference between a demo and a daily driver.</p></div>
+    </div>
+
+    <p>
+      This is why Pi can be especially useful with smaller models: it gives you a minimal base that is easy to shape.
+      But Pi alone is not the entire solution. A limited local model may also need focused components such as
+      <a href="https://github.com/itayinbarr/little-coder" target="_blank" rel="noopener">Little Coder</a> to constrain
+      the coding loop, package context carefully, and make edits easier to complete. The winning setup is not necessarily
+      one product. It can be a composition.
+    </p>
+
+    <h2>Add components at the level where they belong</h2>
+    <p>
+      Claude Code can be paired with DeepSeek and local models. OpenCode and Pi can span frontier providers, free tiers,
+      and local runtimes. That is only the base. The next layer is the context and components you add around them.
+    </p>
+
+    <p>
+      <strong>Project components</strong> belong to a particular codebase: repository instructions, architecture notes,
+      project-specific skills and context, build commands, and conventions. <strong>Global components</strong> belong to
+      you: reusable preferences, roles, skills and context, credentials, and harness configuration supplied through a user
+      home. The working directory tells the agent which project to operate on; the components tell it how to work there.
+      One project can demand a cautious migration specialist while your global setup still carries the same review habits
+      and tool preferences everywhere you work.
+    </p>
+
+    <p>
+      AgentSquid lets you combine those layers flexibly instead of baking them into one permanent setup. Choose the harness,
+      provider, model, project location, user home, and supporting components, then give that complete configuration a name
+      such as <code>@localcoder</code>, <code>@fastreview</code>, or <code>@claudeapi</code>. The name becomes the interface.
+      Start typing a route such as <code>#project@localcoder</code> in any input composer and AgentSquid autocompletes the
+      configured topic and agent names. Select the agent name and the entire stack is ready to use. You do not have to
+      remember or reconstruct its components for every prompt.
+    </p>
+
+    <h2>The combinations are already multiplying</h2>
+    <p>
+      Once harnesses, models, project components, and global components are independently configurable, you no longer have
+      a simple model leaderboard. You have hundreds of possible agent configurations. That is good news: you can optimize
+      for privacy, cost, latency, capability, or all four. It is also an evaluation problem. Which harness makes your local
+      model useful? Does a project skill improve the result, or does it only sound good in its own description? Did a new
+      global role help consistently, or did the model simply get lucky on this run?
+    </p>
+
+    <div class="callout">
+      <p><strong>The useful comparison is not model versus model.</strong> It is complete agent configuration versus complete agent configuration, including a blank baseline.</p>
+    </div>
+
+    <h2>Always keep a blank-config baseline</h2>
+    <p>
+      If you built a skill, test it against the same harness and model with no skill installed. If you created a model home,
+      compare it with a clean project context. Keep the task, repository state, and acceptance criteria fixed. Change one
+      layer at a time when you want to understand causality; change the whole stack when you want to choose the best daily
+      setup.
+    </p>
+
+    <ol>
+      <li>Choose a real, bounded task with a result you can inspect.</li>
+      <li>Create named agents for each harness, model, project-component, and global-component combination.</li>
+      <li>Include one blank configuration as the control.</li>
+      <li>Run from equivalent repository states and give every agent the same prompt.</li>
+      <li>Compare the code, tests, completion rate, corrections, tokens, cost, and elapsed time.</li>
+      <li>Repeat across several tasks before promoting a configuration to your default.</li>
+    </ol>
+
+    <p>
+      The important word is <strong>frictionlessly</strong>. If every experiment requires rebuilding config files, opening
+      more terminals, copying context, and manually recording usage, you will stop experimenting. You will settle on the
+      setup that felt good once and call it the best.
+    </p>
+
+    <h2>That is what AgentSquid is for</h2>
+    <p>
+      AgentSquid makes each combination a named agent: harness, provider, model, project components, global components,
+      working directory, and user home. After configuring it once, selecting its autocompleted name in the composer recalls
+      the whole stack. Put named agents on the same task, run them in isolated turns, and compare their responses, changed
+      files, token use, quota consumption, cost, and duration in one workspace. Keep the blank agent beside the customized
+      one. Swap Pi for OpenCode, a frontier model for a local one, or a plain home for the skill you just built without
+      rebuilding your evaluation process.
+    </p>
+
+    <p>
+      Frontier models can make almost any competent harness look good. Smaller models tell you what the harness is really
+      contributing. Once the whole stack is easy to vary and measure, you no longer have to argue about whether the
+      harness matters. You can run the combinations and see.
+    </p>
+
+    <a class="back" href="index.html">&larr; Back to all posts</a>
+  </article>
+
+  <!-- INCLUDE footer:blog -->
+  <script src="../nav-toggle.js"></script>
+</body>
+</html>

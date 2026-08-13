@@ -176,6 +176,12 @@ const SEO_META = {
     schema: "BlogPosting",
     published: "2026-08-12",
   },
+  "blog/harness-vs-model.html": {
+    description: "Why coding harnesses matter more for smaller models, and how AgentSquid turns project and global components into named, autocompleted agents.",
+    type: "article",
+    schema: "BlogPosting",
+    published: "2026-08-13",
+  },
   "community.html": {
     title: "Community - AgentSquid",
     description: "Follow AgentSquid community updates, curated posts, demos, and developer conversations from one feed.",
