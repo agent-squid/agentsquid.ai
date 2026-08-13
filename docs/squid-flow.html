@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Squid Flow - AgentSquid Docs</title>
+  <title>Squid Flow =&gt; - AgentSquid Docs</title>
   <meta name="description" content="Chain agents together with Squid Flow: one-way handoffs, round trips, joins, and scheduled runs." />
   <link rel="icon" type="image/png" href="../agent_squid_400.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -117,6 +117,8 @@
     .syntax-row { background: var(--surface); display: grid; gap: 1rem; grid-template-columns: minmax(220px, 0.6fr) minmax(0, 1fr); padding: 0.85rem 1rem; }
     .syntax-row + .syntax-row { border-top: 1px solid var(--line); }
     .syntax-row span { color: var(--muted); font-size: 0.9rem; }
+    .syntax-table.stacked .syntax-row { gap: 0.45rem; grid-template-columns: minmax(0, 1fr); }
+    .syntax-table.stacked .syntax-row > code { display: block; overflow-wrap: anywhere; width: fit-content; }
 
     .callout {
       background: var(--surface);
@@ -177,7 +179,7 @@
       </div>
     </aside>
     <article>
-      <h1>Squid Flow</h1>
+      <h1>Squid Flow =&gt;</h1>
       <p>A route isn't limited to one agent. Add a hop operator after a <code>#topic@agent</code> and Squid dispatches the next step server-side — the handoff, round trip, or join happens whether or not your browser tab is still open. Try routes in the <a href="../flow-playground.html">Squid Flow =&gt; Playground</a>.</p>
 
       <h2>One-way handoff</h2>
@@ -213,7 +215,7 @@
       <h2>Use a dedicated review agent</h2>
       <p>Squid Flow is more useful when the next hop is not just another model, but another seeded agent with a specific profile. Fresh installs create reviewer-persona agents for the harnesses you have installed: <code>@clarev</code> for Claude Code, <code>@codrev</code> for Codex, <code>@operev</code> for OpenCode, <code>@pirev</code> for Pi, and <code>@currev</code> for Cursor Agent.</p>
       <p>Those agents point at the seeded review role context. Squid seeds shared context under <code>~/.squid/context</code>, then mirrors that tree into Squid's runtime directory before prompts are dispatched. Roles are a simple convention under <code>roles/&lt;role-name&gt;/</code>: put shared instructions in <code>AGENTS.md</code>, then add a thin harness-specific file such as <code>roles/review/claude/CLAUDE.md</code> that imports those instructions.</p>
-      <div class="syntax-table">
+      <div class="syntax-table stacked">
         <div class="syntax-row"><code>~/.squid/context/roles/review/AGENTS.md</code><span>The shared reviewer persona: lead with the biggest issue, separate must-fix items from suggestions, cite specifics, and give concrete next steps.</span></div>
         <div class="syntax-row"><code>~/.squid/context/roles/review/claude/CLAUDE.md</code><span>A Claude Code shim that imports the shared reviewer persona with <code>@../AGENTS.md</code>.</span></div>
       </div>
@@ -221,7 +223,7 @@
 
       <h2>Real usage scenarios</h2>
       <p>Once a reviewer agent exists, routes become repeatable workflows instead of one-off prompts:</p>
-      <div class="syntax-table">
+      <div class="syntax-table stacked">
         <div class="syntax-row"><code>#pr@codex&gt;@clarev!</code><span>Implement the change with Codex, then hand the result to a fresh Claude Code reviewer session for correctness, edge cases, and missing tests.</span></div>
         <div class="syntax-row"><code>#docs@claude&gt;@operev!</code><span>Draft docs with Claude, then review them with the seeded OpenCode reviewer persona for audience fit, missing setup steps, undefined terms, and misleading claims.</span></div>
         <div class="syntax-row"><code>#refactor@codex&lt;&gt;@clarev!</code><span>Ask a different reviewer agent for feedback, then send that feedback back to the Codex implementation lane so the original agent can revise.</span></div>

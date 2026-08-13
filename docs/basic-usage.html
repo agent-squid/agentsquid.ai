@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,100..700,0..1,0" />
   <style>
     :root {
       --bg: #0b0b10;
@@ -117,6 +118,8 @@
     .syntax-row { background: var(--surface); display: grid; gap: 1rem; grid-template-columns: minmax(190px, 0.55fr) minmax(0, 1fr); padding: 0.85rem 1rem; }
     .syntax-row + .syntax-row { border-top: 1px solid var(--line); }
     .syntax-row span { color: var(--muted); font-size: 0.9rem; }
+    .tool-label { align-items: center; display: inline-flex; gap: 0.45rem; }
+    .tool-icon { color: var(--accent-2); flex: 0 0 auto; height: 14px; width: 14px; }
 
     .doc-shot { border: 1px solid var(--line); border-radius: 10px; display: block; margin-bottom: 1.2rem; max-width: 360px; width: 100%; }
 
@@ -189,20 +192,29 @@
         <div class="syntax-row"><code>#topic@agent message</code><span>Continue that topic and agent session.</span></div>
         <div class="syntax-row"><code>#topic@agent! message</code><span>Run a parallel adhoc turn with no session history (a.k.a Goldfish mode).</span></div>
         <div class="syntax-row"><code>#topic@agent!3 message</code><span>Run adhoc with only the last three exchanges as context.</span></div>
-        <div class="syntax-row"><span><code>/f</code>, <code>/filter</code></span><span>Filter history to the current topic/agent lane.</span></div>
-        <div class="syntax-row"><span><code>/s</code>, <code>/search</code></span><span>Search history in the current topic/agent lane.</span></div>
+        <div class="syntax-row"><span class="tool-label"><svg class="tool-icon" viewBox="0 0 16 16" fill="currentColor" aria-label="Filter"><path d="M1.5 2h13l-5 6.5V14l-3-1.5V8.5L1.5 2z"/></svg><code>/f</code>, <code>/filter</code></span><span>Filter history to the current topic/agent lane.</span></div>
+        <div class="syntax-row"><span class="tool-label"><svg class="tool-icon" viewBox="0 0 16 16" fill="currentColor" aria-label="Search"><path d="M6.8 1.8a5 5 0 1 0 0 10a5 5 0 0 0 0-10zM3.1 6.8a3.7 3.7 0 1 1 7.4 0a3.7 3.7 0 0 1-7.4 0zm7.1 4.3l1-1l3.3 3.3l-1 1l-3.3-3.3z"/></svg><code>/s</code>, <code>/search</code></span><span>Search history, with the latest matching results shown first.</span></div>
       </div>
 
-      <h2>Topics are sticky</h2>
-      <p>Send <code>#release@claude ...</code> once and Squid creates or updates the <code>release</code> topic and remembers <code>claude</code> as its sticky agent. From then on, <code>#release ...</code> continues that same lane without retyping the agent. Old topics can be hidden or deleted once you're done with them.</p>
+      <h2>Autocomplete makes routes fast to edit</h2>
+      <p>Start typing <code>#</code> or <code>@</code> and Squid suggests matching topics and agents. Press <code>Tab</code> to accept the highlighted completion. Topics remember their most recently used agent, so selecting or entering <code>#release</code> is enough to continue with that agent; you do not need to type the full <code>#release@claude</code> route every time.</p>
+      <p>Route parts behave like editable chips. With the caret at the end of a route, one <code>Backspace</code> removes the complete agent name, and another removes the complete topic name. This makes it quick to keep one side of a route and swap the other.</p>
+
+      <h2>Topics are sticky, and subtopics add sessions</h2>
+      <p>Send <code>#release@claude ...</code> once and Squid creates or updates the <code>release</code> topic and remembers <code>claude</code> as its sticky agent. Old topics can be hidden or deleted once you're done with them.</p>
+      <p>When one topic needs multiple independent sessions, give each lane a dotted subtopic, such as <code>#topic.cat1@claude</code> and <code>#topic.cat2@codex</code>. Each subtopic keeps its own agent session while inheriting the root <code>#topic</code> memory, including its code root and common instructions shared across models.</p>
 
       <h2>Session turns queue, adhoc turns don't</h2>
       <p>Session turns for a given <code>#topic@agent</code> are queued in order. Adding <code>!</code> runs an independent adhoc turn immediately, in parallel, without touching the main session's history — useful for a quick side question or for comparing a fresh take against the ongoing session.</p>
       <p>This also makes context experiments easy: ask the session with <code>#topic@agent</code>, then ask a limited-context version with <code>#topic@agent!3</code>, <code>#topic@agent!1</code>, or a fully fresh <code>#topic@agent!</code>. You can see whether the long session is actually helping, or whether stale context is getting in the way.</p>
 
       <h2>Watching work happen</h2>
-      <p>While an agent runs, Squid shows a progress bubble instead of a frozen terminal: queue position, tool activity, and streamed partial output. Stop a run from the bubble's control, or type <code>/stop</code> or <code>/stopall</code> for the same effect with clearer scope.</p>
+      <p>While an agent runs, Squid shows a progress bubble instead of a frozen terminal: queue position, tool activity, and streamed partial output. Use the bubble's Stop control to end a run. The Status panel also has Stop buttons for running work and <code>×</code> controls for individual queued prompts, so <code>/stop</code>, <code>/stopall</code>, and <code>/deq</code> are optional keyboard shortcuts rather than required commands.</p>
       <p>Every completed turn carries usage metadata — tokens, cache reads/writes, reasoning tokens where available, cost, duration, and quota signals — rolled up by topic or agent in the analytics view.</p>
+
+      <h2>Attach files as context</h2>
+      <p><span class="tool-label"><span class="material-symbols-outlined" aria-hidden="true">attach_file</span><strong>Attach</strong></span> opens Squid's file picker. Select any existing file that Squid can access and it will be included as context for the agent.</p>
+      <p>The picker can also upload a new file from the device running your browser, including a remote computer, tablet, or phone. This is useful when the clearest prompt is something visual or device-specific: attach an error-page screenshot, a design mockup, or a photo and show the model exactly what you mean.</p>
 
       <h2>Mobile composer</h2>
       <p>The mobile composer puts the same history tools as desktop within thumb's reach, as tappable icons instead of typed commands. Swipe up at the bottom of the chat to refresh the thread. Five icons sit next to the input box, followed by a dedicated pinned-context button and the send arrow:</p>
@@ -210,7 +222,7 @@
       <ul>
         <li><strong>Bookmark</strong> — toggles the history view to bookmarked responses only, so you can jump back to anything you flagged without scrolling. Tap it while it's showing nothing to browse every bookmark saved in the topic instead.</li>
         <li><strong>Filter</strong> — the tap equivalent of <code>/f</code> / <code>/filter</code> from the table above. It cycles between two states: showing only your own prompts, then narrowing further to just the current route (<code>#topic@agent</code>) so replies from other topics or agents don't clutter the thread.</li>
-        <li><strong>Search</strong> — the tap equivalent of <code>/s</code> / <code>/search</code>, scoped to the current route.</li>
+        <li><strong>Search</strong> — the tap equivalent of <code>/s</code> / <code>/search</code>, scoped to the current route and showing the latest matches first.</li>
         <li><strong>Clear</strong> (broom icon) — shortcut for typing <code>/clear</code>: starts a fresh session for your next message without leaving the composer.</li>
         <li><strong>Archive</strong> — stashes whatever you've typed instead of sending it, so a half-written prompt isn't lost if you switch topics. Tap it with an empty composer to reopen your most recently stashed prompts.</li>
         <li><strong>Pinned context</strong> — set apart with its own button and a badge showing how many responses are currently pinned. Anything pinned here is injected as context into adhoc turns (<code>#topic@agent!</code>), which otherwise run with no session history — see "Session turns queue, adhoc turns don't" above.</li>

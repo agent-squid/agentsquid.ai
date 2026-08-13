@@ -217,7 +217,7 @@
           </tbody>
         </table>
       </div>
-      <p>Log into the CLI directly first (usually <code>/login</code> inside it) so Squid can spawn it with working credentials.</p>
+      <p>You do not need to leave Squid to authenticate a backend. After Squid starts, use <code>/login</code> or the agent's Login button in the browser UI. Logging in through the CLI directly also works.</p>
 
       <h2>2. Install AgentSquid</h2>
       <p>AgentSquid itself is free and open source. The installer starts Squid locally and prints the browser URL when it is ready.</p>
@@ -230,7 +230,8 @@
 
       <h2>4. Create your first agent</h2>
       <p>Agents are created in the UI. An agent is a named config:</p>
-      <pre><code>agent name (@agent) = harness (Claude Code) + provider (Claude) + model (claude-sonnet-5) + working directory</code></pre>
+      <pre><code>agent name (@agent) = harness (Claude Code) + provider (Anthropic) + model (claude-sonnet-5) + project components dir + global components (user home)</code></pre>
+      <p>The code root belongs to the topic, not the agent. Every agent working on the same topic shares that topic's code root.</p>
       <p>Once an agent exists, start typing anywhere in the chat: <code>#launch@claude write the release notes</code>. The topic (<code>#launch</code>) and agent (<code>@claude</code>) are created the moment you use them — no separate setup step.</p>
 
       <div class="next-step">
