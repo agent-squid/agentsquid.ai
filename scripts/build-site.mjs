@@ -146,6 +146,12 @@ const SEO_META = {
     type: "website",
     schema: "CollectionPage",
   },
+  "blog/after-the-terminal.html": {
+    description: "The terminal became the interface for coding agents because it could act on your machine. A private, local-first web workspace can keep that power and become a far better place to work.",
+    type: "article",
+    schema: "BlogPosting",
+    published: "2026-08-14",
+  },
   "blog/introducing-agent-squid.html": {
     description: "Why we built a meta harness for local coding agents instead of another chat UI.",
     type: "article",
