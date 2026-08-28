@@ -247,58 +247,24 @@ SERVER_LOG="$SQUID_HOME/logs/server.log"
 mkdir -p "$SQUID_HOME/logs"
 
 echo ""
-LIFECYCLE_LOG=$(mktemp -t agentsquid-lifecycle.XXXXXX)
+# `agentsquid start`/`restart` already polls its own health check and prints
+# "agentsquid is up -> ..." plus any Tailscale access URLs (see
+# _lifecycle_start/_print_tailscale_access in agent/server.py) — run it
+# directly rather than capturing it, so that output reaches the user as-is
+# instead of being reimplemented (and losing the Tailscale lines) here.
 if [[ "$RESTART_AFTER_INSTALL" == "1" ]]; then
-  if run_logged_with_spinner "restarting agentsquid" "$LIFECYCLE_LOG" agentsquid restart; then
-    ok "agentsquid restarted"
-  else
+  if ! agentsquid restart; then
     fail "could not restart agentsquid"
-    sed -n '1,40p' "$LIFECYCLE_LOG" >&2
-    rm -f "$LIFECYCLE_LOG"
     exit 1
   fi
 else
-  if run_logged_with_spinner "starting agentsquid" "$LIFECYCLE_LOG" agentsquid start; then
-    ok "agentsquid started"
-  else
+  if ! agentsquid start; then
     fail "could not start agentsquid"
-    sed -n '1,40p' "$LIFECYCLE_LOG" >&2
-    rm -f "$LIFECYCLE_LOG"
     exit 1
   fi
 fi
-rm -f "$LIFECYCLE_LOG"
-
-# ~/.squid/squid.yaml is bootstrapped by agent/config.py on first launch, so
-# on a brand-new install it doesn't exist until the process above starts.
-for i in {1..10}; do
-  [[ -f "$CONFIG" ]] && break
-  sleep 0.2
-done
-PORT=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'port:' | grep -oE '[0-9]+' || true)
-HOST=$(grep -A5 '^server:' "$CONFIG" 2>/dev/null | grep -m1 'host:' | grep -oE '[0-9.]+' || true)
-PORT=${PORT:-8000}
-HOST=${HOST:-127.0.0.1}
-
-echo -n "  checking agentsquid"
-started=0
-for i in {1..20}; do
-  sleep 0.5
-  if curl -sf "http://${HOST}:${PORT}/health" >/dev/null 2>&1; then
-    started=1
-    break
-  fi
-  echo -n "."
-done
-echo ""
-if [[ "$started" == "1" ]]; then
-  ok "agentsquid is up → http://${HOST}:${PORT}"
-else
-  warn "agentsquid did not respond within 10s — check $SERVER_LOG"
-fi
 
 echo ""
-echo -e "  ${BOLD}Open:${RESET}  http://${HOST}:${PORT}"
 echo -e "  ${BOLD}Active runs:${RESET} let them finish, or use /stop or /stopall in Squid"
 echo -e "  ${BOLD}Start app:${RESET} agentsquid start"
 echo -e "  ${BOLD}Stop app:${RESET}  agentsquid stop"
