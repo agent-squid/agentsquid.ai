@@ -186,9 +186,19 @@
       <pre><code>agentsquid   # configures tailscale serve automatically</code></pre>
 
       <h2>Connecting from your phone</h2>
-      <p>Type <code>/remote</code> in the chat to get a QR code with the full HTTPS URL and your access token already included — point your phone camera at it to open Squid in one tap:</p>
-      <pre><code>https://&lt;machine-name&gt;.&lt;tailnet&gt;.ts.net/?token=&lt;your-token&gt;</code></pre>
+      <p>Type <code>/remote</code> in the chat to get a QR code with the full HTTPS URL — point your phone camera at it to open Squid in one tap:</p>
+      <pre><code>https://&lt;machine-name&gt;.&lt;tailnet&gt;.ts.net/</code></pre>
       <p>The full domain is required. The short hostname alone (<code>https://&lt;machine-name&gt;/</code>) won't work, because Tailscale's TLS certificate is scoped to <code>*.ts.net</code> and browsers enforce an exact match.</p>
+
+      <h2>Reaching other local services too</h2>
+      <p>If this machine also runs other local servers — <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a> or an oMLX instance for local model inference, for example — you can give each of them the same one-tap, no-VPN-on-the-client remote access Squid gets, from your phone or any other device on the tailnet. <code>tailscale serve</code> supports multiple concurrent rules at different ports on the same node, so this doesn't touch or compete with Squid's own rule at 443 — each service gets its own address.</p>
+      <p><strong>Example — Ollama</strong>, which listens on <code>11434</code> by default:</p>
+      <pre><code>tailscale serve --bg --https=11434 127.0.0.1:11434</code></pre>
+      <p>Now <code>https://&lt;machine-name&gt;.&lt;tailnet&gt;.ts.net:11434/</code> reaches Ollama's API from any device on the tailnet, same as Squid's URL reaches Squid.</p>
+      <p>The pattern is the same for any other local server — substitute whatever port it actually listens on:</p>
+      <pre><code>tailscale serve --bg --https=&lt;their-port&gt; 127.0.0.1:&lt;their-port&gt;</code></pre>
+      <pre><code>https://&lt;machine-name&gt;.&lt;tailnet&gt;.ts.net:&lt;their-port&gt;/</code></pre>
+      <p>Handy for hitting a local model server from your phone or another tailnet machine without exposing it to the public internet or opening a router port.</p>
     </article>
   </div>
 
