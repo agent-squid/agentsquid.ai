@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Remote Access - AgentSquid Docs</title>
-  <meta name="description" content="Couch coding from your phone or tablet with Tailscale." />
+  <meta name="description" content="Access Squid remotely with Tailscale or an SSH tunnel while Shore is in development." />
   <link rel="icon" type="image/png" href="../agent_squid_400.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -100,6 +100,7 @@
     article { color: var(--ink); max-width: 720px; }
     article h1 { font-size: 2.4rem; line-height: 1.1; margin-bottom: 1.4rem; }
     article h2 { font-size: 1.5rem; margin: 2.2rem 0 1rem; }
+    article h3 { font-size: 1.1rem; margin: 1.6rem 0 0.8rem; }
     article p { color: var(--muted); font-size: 1rem; margin-bottom: 1.1rem; }
 
     article code {
@@ -180,25 +181,57 @@
       <h1>Remote Access</h1>
       <p>Squid is most useful when your local machine keeps working while you're away from the desk — couch coding from a phone or tablet.</p>
 
+      <h2 id="ssh-port-forwarding">Without Tailscale: SSH port forwarding</h2>
+      <p>Shore is still in development. For now, use an SSH tunnel to access Squid without Tailscale. You must already be able to SSH into the host from your device.</p>
+
+      <pre role="img" aria-label="Two browser tabs on your device connect through an encrypted SSH tunnel to Squid on host port 8000 and a preview server on host port 3000."><code>Your phone or laptop        SSH tunnel        Squid host
+
+Squid tab   :18000  ────────────────────────▶  Squid   :8000
+Preview tab :13000  ────────────────────────▶  Web app :3000
+
+                     All addresses: 127.0.0.1</code></pre>
+
+      <h3>1. Start Squid on the host</h3>
+      <pre><code>agentsquid start</code></pre>
+      <p>Squid runs as a daemon. The examples below assume it listens on port <code>8000</code>; use the port printed at startup if different.</p>
+
+      <h3>2. Open a tunnel on your device</h3>
+      <pre><code>ssh -N -L 18000:127.0.0.1:8000 your-user@your-host</code></pre>
+      <p>Replace <code>your-user@your-host</code> with your SSH login. <code>-L</code> forwards the local port to the host; <code>-N</code> runs only the tunnel. Keep this connection open and visit <code>http://127.0.0.1:18000/</code> on the same device. Press <code>Ctrl+C</code> to close the tunnel.</p>
+
+      <h3 id="remote-preview">3. Add a web preview (optional)</h3>
+      <p>Run your project's development or test server on the Squid host. If it uses port <code>3000</code>, replace the previous tunnel with:</p>
+      <pre><code>ssh -N -L 18000:127.0.0.1:8000 -L 13000:127.0.0.1:3000 your-user@your-host</code></pre>
+      <p>Open two browser tabs:</p>
+      <pre><code>Squid:    http://127.0.0.1:18000/
+Preview:  http://127.0.0.1:13000/</code></pre>
+      <p>Make code changes through Squid, then check the preview tab. Keep the preview server running in the project Squid is editing; refresh or rebuild as your project requires. Replace <code>3000</code> with your server's actual port.</p>
+
+      <h3 id="mobile-ssh">On mobile with Termius</h3>
+      <p>Connect to your Squid host in Termius or another SSH client with local port forwarding. Add these local forwarding rules:</p>
+      <pre><code>Local address      Destination on SSH host
+127.0.0.1:18000  →  127.0.0.1:8000   (Squid)
+127.0.0.1:13000  →  127.0.0.1:3000   (optional preview)</code></pre>
+      <p>Keep the forwarding active and open the same browser URLs on your phone or tablet. If the SSH app disconnects in the background, reconnect and reload.</p>
+
+      <p><strong>Having trouble?</strong> Check that SSH connects and the host service is running on the expected port. If a local port is already in use, choose another and update the browser URL.</p>
+
       <h2>Tailscale</h2>
       <p>Tailscale's Personal plan is free for non-commercial use and creates a private WireGuard network across your own devices. Your phone, tablet, laptop, and workstation can talk to each other inside that private network without opening a public port.</p>
-      <p>Squid always binds to <code>127.0.0.1</code> — it never exposes itself directly on the network. Starting squid configures Tailscale's HTTPS proxy automatically if Tailscale is installed:</p>
+      <p>Squid always binds to <code>127.0.0.1</code> — it never exposes itself directly on the network. Starting squid configures two <code>tailscale serve</code> rules automatically if Tailscale is installed, and prints both addresses to the console:</p>
       <pre><code>agentsquid   # configures tailscale serve automatically</code></pre>
+      <pre><code>agentsquid is up -> http://127.0.0.1:8000
+  https://&lt;machine-name&gt;.&lt;tailnet&gt;.ts.net/
+  http://&lt;tailscale-ip&gt;:8000/</code></pre>
 
       <h2>Connecting from your phone</h2>
-      <p>Type <code>/remote</code> in the chat to get a QR code with the full HTTPS URL — point your phone camera at it to open Squid in one tap:</p>
+      <p>Type <code>/remote</code> in the chat to get a QR code with the HTTPS URL — point your phone camera at it to open Squid in one tap:</p>
       <pre><code>https://&lt;machine-name&gt;.&lt;tailnet&gt;.ts.net/</code></pre>
       <p>The full domain is required. The short hostname alone (<code>https://&lt;machine-name&gt;/</code>) won't work, because Tailscale's TLS certificate is scoped to <code>*.ts.net</code> and browsers enforce an exact match.</p>
+      <p>That URL needs <a href="https://tailscale.com/kb/1081/magicdns" target="_blank" rel="noopener">MagicDNS</a> turned on for your tailnet to resolve. If it's off, or the domain URL just isn't loading, use the plain-IP address squid printed instead:</p>
+      <pre><code>http://&lt;tailscale-ip&gt;:&lt;port&gt;/</code></pre>
+      <p>That one's <code>http</code> rather than <code>https</code> on purpose — Tailscale's certificate only covers the <code>*.ts.net</code> domain, not the raw IP, so a browser would reject <code>https://&lt;tailscale-ip&gt;:&lt;port&gt;/</code> outright. Your traffic is still private either way: Tailscale encrypts everything at the network layer before it ever leaves your device, regardless of which URL you use.</p>
 
-      <h2>Reaching other local services too</h2>
-      <p>If this machine also runs other local servers — <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a> or an oMLX instance for local model inference, for example — you can give each of them the same one-tap, no-VPN-on-the-client remote access Squid gets, from your phone or any other device on the tailnet. <code>tailscale serve</code> supports multiple concurrent rules at different ports on the same node, so this doesn't touch or compete with Squid's own rule at 443 — each service gets its own address.</p>
-      <p><strong>Example — Ollama</strong>, which listens on <code>11434</code> by default:</p>
-      <pre><code>tailscale serve --bg --https=11434 127.0.0.1:11434</code></pre>
-      <p>Now <code>https://&lt;machine-name&gt;.&lt;tailnet&gt;.ts.net:11434/</code> reaches Ollama's API from any device on the tailnet, same as Squid's URL reaches Squid.</p>
-      <p>The pattern is the same for any other local server — substitute whatever port it actually listens on:</p>
-      <pre><code>tailscale serve --bg --https=&lt;their-port&gt; 127.0.0.1:&lt;their-port&gt;</code></pre>
-      <pre><code>https://&lt;machine-name&gt;.&lt;tailnet&gt;.ts.net:&lt;their-port&gt;/</code></pre>
-      <p>Handy for hitting a local model server from your phone or another tailnet machine without exposing it to the public internet or opening a router port.</p>
     </article>
   </div>
 

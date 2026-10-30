@@ -127,7 +127,7 @@ const SEO_META = {
     schema: "TechArticle",
   },
   "docs/remote-access.html": {
-    description: "Couch coding from your phone or tablet with Tailscale.",
+    description: "Access Squid remotely with Tailscale or an SSH tunnel while Shore is in development.",
     type: "article",
     schema: "TechArticle",
   },
