@@ -182,6 +182,12 @@ const SEO_META = {
     schema: "BlogPosting",
     published: "2026-08-12",
   },
+  "blog/squid-over-ssh.html": {
+    description: "No Tailscale access? Use SSH port forwarding to run Squid from your phone or another computer, with a separate port for live web previews.",
+    type: "article",
+    schema: "BlogPosting",
+    published: "2026-10-31",
+  },
   "blog/harness-vs-model.html": {
     description: "Why coding harnesses matter more for smaller models, and how AgentSquid turns project and global components into named, autocompleted agents.",
     type: "article",
