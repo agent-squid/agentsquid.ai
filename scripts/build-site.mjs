@@ -182,6 +182,12 @@ const SEO_META = {
     schema: "BlogPosting",
     published: "2026-08-12",
   },
+  "blog/when-to-enable-worktree-isolation.html": {
+    description: "Choose per-turn isolation for independent agent edits, or direct writes and a checkout per feature topic for frequent rebases and team integration.",
+    type: "article",
+    schema: "BlogPosting",
+    published: "2026-11-03",
+  },
   "blog/squid-over-ssh.html": {
     description: "No Tailscale access? Use SSH port forwarding to run Squid from your phone or another computer, with a separate port for live web previews.",
     type: "article",

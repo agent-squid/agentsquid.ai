@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>When to enable worktree isolation - AgentSquid Blog</title>
+  <meta name="description" content="Choose per-turn isolation for independent agent edits, or direct writes and a checkout per feature topic for frequent rebases and team integration." />
+  <link rel="icon" type="image/png" href="../agent_squid_400.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" />
+  <style>
+    :root {
+      --bg: #0b0b10; --surface: #12121a; --ink: #f1ece4; --muted: #aaa59d;
+      --dim: #706c66; --line: #252534; --accent: #f07040; --accent-2: #77c6b3;
+      --accent-3: #d8b867; --mono: 'JetBrains Mono', 'Courier New', monospace;
+      --font: 'Rubik', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: linear-gradient(180deg, rgba(240, 112, 64, 0.08), transparent 320px), var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.6; min-height: 100vh; }
+    a { color: var(--accent-2); }
+    .nav { align-items: center; background: rgba(11, 11, 16, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); display: flex; gap: 1rem; justify-content: space-between; padding: 0.9rem 2.5rem; position: sticky; top: 0; z-index: 10; }
+    .brand { align-items: center; color: var(--ink); display: flex; gap: 0.65rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+    .brand img { background: radial-gradient(circle at 50% 45%, rgba(245, 160, 96, 0.22) 0%, rgba(208, 106, 58, 0.12) 60%, rgba(208, 106, 58, 0.04) 100%); border: 2px solid rgba(240, 112, 64, 0.5); border-radius: 50%; height: 34px; object-fit: cover; transform: scale(1.08); width: 34px; }
+    .brand span { color: var(--accent); }
+    .nav-links { align-items: center; display: flex; gap: 1rem; }
+    .nav-links a { color: var(--muted); font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-links .install { background: var(--accent); border-radius: 7px; color: #fff; padding: 0.48rem 0.85rem; }
+    .mobile-page-title, .nav-burger { display: none; }
+    article { margin: 0 auto; max-width: 720px; padding: 4rem 2.5rem 5rem; }
+    .post-meta { color: var(--dim); font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.04em; margin-bottom: 1rem; text-transform: uppercase; }
+    h1 { font-size: 2.7rem; line-height: 1.06; margin-bottom: 1.5rem; }
+    article p { color: var(--muted); font-size: 1.05rem; margin-bottom: 1.3rem; }
+    article h2 { color: var(--ink); font-size: 1.55rem; margin: 2.4rem 0 1rem; }
+    article ol, article ul { color: var(--muted); font-size: 1rem; margin: 0 0 1.3rem 1.3rem; }
+    article li { margin-bottom: 0.65rem; }
+    article strong { color: var(--ink); }
+    article code { background: var(--surface); border-radius: 4px; color: var(--accent-2); font-family: var(--mono); font-size: 0.88em; padding: 0.1rem 0.35rem; }
+    article pre { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; margin: 0 0 1.3rem; overflow-x: auto; padding: 1rem; }
+    article pre code { background: none; display: block; font-size: 0.82rem; padding: 0; white-space: pre; }
+    .table-scroll { overflow-x: auto; margin-bottom: 1.3rem; }
+    table { border-collapse: collapse; width: 100%; color: var(--muted); font-size: 0.95rem; }
+    th, td { border-bottom: 1px solid var(--line); padding: 0.75rem; text-align: left; vertical-align: top; }
+    th { color: var(--ink); }
+    .back { color: var(--muted); display: inline-block; font-size: 0.85rem; margin-top: 1rem; text-decoration: none; }
+    .back:hover { color: var(--accent-2); }
+    .footer { border-top: 1px solid var(--line); color: var(--dim); padding: 2rem 2.5rem; text-align: center; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-bottom: 0.75rem; }
+    .footer a { color: var(--muted); font-size: 0.86rem; text-decoration: none; }
+    .footer a:hover { color: var(--accent-2); }
+    @media (max-width: 680px) {
+      .nav { padding: 0.8rem 1rem; position: relative; }
+      .mobile-page-title { display: inline-block; font-size: 0.85rem; font-weight: 700; margin-right: auto; }
+      .nav-burger { align-items: center; background: transparent; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; color: inherit; cursor: pointer; display: inline-flex; height: 32px; justify-content: center; padding: 0; width: 32px; }
+      .nav-links { align-items: stretch; background: #15151f; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.45); display: none; flex-direction: column; gap: 0.15rem; min-width: 160px; padding: 0.5rem; position: absolute; right: 1rem; top: calc(100% + 6px); z-index: 30; }
+      .nav-links.open { display: flex; } .nav-links a { padding: 0.6rem 0.7rem; }
+      article { padding: 3rem 1.25rem 4rem; } h1 { font-size: 2.05rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- INCLUDE header:blog -->
+
+  <article>
+    <p class="post-meta">2026-11-03 &middot; Field guide</p>
+    <h1>When to enable worktree isolation</h1>
+    <p>Sometimes you want several agents making independent changes as fast as possible. Other times you're editing alongside an agent, pulling in teammates' changes, and resolving conflicts. Those workflows need different boundaries.</p>
+    <p>Squid's <code>worktree.enabled</code> setting controls per-turn code isolation. In releases after <code>0.1.6</code>, it defaults to <code>false</code>. Enable it deliberately when the benefit of private turn directories outweighs the extra integration step after each response.</p>
+
+    <p>This is the companion to <a href="parallel-conflicts.html">What happens when two agents edit the same line</a>, our earlier explanation of isolated turns and conflict handling. That post covers how isolation works; this one covers when to use it.</p>
+
+    <h2>What the switch changes</h2>
+    <p>With isolation enabled, each turn edits a private snapshot of the configured code roots. When the turn finishes, Squid merges its edits back into the backing checkout. Independent changes can come together cleanly; overlapping changes can require conflict recovery.</p>
+    <p>With isolation disabled, agents edit the configured code roots directly. There is no automatic per-turn promotion back to another directory. You work with the files the agents are changing, including during normal Git operations.</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Workflow</th><th>Starting choice</th></tr></thead>
+      <tbody>
+        <tr><td>Solo repo, independent agent tasks, backing checkout stays stable</td><td>Consider enabling isolation</td></tr>
+        <tr><td>Frequent manual edits, rebases, or conflict resolution</td><td>Keep isolation off</td></tr>
+        <tr><td>Team repo with frequent upstream integration</td><td>Keep isolation off; separate feature checkouts</td></tr>
+        <tr><td>Several topics editing the same checkout directly</td><td>Separate the checkouts or serialize writes</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Enable it for a burst of independent changes</h2>
+    <p>A personal repository is a good candidate when you want an agent to update documentation, another to fix a parser, and another to add a separate UI component. Private snapshots keep each turn's in-progress edits apart. You can get several changes moving without giving every task a permanent checkout.</p>
+    <p>The cost comes when those snapshots return. Each response adds an integration step. If you also edit the backing checkout, change its history, or resolve a merge while turns are running, their starting snapshots can drift from the files they need to merge into. Even a solo repo can hit conflicts when tasks overlap.</p>
+    <p>During that burst, let active turns finish and their changes sync before doing manual integration work. An editing turn in an isolated directory cannot also perform the normal Git check-in workflow there; Git-only work happens against the backing repo after synchronization. Isolation suits a stable backing checkout and tasks with clear boundaries.</p>
+
+    <h2>Leave it off when integration is part of daily work</h2>
+    <p>If your day includes frequent rebases, hand edits to resolve conflicts, and incorporating teammates' changes, per-turn promotion adds another moving part. Turning isolation off lets you and your agents use the actual checkout throughout that work, without a second copy being merged back after every response.</p>
+    <p>That is why off is the default. Team size is a useful signal, but the deciding factor is how often the checkout changes underneath active turns. A solo developer doing frequent manual integration may also prefer it off.</p>
+    <p>Direct writes still need coordination. Wait for active writers before rebasing or resolving conflicts in their checkout. Turning isolation off removes Squid's promotion step; it does not make simultaneous edits to the same files safe.</p>
+
+    <h2>Keep parallelism with a checkout per feature topic</h2>
+    <p>You can keep isolation off and still run features in parallel. Give each feature topic its own persistent checkout directory and branch, then point that topic's code roots at its directory. You manage those checkouts explicitly; disabling per-turn isolation does not create them automatically.</p>
+    <pre role="img" aria-label="A login topic edits its own login feature checkout, and a search topic edits a separate search feature checkout. Each feature is integrated explicitly when ready."><code>#login topic   →  /projects/app-login   →  login feature
+#search topic  →  /projects/app-search  →  search feature
+
+             Separate directories, separate branches
+             Integrate each feature when ready</code></pre>
+    <p>A Git worktree is one way to maintain these directories without full clones. This is different from Squid's per-turn isolation: the feature checkout persists across turns, and you choose when to integrate its changes. One shared directory with branch switching cannot isolate concurrent topics, because switching changes the files for everyone using that directory.</p>
+    <p>Parallelism is now across topics: login and search can progress independently. Within one topic, agents still share that topic's files. Give concurrent writers separate file ownership or run their edits sequentially; reviews and read-only investigation can run alongside them. Topic per feature is a useful boundary, not automatic isolation for every agent in it.</p>
+    <p>You still need to integrate feature branches and resolve genuine conflicts. The difference is that integration happens at a deliberate feature boundary rather than after every agent response.</p>
+
+    <h2>Choose the setting</h2>
+    <p>In <code>~/.squid/squid.yaml</code>, use direct writes:</p>
+    <pre><code>worktree:
+  enabled: false</code></pre>
+    <p>Or opt into per-turn isolation:</p>
+    <pre><code>worktree:
+  enabled: true</code></pre>
+    <p>Let active turns and any pending sync or conflict recovery finish before switching. Restart Squid after editing the configuration.</p>
+
+    <h2>Upgrading from 0.1.6 or earlier</h2>
+    <p>The new default applies to releases after <code>0.1.6</code>. Upgrading does not automatically rewrite your existing configuration:</p>
+    <ul>
+      <li><code>enabled: true</code> stays enabled.</li>
+      <li><code>enabled: false</code> stays disabled.</li>
+      <li>If <code>worktree.enabled</code> is omitted, Squid uses the new default, <code>false</code>.</li>
+    </ul>
+    <p>That last case changes behavior on upgrade even though the config file is untouched. If you previously relied on the enabled default and want to keep isolation, set <code>worktree.enabled: true</code> explicitly before upgrading.</p>
+    <p>Start with isolation off for an interactive development workflow. Enable it when you want a controlled burst of independent agent edits. For ongoing parallel features, a persistent checkout per topic gives you a clear place to edit, review, and integrate each feature.</p>
+    <p>For the mechanics of isolated turns and conflict promotion, see <a href="parallel-conflicts.html">What happens when two agents edit the same line</a>. That article describes the opt-in isolation path.</p>
+    <a class="back" href="index.html">&larr; Back to all posts</a>
+  </article>
+
+  <!-- INCLUDE footer:blog -->
+  <script src="../nav-toggle.js"></script>
+</body>
+</html>
