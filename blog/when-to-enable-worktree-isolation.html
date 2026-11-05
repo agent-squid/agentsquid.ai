@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>When to enable worktree isolation - AgentSquid Blog</title>
-  <meta name="description" content="Choose per-turn isolation for independent agent edits, or direct writes and a checkout per feature topic for frequent rebases and team integration." />
+  <title>Retracted: When to enable worktree isolation - AgentSquid Blog</title>
+  <meta name="description" content="Retraction: direct-write mode can mix changes between turns, making per-turn change lists unreliable. The earlier worktree configuration advice is withdrawn." />
   <link rel="icon" type="image/png" href="../agent_squid_400.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -64,66 +64,13 @@
   <!-- INCLUDE header:blog -->
 
   <article>
-    <p class="post-meta">2026-11-03 &middot; Field guide</p>
-    <h1>When to enable worktree isolation</h1>
-    <p>Sometimes you want several agents making independent changes as fast as possible. Other times you're editing alongside an agent, pulling in teammates' changes, and resolving conflicts. Those workflows need different boundaries.</p>
-    <p>Squid's <code>worktree.enabled</code> setting controls per-turn code isolation. In releases after <code>0.1.6</code>, it defaults to <code>false</code>. Enable it deliberately when the benefit of private turn directories outweighs the extra integration step after each response.</p>
-
-    <p>This is the companion to <a href="parallel-conflicts.html">What happens when two agents edit the same line</a>, our earlier explanation of isolated turns and conflict handling. That post covers how isolation works; this one covers when to use it.</p>
-
-    <h2>What the switch changes</h2>
-    <p>With isolation enabled, each turn edits a private snapshot of the configured code roots. When the turn finishes, Squid merges its edits back into the backing checkout. Independent changes can come together cleanly; overlapping changes can require conflict recovery.</p>
-    <p>With isolation disabled, agents edit the configured code roots directly. There is no automatic per-turn promotion back to another directory. You work with the files the agents are changing, including during normal Git operations.</p>
-    <div class="table-scroll"><table>
-      <thead><tr><th>Workflow</th><th>Starting choice</th></tr></thead>
-      <tbody>
-        <tr><td>Solo repo, independent agent tasks, backing checkout stays stable</td><td>Consider enabling isolation</td></tr>
-        <tr><td>Frequent manual edits, rebases, or conflict resolution</td><td>Keep isolation off</td></tr>
-        <tr><td>Team repo with frequent upstream integration</td><td>Keep isolation off; separate feature checkouts</td></tr>
-        <tr><td>Several topics editing the same checkout directly</td><td>Separate the checkouts or serialize writes</td></tr>
-      </tbody>
-    </table></div>
-
-    <h2>Enable it for a burst of independent changes</h2>
-    <p>A personal repository is a good candidate when you want an agent to update documentation, another to fix a parser, and another to add a separate UI component. Private snapshots keep each turn's in-progress edits apart. You can get several changes moving without giving every task a permanent checkout.</p>
-    <p>The cost comes when those snapshots return. Each response adds an integration step. If you also edit the backing checkout, change its history, or resolve a merge while turns are running, their starting snapshots can drift from the files they need to merge into. Even a solo repo can hit conflicts when tasks overlap.</p>
-    <p>During that burst, let active turns finish and their changes sync before doing manual integration work. An editing turn in an isolated directory cannot also perform the normal Git check-in workflow there; Git-only work happens against the backing repo after synchronization. Isolation suits a stable backing checkout and tasks with clear boundaries.</p>
-
-    <h2>Leave it off when integration is part of daily work</h2>
-    <p>If your day includes frequent rebases, hand edits to resolve conflicts, and incorporating teammates' changes, per-turn promotion adds another moving part. Turning isolation off lets you and your agents use the actual checkout throughout that work, without a second copy being merged back after every response.</p>
-    <p>That is why off is the default. Team size is a useful signal, but the deciding factor is how often the checkout changes underneath active turns. A solo developer doing frequent manual integration may also prefer it off.</p>
-    <p>Direct writes still need coordination. Wait for active writers before rebasing or resolving conflicts in their checkout. Turning isolation off removes Squid's promotion step; it does not make simultaneous edits to the same files safe.</p>
-
-    <h2>Keep parallelism with a checkout per feature topic</h2>
-    <p>You can keep isolation off and still run features in parallel. Give each feature topic its own persistent checkout directory and branch, then point that topic's code roots at its directory. You manage those checkouts explicitly; disabling per-turn isolation does not create them automatically.</p>
-    <pre role="img" aria-label="A login topic edits its own login feature checkout, and a search topic edits a separate search feature checkout. Each feature is integrated explicitly when ready."><code>#login topic   →  /projects/app-login   →  login feature
-#search topic  →  /projects/app-search  →  search feature
-
-             Separate directories, separate branches
-             Integrate each feature when ready</code></pre>
-    <p>A Git worktree is one way to maintain these directories without full clones. This is different from Squid's per-turn isolation: the feature checkout persists across turns, and you choose when to integrate its changes. One shared directory with branch switching cannot isolate concurrent topics, because switching changes the files for everyone using that directory.</p>
-    <p>Parallelism is now across topics: login and search can progress independently. Within one topic, agents still share that topic's files. Give concurrent writers separate file ownership or run their edits sequentially; reviews and read-only investigation can run alongside them. Topic per feature is a useful boundary, not automatic isolation for every agent in it.</p>
-    <p>You still need to integrate feature branches and resolve genuine conflicts. The difference is that integration happens at a deliberate feature boundary rather than after every agent response.</p>
-
-    <h2>Choose the setting</h2>
-    <p>In <code>~/.squid/squid.yaml</code>, use direct writes:</p>
-    <pre><code>worktree:
-  enabled: false</code></pre>
-    <p>Or opt into per-turn isolation:</p>
-    <pre><code>worktree:
-  enabled: true</code></pre>
-    <p>Let active turns and any pending sync or conflict recovery finish before switching. Restart Squid after editing the configuration.</p>
-
-    <h2>Upgrading from 0.1.6 or earlier</h2>
-    <p>The new default applies to releases after <code>0.1.6</code>. Upgrading does not automatically rewrite your existing configuration:</p>
-    <ul>
-      <li><code>enabled: true</code> stays enabled.</li>
-      <li><code>enabled: false</code> stays disabled.</li>
-      <li>If <code>worktree.enabled</code> is omitted, Squid uses the new default, <code>false</code>.</li>
-    </ul>
-    <p>That last case changes behavior on upgrade even though the config file is untouched. If you previously relied on the enabled default and want to keep isolation, set <code>worktree.enabled: true</code> explicitly before upgrading.</p>
-    <p>Start with isolation off for an interactive development workflow. Enable it when you want a controlled burst of independent agent edits. For ongoing parallel features, a persistent checkout per topic gives you a clear place to edit, review, and integrate each feature.</p>
-    <p>For the mechanics of isolated turns and conflict promotion, see <a href="parallel-conflicts.html">What happens when two agents edit the same line</a>. That article describes the opt-in isolation path.</p>
+    <p class="post-meta">Published 2026-11-03 &middot; Retracted 2026-11-04</p>
+    <h1>Retracted: When to enable worktree isolation</h1>
+    <p><strong>We have withdrawn this article's configuration recommendations.</strong> We found a correctness flaw in direct-write mode (<code>worktree.enabled: false</code>): changes can spill into another turn's change list. Those lists cannot reliably attribute edits to an individual turn, and concurrent writers can interfere with each other's edits.</p>
+    <p>The earlier article recommended direct writes to avoid per-turn promotion conflicts. That advice understated the loss of reliable turn attribution. Separate checkouts per topic can separate features, but turns sharing a topic checkout still share files and do not gain per-turn isolation.</p>
+    <p>Until this is addressed, avoid concurrent writers in the same checkout and do not treat direct-write change lists as authoritative records of what each turn changed. Use per-turn isolation when you need isolated edits and turn-level attribution, while accounting for its promotion and conflict-recovery limitations.</p>
+    <p>This retraction does not change runtime defaults or rewrite existing configuration. The default decision is being reconsidered; the original recommendations have been removed from this page.</p>
+    <p>See the <a href="https://github.com/agent-squid/squid/blob/main/docs/decisions/0025-per-turn-worktree-isolation.md">ADR-0025 decision record</a> for the documented issue, and <a href="parallel-conflicts.html">What happens when two agents edit the same line</a> for the isolation mechanics.</p>
     <a class="back" href="index.html">&larr; Back to all posts</a>
   </article>
 

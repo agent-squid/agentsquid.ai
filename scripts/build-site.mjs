@@ -183,10 +183,11 @@ const SEO_META = {
     published: "2026-08-12",
   },
   "blog/when-to-enable-worktree-isolation.html": {
-    description: "Choose per-turn isolation for independent agent edits, or direct writes and a checkout per feature topic for frequent rebases and team integration.",
+    description: "Retraction: direct-write mode can mix changes between turns, making per-turn change lists unreliable. The earlier worktree configuration advice is withdrawn.",
     type: "article",
     schema: "BlogPosting",
     published: "2026-11-03",
+    modified: "2026-11-04",
   },
   "blog/squid-over-ssh.html": {
     description: "No Tailscale access? Use SSH port forwarding to run Squid from your phone or another computer, with a separate port for live web previews.",

@@ -227,7 +227,7 @@
   <!-- INCLUDE header:blog -->
 
   <article>
-    <div class="callout"><p><strong>Update, November 2026:</strong> In releases after <code>0.1.6</code>, per-turn isolation defaults to off. Existing explicit settings are preserved; an omitted setting uses the new default. This article describes the opt-in path. See <a href="when-to-enable-worktree-isolation.html">When to enable worktree isolation</a> for the tradeoffs and a checkout-per-topic workflow.</p></div>
+    <div class="callout"><p><strong>Correction, November 4, 2026:</strong> Our companion article recommending when to disable isolation has been <a href="when-to-enable-worktree-isolation.html">retracted</a>. Direct-write mode can mix changes between turns and produce unreliable per-turn change lists. Separate topic checkouts do not isolate turns within a topic. This article describes the isolated-turn path; its promotion and conflict-recovery limitations still apply. Runtime defaults have not changed as part of this correction.</p></div>
     <p class="post-meta">2026-07-27 &middot; Deep dive</p>
     <h1>What happens when two agents edit the same line</h1>
 
