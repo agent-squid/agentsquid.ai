@@ -1,5 +1,8 @@
 """Offline end-to-end checks for the public installer."""
 import os
+import pty
+import select
+import time
 from pathlib import Path
 import subprocess
 import tempfile
@@ -55,7 +58,8 @@ esac
 ''')
             executable(binaries / 'agentsquid', 'echo "cli $*" >> "$TEST_ROOT/calls"\n')
             result = subprocess.run(['bash', str(ROOT / 'install.sh'), *args], env=env,
-                                    stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=15)
+                                    stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=15,
+                                    start_new_session=True)
             return result, log.read_text(), str(binaries / 'python3.13')
 
     def test_old_python_migrates_before_prerelease_upgrade(self):
@@ -121,3 +125,45 @@ esac
         self.assertIn(f'reinstall agentsquid --python {python}\n', calls)
         self.assertIn('upgrade agentsquid --pip-args=--pre', calls)
         self.assertIn('cli restart', calls)
+
+
+class InstallerConfirmationTests(unittest.TestCase):
+    def test_piped_script_reads_confirmation_from_terminal(self):
+        source = (ROOT / 'install.sh').read_text()
+        confirm = source[source.index('confirm() ('):source.index('export PATH=')]
+        for answer, expected in [('y', 'accepted'), ('', 'accepted'), ('n', 'declined')]:
+            with self.subTest(answer=answer):
+                pid, terminal = pty.fork()
+                if pid == 0:
+                    script = confirm + '\nif confirm "Install prerequisites?"; then echo accepted; else echo declined; fi\n'
+                    result = subprocess.run(['bash', '-s'], input=script, text=True)
+                    os._exit(result.returncode)
+                output = b''
+                sent = False
+                try:
+                    deadline = time.monotonic() + 5
+                    while time.monotonic() < deadline:
+                        if not select.select([terminal], [], [], 0.1)[0]:
+                            continue
+                        try:
+                            chunk = os.read(terminal, 4096)
+                        except OSError:
+                            break
+                        if not chunk:
+                            break
+                        output += chunk
+                        if b'[Y/n]' in output and not sent:
+                            os.write(terminal, (answer + '\n').encode())
+                            sent = True
+                        if expected.encode() in output:
+                            break
+                    self.assertTrue(sent, output)
+                    self.assertIn(expected.encode(), output)
+                finally:
+                    os.close(terminal)
+                    # Ensure a failed prompt cannot leave a waiting child behind.
+                    try:
+                        os.kill(pid, 9)
+                    except ProcessLookupError:
+                        pass
+                    os.waitpid(pid, 0)

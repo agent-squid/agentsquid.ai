@@ -115,12 +115,16 @@ python_ok() {
   "$1" -c 'import sys; raise SystemExit(sys.version_info < (3, 10))' >/dev/null 2>&1
 }
 
-confirm() {
+confirm() (
   local answer
-  [[ -t 0 ]] || return 1
-  read -r -p "  $1 [Y/n] " answer || return 1
+  # Piped installs use stdin for the script; read consent from the terminal.
+  # Keep the descriptor in a subshell so it closes on every return path.
+  { exec 3<> /dev/tty; } 2>/dev/null || return 1
+  [[ -t 3 ]] || return 1
+  printf '  %s [Y/n] ' "$1" >&3
+  read -r answer <&3 || return 1
   case "$answer" in ""|y|Y|yes|YES) return 0 ;; *) return 1 ;; esac
-}
+)
 
 export PATH="$PATH:$HOME/.local/bin"
 UV=$(command -v uv || true)
