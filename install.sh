@@ -47,6 +47,8 @@ run_logged_with_spinner() {
   return "$status"
 }
 
+INSTALL_ARGS=("$@")
+
 ALLOW_PRE=0
 VERSION=""
 
@@ -107,64 +109,105 @@ fi
 
 echo -e "\n${BOLD}agentsquid — install (${INSTALL_LABEL})${RESET}\n"
 
-if ! command -v pipx &>/dev/null; then
-  warn "pipx not found — installing"
-  pipx_ready=0
-  python_attempted=0
-  brew_attempted=0
-  PYTHON_LOG=$(mktemp -t agentsquid-python.XXXXXX)
-  BREW_LOG=$(mktemp -t agentsquid-brew.XXXXXX)
+# Python used by pipx itself and Python used by agentsquid can differ.
+# Always select and pass a compatible interpreter explicitly.
+python_ok() {
+  "$1" -c 'import sys; raise SystemExit(sys.version_info < (3, 10))' >/dev/null 2>&1
+}
 
+confirm() {
+  local answer
+  [[ -t 0 ]] || return 1
+  read -r -p "  $1 [Y/n] " answer || return 1
+  case "$answer" in ""|y|Y|yes|YES) return 0 ;; *) return 1 ;; esac
+}
+
+export PATH="$PATH:$HOME/.local/bin"
+UV=$(command -v uv || true)
+PYTHON=""
+APP_PYTHON=""
+APP_PRESENT=0
+if command -v pipx &>/dev/null; then
+  PIPX_VENVS=$(pipx environment --value PIPX_LOCAL_VENVS 2>/dev/null || true)
+  if [[ -n "$PIPX_VENVS" ]]; then
+    [[ ! -d "$PIPX_VENVS/agentsquid" ]] || APP_PRESENT=1
+    APP_PYTHON="$PIPX_VENVS/agentsquid/bin/python"
+    if python_ok "$APP_PYTHON"; then PYTHON="$APP_PYTHON"; fi
+  fi
+fi
+if [[ -z "$PYTHON" ]]; then
+  for candidate in python3.14 python3.13 python3.12 python3.11 python3.10 python3 python; do
+    if command -v "$candidate" &>/dev/null && python_ok "$candidate"; then
+      PYTHON=$(command -v "$candidate")
+      break
+    fi
+  done
+fi
+if [[ -z "$PYTHON" && -n "$UV" ]]; then
+  candidate=$("$UV" python find --system --no-python-downloads '>=3.10' 2>/dev/null || true)
+  if [[ -n "$candidate" ]] && python_ok "$candidate"; then PYTHON="$candidate"; fi
+fi
+
+if [[ -z "$PYTHON" ]]; then
+  warn "AgentSquid needs Python 3.10 or newer; no compatible interpreter was found."
   if command -v python3 &>/dev/null; then
-    python_attempted=1
-    if run_logged_with_spinner "installing pipx with Python" "$PYTHON_LOG" python3 -m pip install --user --quiet pipx; then
-      python3 -m pipx ensurepath &>/dev/null || true
-      export PATH="$PATH:$(python3 -m site --user-base)/bin"
-      pipx_ready=1
-    else
-      warn "Python pipx install failed — trying Homebrew"
-    fi
+    warn "Found $(command -v python3): $(python3 --version 2>&1 || true)"
   fi
-
-  # A working `brew` binary doesn't guarantee `brew install` works — a broken
-  # Cellar (ownership reset by an OS update, more common on Macs running past
-  # their official macOS support window, e.g. via OpenCore Legacy Patcher)
-  # fails here often enough that checking writability first — and keeping any
-  # other brew failure in a log instead of dumping it to the screen — beats
-  # printing Homebrew's own multi-line permissions error for a failure mode
-  # that isn't actually fatal to installing agentsquid.
-  if [[ "$pipx_ready" != "1" ]] && command -v brew &>/dev/null; then
-    BREW_CELLAR=$(brew --cellar 2>/dev/null || echo /usr/local/Cellar)
-    if [[ ! -e "$BREW_CELLAR" || -w "$BREW_CELLAR" ]]; then
-      brew_attempted=1
-      if run_logged_with_spinner "installing pipx with Homebrew" "$BREW_LOG" brew install pipx; then
-        pipx ensurepath &>/dev/null || true
-        pipx_ready=1
+  if [[ -n "$UV" ]]; then
+    PROMPT="Install Python 3.13 with uv and continue?"
+  else
+    PROMPT="Install uv and Python 3.13 for AgentSquid?"
+  fi
+  if confirm "$PROMPT"; then
+    if [[ -z "$UV" ]]; then
+      UV_INSTALLER=$(mktemp -t agentsquid-uv.XXXXXX)
+      if curl -LsSf https://astral.sh/uv/install.sh -o "$UV_INSTALLER" &&
+          env UV_INSTALL_DIR="$HOME/.local/bin" UV_NO_MODIFY_PATH=1 sh "$UV_INSTALLER"; then
+        [[ ! -x "$HOME/.local/bin/uv" ]] || UV="$HOME/.local/bin/uv"
       fi
-    else
-      BREW_PREFIX=$(dirname "$BREW_CELLAR")
-      warn "Homebrew found but $BREW_CELLAR isn't writable — skipping Homebrew fallback"
-      warn "(fix later with: sudo chown -R \$(whoami) $BREW_PREFIX)"
+      rm -f "$UV_INSTALLER"
+    fi
+    if [[ -n "$UV" ]] && "$UV" python install 3.13; then
+      candidate=$("$UV" python find --system --no-python-downloads 3.13 2>/dev/null || true)
+      if [[ -n "$candidate" ]] && python_ok "$candidate"; then PYTHON="$candidate"; fi
     fi
   fi
+fi
+if [[ -z "$PYTHON" ]]; then
+  fail "Python 3.10+ is required. Install it with uv without replacing system Python:"
+  if [[ -z "$UV" ]]; then
+    echo '    curl -LsSf https://astral.sh/uv/install.sh | sh'
+    echo '    "$HOME/.local/bin/uv" python install 3.13'
+  else
+    printf '    %q python install 3.13\n' "$UV"
+  fi
+  echo '  Then download and run the installer at a terminal:'
+  echo '    curl -fsSL https://agentsquid.ai/install.sh -o /tmp/agentsquid-install.sh'
+  printf '    bash /tmp/agentsquid-install.sh'
+  if [[ ${#INSTALL_ARGS[@]} -gt 0 ]]; then printf ' %q' "${INSTALL_ARGS[@]}"; fi
+  printf '\n'
+  exit 1
+fi
+ok "Python: $("$PYTHON" --version 2>&1) ($PYTHON)"
 
-  if [[ "$pipx_ready" != "1" ]] || ! command -v pipx &>/dev/null; then
-    fail "Could not install pipx automatically."
-    if [[ "$python_attempted" == "1" && -s "$PYTHON_LOG" ]]; then
-      fail "Python's error:"
-      sed -n '1,20p' "$PYTHON_LOG" >&2
-    fi
-    if [[ "$brew_attempted" == "1" && -s "$BREW_LOG" ]]; then
-      fail "Homebrew's error:"
-      sed -n '1,20p' "$BREW_LOG" >&2
-    fi
-    fail "Install Python 3.9+ or fix Homebrew, then re-run this script."
-    fail "Or install pipx yourself: python3 -m pip install --user pipx && python3 -m pipx ensurepath"
-    rm -f "$PYTHON_LOG" "$BREW_LOG"
+if ! command -v pipx &>/dev/null; then
+  warn "pipx not found — installing in its own virtualenv"
+  PIPX_BOOTSTRAP="$HOME/.local/share/agentsquid-installer/pipx"
+  PIPX_LOG=$(mktemp -t agentsquid-pipx.XXXXXX)
+  if "$PYTHON" -m venv "$PIPX_BOOTSTRAP" >"$PIPX_LOG" 2>&1 &&
+      run_logged_with_spinner "installing pipx" "$PIPX_LOG" "$PIPX_BOOTSTRAP/bin/python" -m pip install --quiet pipx; then
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$PIPX_BOOTSTRAP/bin/pipx" "$HOME/.local/bin/pipx"
+    pipx ensurepath &>/dev/null || true
+    ok "pipx installed"
+  else
+    fail "Could not install pipx with $PYTHON."
+    sed -n '1,40p' "$PIPX_LOG" >&2
+    warn "If this Python lacks venv support, install Python 3.13 with uv and retry."
+    rm -f "$PIPX_LOG"
     exit 1
   fi
-  rm -f "$PYTHON_LOG" "$BREW_LOG"
-  ok "pipx installed"
+  rm -f "$PIPX_LOG"
 else
   ok "pipx found"
 fi
@@ -175,8 +218,20 @@ fi
 echo ""
 PREVIOUS_VERSION=$(pipx runpip agentsquid show agentsquid 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}' || true)
 LOG_FILE=$(mktemp -t agentsquid-install.XXXXXX)
+if [[ "$APP_PRESENT" == "1" || -n "$PREVIOUS_VERSION" ]] && { [[ -z "$APP_PYTHON" ]] || ! python_ok "$APP_PYTHON"; }; then
+  warn "Rebuilding agentsquid's pipx environment with compatible Python"
+  MIGRATE_ARGS=(reinstall agentsquid --python "$PYTHON")
+  # Older pipx versions do not accept --pip-args on reinstall. The
+  # subsequent upgrade applies this invocation's prerelease policy.
+  if ! run_logged_with_spinner "updating agentsquid Python" "$LOG_FILE" pipx "${MIGRATE_ARGS[@]}"; then
+    fail "Could not rebuild agentsquid's Python environment."
+    sed -n '1,40p' "$LOG_FILE" >&2
+    rm -f "$LOG_FILE"
+    exit 1
+  fi
+fi
 if [[ -n "$VERSION" ]]; then
-  if run_logged_with_spinner "installing agentsquid ${VERSION}" "$LOG_FILE" pipx install --force "$PACKAGE_SPEC"; then
+  if run_logged_with_spinner "installing agentsquid ${VERSION}" "$LOG_FILE" pipx install --force --python "$PYTHON" "$PACKAGE_SPEC"; then
     ok "agentsquid ${VERSION} installed"
   else
     fail "could not install ${PACKAGE_SPEC}"
@@ -184,7 +239,7 @@ if [[ -n "$VERSION" ]]; then
     rm -f "$LOG_FILE"
     exit 1
   fi
-elif [[ -n "$PREVIOUS_VERSION" ]]; then
+elif [[ "$APP_PRESENT" == "1" || -n "$PREVIOUS_VERSION" ]]; then
   if [[ "$ALLOW_PRE" == "1" ]]; then
     upgrade_ok=0
     run_logged_with_spinner "upgrading agentsquid (${INSTALL_LABEL})" "$LOG_FILE" pipx upgrade agentsquid --pip-args=--pre && upgrade_ok=1
@@ -203,10 +258,10 @@ elif [[ -n "$PREVIOUS_VERSION" ]]; then
 else
   if [[ "$ALLOW_PRE" == "1" ]]; then
     install_ok=0
-    run_logged_with_spinner "installing agentsquid" "$LOG_FILE" pipx install "$PACKAGE_SPEC" --pip-args=--pre && install_ok=1
+    run_logged_with_spinner "installing agentsquid" "$LOG_FILE" pipx install --python "$PYTHON" "$PACKAGE_SPEC" --pip-args=--pre && install_ok=1
   else
     install_ok=0
-    run_logged_with_spinner "installing agentsquid" "$LOG_FILE" pipx install "$PACKAGE_SPEC" && install_ok=1
+    run_logged_with_spinner "installing agentsquid" "$LOG_FILE" pipx install --python "$PYTHON" "$PACKAGE_SPEC" && install_ok=1
   fi
   if [[ "$install_ok" == "1" ]]; then
     ok "agentsquid installed"
@@ -220,7 +275,7 @@ fi
 rm -f "$LOG_FILE"
 
 INSTALLED_VERSION=$(pipx runpip agentsquid show agentsquid 2>/dev/null | awk -F': ' '/^Version:/{print $2; exit}' || true)
-RESTART_AFTER_INSTALL=0
+RESTART_AFTER_INSTALL=$APP_PRESENT
 if [[ -n "$INSTALLED_VERSION" ]]; then
   if [[ -n "$PREVIOUS_VERSION" && "$PREVIOUS_VERSION" != "$INSTALLED_VERSION" ]]; then
     ok "upgraded agentsquid ${PREVIOUS_VERSION} → ${INSTALLED_VERSION}"
