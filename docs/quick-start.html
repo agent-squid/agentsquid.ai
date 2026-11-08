@@ -214,10 +214,13 @@
             <tr><td>Cursor Agent</td><td><code>cursor-agent</code></td><td><code>curl -fsS https://cursor.com/install | bash</code></td></tr>
             <tr><td>OpenCode</td><td><code>opencode</code></td><td><code>curl -fsSL https://opencode.ai/install | bash</code></td></tr>
             <tr><td>Pi</td><td><code>pi</code></td><td><code>curl -fsSL https://pi.dev/install.sh | sh</code></td></tr>
+            <tr><td>Antigravity</td><td><code>agy</code></td><td><code>curl -fsSL https://antigravity.google/cli/install.sh | bash</code></td></tr>
           </tbody>
         </table>
       </div>
-      <p>You do not need to leave Squid to authenticate a backend. After Squid starts, use <code>/login</code> or the agent's Login button in the browser UI. Logging in through the CLI directly also works.</p>
+      <p>For backends with browser login support, you do not need to leave Squid to authenticate. After Squid starts, use <code>/login</code> or the agent's Login button in the browser UI. Logging in through the CLI directly also works.</p>
+
+      <p>For Antigravity, run <code>agy</code> in a terminal and complete native login first. Ensure <code>agy</code> is on the server's <code>PATH</code>, then restart Squid to refresh CLI detection. See the <a href="https://github.com/agent-squid/squid/blob/main/docs/antigravity-harness.md">Antigravity harness setup</a> for configuration and verification limits.</p>
 
       <h2>2. Install AgentSquid</h2>
       <p>AgentSquid itself is free and open source. The installer starts Squid locally and prints the browser URL when it is ready.</p>

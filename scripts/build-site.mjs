@@ -102,7 +102,7 @@ const STATIC_HTML = [];
 
 const SEO_META = {
   "index.html": {
-    description: "AgentSquid is a local meta harness for Claude Code, Codex, Cursor Agent, OpenCode, and Pi. Run named agent lanes, queue work, track tokens, and control coding agents from one browser UI.",
+    description: "AgentSquid is a local meta harness for Claude Code, Codex, Cursor Agent, OpenCode, Pi, and Antigravity. Run named agent lanes, queue work, track tokens, and control coding agents from one browser UI.",
     type: "website",
     schema: "SoftwareApplication",
   },
